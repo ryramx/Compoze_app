@@ -12,9 +12,11 @@ services:
     region: virginia
     plan: free
     branch: main
-    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    # Sem `corepack enable`: no Render o diretório global do Node é só leitura.
+    # O pnpm vem pelo npx, na mesma versão do `packageManager` do package.json.
+    buildCommand: npx --yes pnpm@10.13.1 install --frozen-lockfile
     # As migrações rodam na subida (apps/api/src/servidor.ts).
-    startCommand: pnpm --filter @compoze/api start
+    startCommand: cd apps/api && ./node_modules/.bin/tsx src/servidor.ts
     healthCheckPath: /health
     autoDeployTrigger: checksPass
     buildFilter:
@@ -48,7 +50,7 @@ services:
     name: compoze-web-staging
     runtime: static
     branch: main
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @compoze/web build
+    buildCommand: npx --yes pnpm@10.13.1 install --frozen-lockfile && npx --yes pnpm@10.13.1 --filter @compoze/web build
     staticPublishPath: apps/web/dist
     autoDeployTrigger: checksPass
     buildFilter:
