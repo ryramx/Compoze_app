@@ -1,0 +1,214 @@
+import { Menu as IconeMenu, Moon, Search, Sun, X } from "lucide-react";
+import { Suspense, useEffect, useState } from "react";
+import { Link, NavLink, Outlet, useLocation } from "react-router";
+import { BuscaGlobal } from "@/components/compoze/BuscaGlobal";
+import { Marca } from "@/components/compoze/Marca";
+import { Monograma } from "@/components/compoze/Monograma";
+import { ESCRITA, GENTE, RODAPE, type ItemDeNavegacao } from "@/components/layout/navegacao";
+import { MODO_DEMO } from "@/lib/api";
+import { cn } from "@/lib/cn";
+import { definirTema, useTema } from "@/lib/tema";
+import { useCompoze } from "@/store/compozeStore";
+
+function ItemDoTrilho({ item, aoClicar }: { item: ItemDeNavegacao; aoClicar?: () => void }) {
+  return (
+    <NavLink
+      to={item.url}
+      end={item.exato}
+      onClick={aoClicar}
+      className={({ isActive }) =>
+        cn(
+          "group relative flex items-baseline gap-3 py-[7px] pr-3 pl-5 text-[14px] transition-colors",
+          isActive ? "text-tinta" : "text-tinta-2 hover:text-tinta",
+        )
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <span
+            className={cn(
+              "absolute top-1/2 left-0 h-4 w-[2px] -translate-y-1/2 bg-lapis transition-opacity",
+              isActive ? "opacity-100" : "opacity-0",
+            )}
+          />
+          <span className={cn("numeral w-5 text-[11px]", isActive ? "text-lapis" : "text-tinta-3")}>{item.indice}</span>
+          <span className={cn(isActive && "font-medium")}>{item.titulo}</span>
+        </>
+      )}
+    </NavLink>
+  );
+}
+
+function Trilho({ aoNavegar, aoBuscar }: { aoNavegar?: () => void; aoBuscar: () => void }) {
+  const eu = useCompoze((s) => s.users.find((u) => u.id === s.currentUserId));
+  const [, escuro] = useTema();
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="px-5 pt-6 pb-7">
+        <Link to="/" onClick={aoNavegar} aria-label="Compoze — Mesa">
+          <Marca className="text-[17px]" />
+        </Link>
+      </div>
+
+      <button
+        onClick={aoBuscar}
+        className="mx-5 mb-7 flex items-center gap-2 border-b border-linha-forte pb-2 text-left text-[13px] text-tinta-3 transition-colors hover:border-tinta hover:text-tinta-2"
+      >
+        <Search className="size-3.5" />
+        <span className="flex-1">Buscar</span>
+        <kbd className="numeral text-[10px] tracking-wider">⌘K</kbd>
+      </button>
+
+      <nav className="flex-1 space-y-6 overflow-y-auto" aria-label="Principal">
+        <div>
+          <div className="rotulo mb-1.5 px-5">Escrita</div>
+          {ESCRITA.map((i) => (
+            <ItemDoTrilho key={i.url} item={i} aoClicar={aoNavegar} />
+          ))}
+        </div>
+        <div>
+          <div className="rotulo mb-1.5 px-5">Gente</div>
+          {GENTE.map((i) => (
+            <ItemDoTrilho key={i.url} item={i} aoClicar={aoNavegar} />
+          ))}
+        </div>
+        <div>
+          {RODAPE.map((i) => (
+            <ItemDoTrilho key={i.url} item={i} aoClicar={aoNavegar} />
+          ))}
+        </div>
+      </nav>
+
+      <div className="border-t border-linha px-5 py-4">
+        {MODO_DEMO && (
+          <p className="mb-3 text-[11.5px] leading-snug text-tinta-3">
+            <span className="text-lapis">●</span> Modo demonstração. Os dados ficam só neste navegador.
+          </p>
+        )}
+        <div className="flex items-center gap-3">
+          <Link to="/profile" onClick={aoNavegar} className="flex min-w-0 flex-1 items-center gap-2.5">
+            <Monograma usuario={eu} tamanho="sm" />
+            <span className="min-w-0">
+              <span className="block truncate text-[13px] leading-tight font-medium">{eu?.name}</span>
+              <span className="block truncate text-[12px] leading-tight text-tinta-3">@{eu?.username}</span>
+            </span>
+          </Link>
+          <button
+            onClick={() => definirTema(escuro ? "claro" : "escuro")}
+            className="grid size-8 place-items-center rounded-sm text-tinta-3 hover:bg-papel-2 hover:text-tinta"
+            aria-label={escuro ? "Usar tema claro" : "Usar tema escuro"}
+            title={escuro ? "Tema claro" : "Tema escuro"}
+          >
+            {escuro ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const ABAS_MOVEIS = [
+  { titulo: "Mesa", url: "/", exato: true },
+  { titulo: "Canções", url: "/songs" },
+  { titulo: "Projetos", url: "/projects" },
+  { titulo: "Mural", url: "/feed" },
+  { titulo: "Perfil", url: "/profile" },
+];
+
+export default function AppLayout() {
+  const [buscaAberta, setBuscaAberta] = useState(false);
+  const [gavetaAberta, setGavetaAberta] = useState(false);
+  const local = useLocation();
+  const noEditor = /^\/songs\/[^/]+\/edit/.test(local.pathname);
+
+  useEffect(() => {
+    const aoTeclar = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setBuscaAberta((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", aoTeclar);
+    return () => window.removeEventListener("keydown", aoTeclar);
+  }, []);
+
+  useEffect(() => setGavetaAberta(false), [local.pathname]);
+
+  return (
+    <div className="min-h-dvh lg:grid lg:grid-cols-[232px_minmax(0,1fr)]">
+      <aside className="sticky top-0 hidden h-dvh border-r border-linha lg:block">
+        <Trilho aoBuscar={() => setBuscaAberta(true)} />
+      </aside>
+
+      {/* Barra superior no celular */}
+      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-linha bg-papel/92 px-4 backdrop-blur lg:hidden">
+        <Link to="/" aria-label="Compoze — Mesa">
+          <Marca className="text-[16px]" />
+        </Link>
+        <div className="flex items-center gap-1">
+          <button onClick={() => setBuscaAberta(true)} className="grid size-9 place-items-center text-tinta-2" aria-label="Buscar">
+            <Search className="size-[18px]" />
+          </button>
+          <button onClick={() => setGavetaAberta(true)} className="grid size-9 place-items-center text-tinta-2" aria-label="Abrir menu">
+            <IconeMenu className="size-[18px]" />
+          </button>
+        </div>
+      </header>
+
+      {gavetaAberta && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-papel/70 backdrop-blur-[2px]" onClick={() => setGavetaAberta(false)} />
+          <div className="absolute inset-y-0 right-0 w-[280px] animate-[entrar_.2s_ease-out] border-l border-linha bg-papel">
+            <button
+              onClick={() => setGavetaAberta(false)}
+              className="absolute top-5 right-4 grid size-8 place-items-center text-tinta-3"
+              aria-label="Fechar menu"
+            >
+              <X className="size-4" />
+            </button>
+            <Trilho aoNavegar={() => setGavetaAberta(false)} aoBuscar={() => setBuscaAberta(true)} />
+          </div>
+        </div>
+      )}
+
+      <main className={cn("min-w-0", !noEditor && "pb-20 lg:pb-0")}>
+        <Suspense fallback={null}>
+          <Outlet />
+        </Suspense>
+      </main>
+
+      {/* Abas no celular — escondidas no editor, que usa a barra de baixo para os blocos */}
+      {!noEditor && (
+        <nav
+          className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-linha bg-papel/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+          aria-label="Atalhos"
+        >
+          {ABAS_MOVEIS.map((a) => (
+            <NavLink
+              key={a.url}
+              to={a.url}
+              end={a.exato}
+              className={({ isActive }) =>
+                cn(
+                  "relative py-3.5 text-center text-[12.5px]",
+                  isActive ? "font-medium text-tinta" : "text-tinta-3",
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  {isActive && <span className="absolute inset-x-6 top-0 h-[2px] bg-lapis" />}
+                  {a.titulo}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+      )}
+
+      <BuscaGlobal aberta={buscaAberta} aoMudar={setBuscaAberta} />
+    </div>
+  );
+}
+

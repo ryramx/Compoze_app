@@ -1,0 +1,12 @@
+{
+  "name": "compoze",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "dev": "pnpm --filter @compoze/web dev",
+    "build": "pnpm --filter @compoze/web build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

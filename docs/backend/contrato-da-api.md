@@ -1,0 +1,134 @@
+# Contrato da API (v1)
+
+Este é o contrato que o frontend em `apps/web` já consome — por
+`src/services/api/*` — e que o servidor de demonstração (`src/demo/servidor.ts`)
+implementa. O backend novo deve cumprir este documento; o que estiver em
+**Pendências** é melhoria combinada, não obrigação da v1.
+
+## Convenções
+
+- JSON, campos em `snake_case`, enums em MAIÚSCULAS.
+- Autenticação por `Authorization: Bearer <access_token>`.
+- Erros: status HTTP + corpo `{ "detail": "mensagem legível em português" }`.
+  Validação devolve `422` com `detail` (texto ou lista de erros por campo).
+- `204` sem corpo em exclusões.
+- Datas em ISO 8601 UTC; datas sem hora (`release_date`) em `YYYY-MM-DD`.
+- Ids são UUID (v7, ordenáveis por tempo) e opacos para o cliente.
+
+## Autenticação
+
+| Método | Rota | Corpo | Resposta |
+| --- | --- | --- | --- |
+| POST | `/auth/register` | `{ name, username, email, password }` | `201` `TokenPair` |
+| POST | `/auth/login` | `{ email, password }` | `TokenPair` · `401` credenciais |
+| POST | `/auth/refresh` | `{ refresh_token }` | `TokenPair` (refresh rotacionado) · `401` |
+
+`TokenPair = { access_token, refresh_token, token_type: "bearer" }`.
+Access token de 30 min; refresh de 30 dias, de uso único (rotação com detecção
+de reuso). Usuário: `^[a-z0-9_.-]{3,30}$`, único. Senha ≥ 8 caracteres.
+Conflito de e-mail ou usuário: `409`.
+
+## Pessoas
+
+| Método | Rota | Resposta |
+| --- | --- | --- |
+| GET | `/users/me` | `UserMe` |
+| PATCH | `/users/me` | `UserMe` — aceita `name, bio, avatar_url, city, state, country, latitude, longitude, show_on_map, instruments, specialties, genres, external_links` |
+| GET | `/users?ids=a,b,c` | `UserPublic[]` (até 100 ids; desconhecidos são omitidos) |
+| GET | `/users/{username}` | `UserPublic` · `404` |
+| GET | `/map/people` | `UserPublic & { latitude, longitude }` de quem tem `show_on_map = true` (RN11) |
+
+`UserPublic = { id, name, username, bio, avatar_url, city, state, country, instruments[], specialties[], genres[], external_links[], created_at }`
+`UserMe = UserPublic & { email, show_on_map, latitude, longitude }`
+
+O perfil público nunca inclui coordenadas nem e-mail.
+
+## Canções
+
+| Método | Rota | Resposta / regra |
+| --- | --- | --- |
+| GET | `/songs?q=&status=&folder_id=` | `SongSummary[]` ativas em que a pessoa é dona ou coautora. `q` busca em título, tags e texto dos blocos (sem acento, sem caixa) |
+| POST | `/songs` | `{ title, folder_id? }` → `201 SongDetail`, já com a pessoa como `OWNER` a 100% |
+| GET | `/songs/{id}` | `SongDetail` · `404` também quando a pessoa não tem acesso |
+| PATCH | `/songs/{id}` | `title, status, folder_id, musical_key, bpm, time_signature, tags, visibility, description` → `SongDetail` |
+| DELETE | `/songs/{id}` | Lixeira (RN07): preenche `deleted_at`, preserva pasta e projetos → `204` |
+| GET | `/songs/trash` | `(SongSummary & { days_remaining })[]` da pessoa |
+| POST | `/songs/{id}/restore` | `SongDetail` |
+| DELETE | `/songs/{id}/permanent` | Apaga de vez → `204` (só a dona) |
+
+`SongSummary = { id, title, status, visibility, owner_id, folder_id, musical_key, bpm, time_signature, tags[], contributions_confirmed, deleted_at, created_at, updated_at }`
+`SongDetail = SongSummary & { description, blocks: Block[], collaborators: Collaborator[] }`
+
+`status ∈ IDEIA, ESCRITA, REVISAO, FINALIZADA, REGISTRADA, GRAVADA, ARQUIVADA, CANCELADA`
+`visibility ∈ PUBLIC, PRIVATE, UNLISTED`
+
+### Blocos
+
+| Método | Rota | Corpo |
+| --- | --- | --- |
+| POST | `/songs/{id}/blocks` | `{ type, content, label?, position? }` — sem `position`, entra no fim; com, os seguintes são deslocados |
+| PATCH | `/songs/{id}/blocks/{block_id}` | `{ content?, label?, type? }` |
+| DELETE | `/songs/{id}/blocks/{block_id}` | `204`, posições recompactadas |
+
+`Block = { id, type: SECTION|LYRIC|CHORD|NOTE, label, content, position, author_id, created_at, updated_at }`.
+`author_id` é quem criou o bloco e não muda quando outra pessoa edita (a
+autoria fina por trecho vem com a edição em tempo real, Fase 2).
+
+### Coautoria
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| POST | `/songs/{id}/collaborators` | `{ user_id, role }` — entra com `contribution_percent = 0` e reabre a divisão |
+| DELETE | `/songs/{id}/collaborators/{user_id}` | Só a dona; não remove a dona |
+| PUT | `/songs/{id}/contributions` | `{ contributions: [{ user_id, percentage }], confirm }` |
+
+`Collaborator = { id, user_id, role: OWNER|COMPOSER|LYRICIST|MUSICIAN|PRODUCER|VIEWER, contribution_percent }`
+
+**RN05:** com `confirm: false` qualquer soma é aceita e `contributions_confirmed`
+vira `false`. Com `confirm: true`, a soma precisa ser exatamente 100, senão
+`422` "A divisão soma X%. Precisa fechar em 100%."
+
+## Pastas
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/folders` | Árvore inteira da pessoa em lista plana |
+| POST | `/folders` | `{ name, parent_id? }` |
+| PATCH | `/folders/{id}` | `{ name?, parent_id? }` — recusa ciclo (`422`) |
+| DELETE | `/folders/{id}` | Subpastas sobem um nível, canções ficam sem pasta → `204` |
+
+`Folder = { id, name, parent_id, owner_id, created_at, updated_at }`
+
+## Projetos
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/projects` | `Project[]` ativos da pessoa |
+| POST | `/projects` | `{ name, type?, style?, description?, release_date?, estimated_cost?, funding_target? }` |
+| GET | `/projects/{id}` | `ProjectDetail` |
+| PATCH | `/projects/{id}` | mesmos campos + `status` |
+| DELETE | `/projects/{id}` | Lixeira; canções não vão junto → `204` |
+| POST | `/projects/{id}/restore` | `ProjectDetail` |
+| POST | `/projects/{id}/songs` | `{ song_id, track_number? }` — sem número, entra como última faixa |
+| DELETE | `/projects/{id}/songs/{song_id}` | Retira a faixa; a canção fica → `204` |
+
+`Project = { id, name, description, type: SINGLE|EP|ALBUM|OTHER, status: PLANEJAMENTO|PRODUCAO|MIXAGEM|LANCADO, style: ACUSTICO|BANDA|AO_VIVO|null, release_date, cover_url, estimated_cost, funding_target, funding_current, owner_id, deleted_at, created_at, updated_at }`
+`ProjectDetail = Project & { songs: [{ song_id, track_number }] }`
+
+Valores monetários em reais, inteiros (centavos não são usados na v1).
+
+## Processos do servidor
+
+- **Expurgo da lixeira (RN08):** job diário apaga canções e projetos com
+  `deleted_at` há mais de 30 dias.
+
+## Pendências (melhorias de contrato)
+
+1. `GET /songs?expand=blocks,collaborators` — hoje o frontend busca o detalhe
+   de cada canção para mostrar versos e coautores no índice.
+2. `GET /projects` com `songs` (ou `song_count`) — mesma razão.
+3. Paginação por cursor nas listagens (`?cursor=&limit=`), quando os cadernos
+   crescerem.
+4. `ETag`/`If-Match` em `PATCH` de canção e bloco para detectar edição
+   concorrente até a Fase 2 trazer o tempo real.
+5. Rotas sociais (mural, seguidores, conversas, notificações) — Fase 3.

@@ -1,0 +1,206 @@
+# Plano do backend
+
+Status: **proposta** — aguardando confirmação da stack (ver
+[ADR 0004](../decisoes/0004-stack-do-backend.md)).
+Ponto de partida: do zero. Nada de backends anteriores é reaproveitado; a
+referência é o [contrato da API](contrato-da-api.md) que o frontend novo já
+consome. Única exigência fixa: **PostgreSQL**.
+
+## 1. O que o backend precisa resolver
+
+Antes da stack, o que o Compoze pede de um servidor:
+
+| Necessidade | Por quê | Implicação técnica |
+| --- | --- | --- |
+| Dados muito relacionais | Canção ↔ blocos ↔ coautores ↔ pastas ↔ projetos ↔ pessoas | Postgres com chaves estrangeiras e transações; ORM que não esconda SQL |
+| Regras de integridade | Soma 100% (RN05), dono único, ciclos de pasta, lixeira | Restrições no banco + validação na borda |
+| Escrita a várias mãos | O produto é coautoria; hoje dois editores simultâneos se sobrescrevem | Edição colaborativa em tempo real (CRDT) com presença |
+| Prova de autoria | Estágio "Registrada": quem escreveu o quê, e quando | Histórico de versões imutável, com hash |
+| Busca em português | Achar por verso, tag ou título, sem acento | `unaccent` + `pg_trgm` + full-text `portuguese` |
+| Geografia | Mapa de quem compõe perto (RN11) | PostGIS |
+| Processos agendados | Expurgo da lixeira (RN08), e-mails, notificações | Fila de jobs |
+| Arquivos | Capas, avatares, demos em áudio | Storage S3 com upload direto (URL pré-assinada) |
+| Social e mensagens | Mural, conversas (Fases 2–3) | WebSocket, notificações |
+
+## 2. Stack recomendada
+
+**TypeScript de ponta a ponta, num monorepo com o frontend.**
+
+| Camada | Escolha | Por quê |
+| --- | --- | --- |
+| Runtime | **Node.js 24 LTS** | LTS atual; mesmo runtime do tooling do front |
+| Framework HTTP | **Fastify 5** | Rápido, maduro, ecossistema oficial (CORS, rate limit, WebSocket, multipart, Swagger), logs estruturados com pino nativos |
+| Validação e contrato | **Zod** em `packages/contracts` + `fastify-type-provider-zod` | O mesmo schema valida a requisição no servidor, tipa o cliente no front e gera o OpenAPI. Fim da classe de bug "front e back discordam do formato" |
+| Banco | **PostgreSQL 17** + `pg_trgm`, `unaccent`, `citext`, **PostGIS** | Exigência; as extensões cobrem busca em PT-BR e mapa sem serviço extra |
+| Acesso a dados | **Drizzle ORM** + `drizzle-kit` | SQL-first e tipado: o schema é TypeScript, as consultas parecem SQL, migrações versionadas em arquivos `.sql` revisáveis |
+| Autenticação | **Better Auth** (adapter Drizzle, plugin bearer/JWT) | E-mail+senha com argon2, verificação de e-mail, reset de senha, OAuth (Google, Apple), sessões revogáveis — sem escrever criptografia à mão |
+| Tempo real | **Yjs + Hocuspocus** | CRDT padrão de mercado para edição colaborativa; presença e cursores reais (substitui os cursores simulados do protótipo antigo); persistência no Postgres |
+| Jobs | **pg-boss** | Fila sobre o próprio Postgres: expurgo da lixeira, e-mails, notificações. Sem Redis para operar |
+| Arquivos | **S3 compatível** (Cloudflare R2) | Upload direto do navegador com URL pré-assinada; sem custo de saída no R2 |
+| E-mail | **Resend** | API simples, templates em React (mesma stack) |
+| Testes | **Vitest** + **Testcontainers** (Postgres real) + `fastify.inject` | Testa contra o banco de verdade, não contra mock; mesmo runner do front |
+| Observabilidade | pino → **OpenTelemetry**; **Sentry** para erros | Rastreio de requisição do front ao banco |
+| Monorepo | **pnpm workspaces** + **Turborepo** | Cache de build/teste e um comando para tudo |
+| Deploy | **Render**: static site (web), web service (API + Hocuspocus), background worker (jobs), Postgres gerenciado com PostGIS | Tudo num lugar, com preview por PR; alternativa equivalente: Railway ou Fly.io + Neon |
+
+### Por que não as alternativas
+
+- **FastAPI (Python) + SQLAlchemy + Alembic.** Stack excelente, e era o que o
+  contrato antigo pressupunha. Perde aqui por três motivos: dois idiomas no
+  mesmo produto (tipos duplicados à mão entre front e back, que é exatamente o
+  que `adapters.ts` existe para remendar); o ecossistema de edição colaborativa
+  (Yjs, Hocuspocus, ProseMirror) é nativo de JavaScript; e um time pequeno
+  rende mais com um só toolchain. Continua sendo a melhor alternativa se o time
+  for mais forte em Python.
+- **NestJS.** Estrutura boa para times grandes, mas traz decorators, injeção de
+  dependência e cerimônia que um produto deste tamanho não precisa.
+- **Hono.** Ótimo para edge/serverless. O Compoze precisa de conexões longas
+  (WebSocket do editor) e de Postgres com extensões, o que favorece um servidor
+  Node tradicional.
+- **Prisma.** Produtivo, mas abstrai demais o SQL; extensões como PostGIS e
+  buscas com `pg_trgm` acabam em `queryRaw`. Drizzle mantém isso tipado.
+- **Supabase/Firebase como backend.** Aceleram o CRUD, mas as regras do
+  Compoze (RN05, autoria, versões) iriam para políticas RLS e funções
+  espalhadas. Ficamos com um servidor próprio e Postgres puro — que pode, se
+  quiser, ser hospedado no Supabase/Neon.
+
+## 3. Arquitetura
+
+```
+apps/
+  web/                 frontend (já existe)
+  api/                 Fastify: REST /v1, auth, regras de negócio
+    src/
+      modules/
+        auth/          rotas + serviço (Better Auth)
+        users/
+        songs/         canções, blocos, coautoria, lixeira
+        folders/
+        projects/
+        map/
+        social/        Fase 3
+      db/
+        schema/        tabelas Drizzle, uma por arquivo
+        migrations/    SQL gerado e revisado
+      jobs/            pg-boss: expurgo, e-mails
+      plugins/         auth, erros, rate limit, cors, openapi
+      server.ts
+  collab/              Hocuspocus: WebSocket do editor (Fase 2)
+  worker/              consumidor de jobs (pode começar dentro da api)
+packages/
+  contracts/           schemas Zod compartilhados (requisição/resposta)
+  db/                  schema Drizzle compartilhado entre api, collab e worker
+  config/              tsconfig, eslint
+```
+
+Cada módulo segue a mesma forma: `rotas.ts` (HTTP, valida com o contrato) →
+`servico.ts` (regras de negócio, transações) → `repositorio.ts` (Drizzle). Regra
+de negócio nunca mora em rota nem em SQL solto.
+
+Autorização é por recurso e acontece no serviço: toda consulta de canção filtra
+por "é dona ou coautora". Responder `404` (e não `403`) para quem não tem
+acesso evita revelar que o recurso existe.
+
+## 4. Modelo de dados (v1)
+
+```
+users              id uuid pk, name, username citext unique, email citext unique,
+                   bio, avatar_url, city, state, country,
+                   location geography(Point) null, show_on_map bool,
+                   instruments text[], specialties text[], genres text[],
+                   external_links text[], created_at, updated_at
+sessions/accounts/verifications   (Better Auth)
+
+folders            id, owner_id → users, parent_id → folders null, name,
+                   created_at, updated_at
+                   CHECK sem ciclo (validado no serviço + trigger)
+
+songs              id, owner_id → users, folder_id → folders null (ON DELETE SET NULL),
+                   title, description, status song_status, visibility visibility,
+                   musical_key, bpm smallint CHECK 20..300, time_signature,
+                   tags text[], contributions_confirmed bool,
+                   search tsvector (gerada), deleted_at null,
+                   created_at, updated_at
+                   índices: (owner_id, deleted_at), GIN(search), GIN(tags),
+                            trigram em title
+
+song_blocks        id, song_id → songs ON DELETE CASCADE, type block_type,
+                   label, content, position int, author_id → users,
+                   created_at, updated_at
+                   UNIQUE (song_id, position) DEFERRABLE
+
+song_collaborators id, song_id, user_id, role collaborator_role,
+                   contribution_percent numeric(5,2) null CHECK 0..100,
+                   invited_by, created_at
+                   UNIQUE (song_id, user_id)
+
+song_versions      id, song_id, number, snapshot jsonb, sha256, created_by,
+                   reason (manual | estágio | registro), created_at
+                   — imutável: base da prova de autoria
+
+song_documents     song_id pk, ydoc bytea, updated_at        (Fase 2, Yjs)
+
+projects           id, owner_id, name, description, type, status, style,
+                   release_date date, cover_url, estimated_cost int,
+                   funding_target int, funding_current int,
+                   deleted_at, created_at, updated_at
+
+project_songs      project_id, song_id, track_number, PRIMARY KEY (project_id, song_id)
+```
+
+Fase 3 acrescenta `follows`, `posts`, `post_likes`, `comments`,
+`conversations`, `conversation_members`, `messages`, `notifications`.
+
+**Onde cada regra vive**
+
+| Regra | Banco | Serviço |
+| --- | --- | --- |
+| RN05 soma 100 ao confirmar | — | transação que soma e só então marca `contributions_confirmed` |
+| Uma dona por canção | índice parcial `UNIQUE (song_id) WHERE role = 'OWNER'` | — |
+| RN07 lixeira preserva lugar | `deleted_at`, nada é desvinculado | filtros `deleted_at IS NULL` |
+| RN08 expurgo em 30 dias | — | job diário pg-boss |
+| RN11 mapa só com opt-in | `location` nula por padrão | `/map/people` filtra `show_on_map`; perfil público nunca seleciona `location` |
+| Pasta sem ciclo | trigger | checagem antes do `UPDATE` |
+
+## 5. Edição em tempo real (Fase 2)
+
+Hoje o editor salva bloco a bloco com atraso de 600 ms; duas pessoas editando o
+mesmo bloco ao mesmo tempo perdem texto. A Fase 2 troca isso por:
+
+1. Cada canção é um documento Yjs (`Y.Array` de blocos, cada bloco um `Y.Map`
+   com `Y.Text`). A autoria por trecho vem dos atributos de inserção do Yjs, o
+   que permite marcar autoria por palavra, não só por bloco.
+2. O navegador conecta ao serviço `collab` (Hocuspocus) via WebSocket,
+   autenticado com o mesmo token.
+3. O Hocuspocus persiste o estado binário em `song_documents` e, com debounce,
+   **projeta** os blocos em `song_blocks` — que continua sendo a fonte para
+   busca, listagens e a API REST.
+4. Presença (quem está na canção, onde está o cursor) vem do awareness do Yjs.
+5. Mudança de estágio para "Registrada" grava um `song_versions` com hash.
+
+## 6. Segurança
+
+- Senhas com argon2id (Better Auth). Rate limit por IP e por conta em login,
+  cadastro e reset.
+- Tokens de acesso curtos; refresh rotacionado e revogável.
+- CORS restrito ao domínio do front. Cabeçalhos com `@fastify/helmet`.
+- Toda entrada validada pelo schema Zod; respostas também passam pelo schema
+  (não vaza campo que não está no contrato, como `email` em perfil público).
+- Uploads só por URL pré-assinada com tipo e tamanho fixados.
+- Logs sem dados pessoais; auditoria de mudanças de coautoria.
+
+## 7. Fases
+
+| Fase | Entrega | Pronto quando |
+| --- | --- | --- |
+| **0 · Fundação** | Turborepo, `packages/contracts` e `packages/db`, `apps/api` com Fastify, Drizzle e primeira migração, Docker Compose com Postgres+PostGIS, CI (lint, typecheck, testes com Testcontainers), deploy de staging | `GET /health` em staging; CI verde |
+| **1 · MVP do contrato** | Auth, pessoas, canções, blocos, coautoria (RN05), lixeira + expurgo (RN07/08), pastas, projetos, mapa (RN11), as pendências 1 e 2 do contrato | Front com `VITE_API_URL` apontando para staging, sem modo demo, passando o roteiro de testes manuais; cobertura de cada RN por teste |
+| **2 · Escrita junto** | Hocuspocus + Yjs no editor, presença, convites por e-mail, histórico de versões e registro com hash, notificações | Duas pessoas editam o mesmo verso ao mesmo tempo sem perda |
+| **3 · Gente** | Seguidores, mural, conversas em tempo real, uploads (avatar, capa, demo em áudio), financiamento (PIX via Mercado Pago ou Stripe) | Telas de Mural e Conversas sem o aviso de prévia |
+
+## 8. Próximos passos
+
+1. Confirmar a stack (ADR 0004).
+2. Fase 0 neste repositório: `apps/api`, `packages/contracts`, `packages/db`.
+3. Escrever os schemas Zod a partir do contrato e trocar `services/api/dto.ts`
+   do front pelos tipos gerados de `packages/contracts`.

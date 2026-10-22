@@ -1,0 +1,247 @@
+@import "tailwindcss";
+
+/*
+ * Design system do Compoze — "Caderno".
+ *
+ * A interface imita o material de quem compõe: papel, tinta e o lápis vermelho
+ * de quem revisa. Uma cor de acento só, réguas finas no lugar de sombras, serifa
+ * para o que é obra (títulos, letras) e grotesca para o que é ferramenta.
+ * Racional completo em docs/frontend/design-system.md.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --papel: #f3efe6;
+  --papel-2: #ebe6da;
+  --folha: #faf8f3;
+  --tinta: #1c1b18;
+  --tinta-2: #57534a;
+  --tinta-3: #8a8578;
+  --linha: #dbd4c5;
+  --linha-forte: #b9b09d;
+  --lapis: #b4412b;
+  --lapis-tinta: #fbf3ee;
+  --ok: #4c6b3c;
+
+  --autor-1: #2f4a7a;
+  --autor-2: #6a7431;
+  --autor-3: #a0682a;
+  --autor-4: #7a3b62;
+  --autor-5: #2b6b66;
+
+  --sombra-folha: 0 1px 0 rgb(28 27 24 / 0.04), 0 24px 48px -28px rgb(28 27 24 / 0.28);
+  color-scheme: light;
+}
+
+.dark {
+  --papel: #151412;
+  --papel-2: #1b1a17;
+  --folha: #1f1e1a;
+  --tinta: #ece6d9;
+  --tinta-2: #ada697;
+  --tinta-3: #7c766a;
+  --linha: #2e2c27;
+  --linha-forte: #4a463d;
+  --lapis: #e2694f;
+  --lapis-tinta: #2a1914;
+  --ok: #9dbb84;
+
+  --autor-1: #92a9d8;
+  --autor-2: #b6bf78;
+  --autor-3: #dba663;
+  --autor-4: #cb8ab3;
+  --autor-5: #77b7b0;
+
+  --sombra-folha: 0 1px 0 rgb(0 0 0 / 0.3), 0 24px 48px -24px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-papel: var(--papel);
+  --color-papel-2: var(--papel-2);
+  --color-folha: var(--folha);
+  --color-tinta: var(--tinta);
+  --color-tinta-2: var(--tinta-2);
+  --color-tinta-3: var(--tinta-3);
+  --color-linha: var(--linha);
+  --color-linha-forte: var(--linha-forte);
+  --color-lapis: var(--lapis);
+  --color-lapis-tinta: var(--lapis-tinta);
+  --color-ok: var(--ok);
+  --color-autor-1: var(--autor-1);
+  --color-autor-2: var(--autor-2);
+  --color-autor-3: var(--autor-3);
+  --color-autor-4: var(--autor-4);
+  --color-autor-5: var(--autor-5);
+
+  --font-serif: "Newsreader Variable", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Hanken Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --shadow-folha: var(--sombra-folha);
+  --radius-sm: 2px;
+  --radius-md: 3px;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--papel);
+    color: var(--tinta);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  /* Grão de papel quase imperceptível: tira a cara de tela chapada. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  .dark body::before {
+    opacity: 0.05;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--lapis) 22%, transparent);
+  }
+
+  :focus-visible {
+    outline: 1.5px solid var(--lapis);
+    outline-offset: 2px;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: default;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Utilitários próprios (aceitam variantes, ex.: md:rotulo). */
+@utility rotulo {
+  /* Rótulo em versalete: o "carimbo" de seção de um caderno. */
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tinta-3);
+}
+
+@utility numeral {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+@utility titulo-pagina {
+  font-family: var(--font-serif);
+  font-weight: 350;
+  font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  font-variation-settings: "opsz" 72;
+}
+
+@utility link-sublinhado {
+  text-decoration: underline;
+  text-decoration-color: var(--linha-forte);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 0.15s;
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* Pauta: cinco linhas, o desenho que identifica capas sem foto. */
+@utility pauta {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    currentColor 0,
+    currentColor 1px,
+    transparent 1px,
+    transparent 9px
+  );
+  background-size: 100% 45px;
+  background-repeat: no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Leaflet, no tom do papel. */
+.leaflet-container {
+  background: var(--papel-2);
+  font-family: var(--font-sans);
+}
+.leaflet-control-attribution {
+  background: color-mix(in srgb, var(--papel) 85%, transparent) !important;
+  color: var(--tinta-3) !important;
+  font-size: 10px !important;
+}
+.leaflet-control-attribution a {
+  color: var(--tinta-2) !important;
+}
+.leaflet-bar a {
+  background: var(--folha) !important;
+  color: var(--tinta) !important;
+  border-color: var(--linha) !important;
+}
+.marcador-mapa {
+  background: transparent;
+  border: 0;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes subir {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 8px)); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+@keyframes entrar {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
