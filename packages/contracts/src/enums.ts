@@ -27,3 +27,11 @@ export const PapelDeColaborador = z.enum(PAPEIS_DE_COLABORADOR);
 export const TipoDeProjeto = z.enum(TIPOS_DE_PROJETO);
 export const FaseDeProjeto = z.enum(FASES_DE_PROJETO);
 export const EstiloDeProjeto = z.enum(ESTILOS_DE_PROJETO);
+
+export type StatusDaCancao = z.infer<typeof StatusDaCancao>;
+export type Visibilidade = z.infer<typeof Visibilidade>;
+export type TipoDeBloco = z.infer<typeof TipoDeBloco>;
+export type PapelDeColaborador = z.infer<typeof PapelDeColaborador>;
+export type TipoDeProjeto = z.infer<typeof TipoDeProjeto>;
+export type FaseDeProjeto = z.infer<typeof FaseDeProjeto>;
+export type EstiloDeProjeto = z.infer<typeof EstiloDeProjeto>;

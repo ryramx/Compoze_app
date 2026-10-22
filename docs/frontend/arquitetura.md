@@ -14,7 +14,8 @@ components/
 store/            Zustand. compozeStore guarda o conjunto de trabalho;
                   authStore guarda a sessão.
 services/api/     Uma função por rota. Recebe e devolve tipos de domínio.
-  dto.ts          Tipos exatamente como a API os envia (snake_case).
+  dto.ts          Tipos exatamente como a API os envia (snake_case), derivados
+                  dos schemas de @compoze/contracts (só tipos, sem zod no bundle).
   adapters.ts     Único lugar que traduz DTO ⇄ domínio.
 services/mock/    Funções puras sobre listas (filtros, lixeira) e as partes
                   sociais que ainda não têm backend.
@@ -24,7 +25,8 @@ types/            Tipos de domínio usados pelas telas.
 ```
 
 A regra é que o formato da API não vaze para as telas. Se a API mudar um nome
-de campo, muda `dto.ts` e `adapters.ts`, e nenhuma tela.
+de campo, o schema em `packages/contracts` muda, o `tsc` do front aponta o que
+quebrou em `adapters.ts` e nos serviços, e nenhuma tela muda.
 
 ## Estado
 

@@ -1,136 +1,82 @@
 /**
  * Tipos como o backend os devolve — `snake_case`, enums em maiúsculas.
  *
+ * Vêm direto dos schemas de `@compoze/contracts`, os mesmos que a API usa para
+ * validar e serializar: se o contrato muda, o front deixa de compilar onde
+ * precisa mudar junto. Só tipos são importados, então o zod não entra no
+ * bundle.
+ *
  * Eles vivem separados dos tipos de domínio em `src/types/` de propósito. O
  * contrato da API e o modelo que a interface usa divergem em vários pontos
- * (ver docs/backend/contrato-da-api.md), e misturar os
- * dois espalharia a tradução por todas as telas. Aqui e em `adapters.ts` é o
- * único lugar que conhece as duas formas.
+ * (ver docs/backend/contrato-da-api.md), e misturar os dois espalharia a
+ * tradução por todas as telas. Aqui e em `adapters.ts` é o único lugar que
+ * conhece as duas formas.
  */
+import type {
+  AtualizarBloco,
+  AtualizarCancao,
+  AtualizarEu,
+  AtualizarPasta,
+  AtualizarProjeto,
+  Bloco,
+  Colaborador,
+  DetalheDaCancao,
+  DetalheDoProjeto,
+  DivisaoDeCoautoria,
+  EstiloDeProjeto,
+  FaseDeProjeto,
+  ItemDaLixeira,
+  NovaCancao,
+  NovaPasta,
+  NovoBloco,
+  NovoColaborador,
+  NovoProjeto,
+  PapelDeColaborador,
+  ParDeTokens,
+  Pasta,
+  Projeto,
+  ResumoDaCancao,
+  StatusDaCancao,
+  TipoDeBloco,
+  TipoDeProjeto,
+  UsuarioEu,
+  UsuarioNoMapa,
+  UsuarioPublico,
+  Visibilidade,
+} from "@compoze/contracts";
 
-export type ApiSongStatus =
-  | "IDEIA"
-  | "ESCRITA"
-  | "REVISAO"
-  | "FINALIZADA"
-  | "REGISTRADA"
-  | "GRAVADA"
-  | "ARQUIVADA"
-  | "CANCELADA";
+// Enums
+export type ApiSongStatus = StatusDaCancao;
+export type ApiVisibility = Visibilidade;
+export type ApiBlockType = TipoDeBloco;
+export type ApiCollaboratorRole = PapelDeColaborador;
+export type ApiProjectType = TipoDeProjeto;
+export type ApiProjectStatus = FaseDeProjeto;
+export type ApiProjectStyle = EstiloDeProjeto;
 
-export type ApiVisibility = "PUBLIC" | "PRIVATE" | "UNLISTED";
+// Respostas
+export type ApiTokenPair = ParDeTokens;
+export type ApiUserPublic = UsuarioPublico;
+export type ApiUserMe = UsuarioEu;
+export type ApiUserOnMap = UsuarioNoMapa;
+export type ApiBlock = Bloco;
+export type ApiCollaborator = Colaborador;
+export type ApiSongSummary = ResumoDaCancao;
+export type ApiSongDetail = DetalheDaCancao;
+export type ApiTrashItem = ItemDaLixeira;
+export type ApiFolder = Pasta;
+export type ApiProject = Projeto;
+export type ApiProjectDetail = DetalheDoProjeto;
 
-export type ApiBlockType = "SECTION" | "LYRIC" | "CHORD" | "NOTE";
-
-export type ApiCollaboratorRole =
-  | "OWNER"
-  | "COMPOSER"
-  | "LYRICIST"
-  | "MUSICIAN"
-  | "PRODUCER"
-  | "VIEWER";
-
-export interface ApiTokenPair {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-}
-
-export interface ApiUserPublic {
-  id: string;
-  name: string;
-  username: string;
-  bio: string | null;
-  avatar_url: string | null;
-  city: string | null;
-  state: string | null;
-  country: string | null;
-  instruments: string[];
-  specialties: string[];
-  genres: string[];
-  external_links: string[];
-  created_at: string;
-}
-
-export interface ApiUserMe extends ApiUserPublic {
-  email: string;
-  show_on_map: boolean;
-  latitude: number | null;
-  longitude: number | null;
-}
-
-export interface ApiBlock {
-  id: string;
-  type: ApiBlockType;
-  label: string | null;
-  content: string;
-  position: number;
-  author_id: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ApiCollaborator {
-  id: string;
-  user_id: string;
-  role: ApiCollaboratorRole;
-  contribution_percent: number | null;
-}
-
-export interface ApiSongSummary {
-  id: string;
-  title: string;
-  status: ApiSongStatus;
-  visibility: ApiVisibility;
-  owner_id: string;
-  folder_id: string | null;
-  musical_key: string | null;
-  bpm: number | null;
-  time_signature: string | null;
-  tags: string[];
-  contributions_confirmed: boolean;
-  deleted_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ApiSongDetail extends ApiSongSummary {
-  description: string | null;
-  blocks: ApiBlock[];
-  collaborators: ApiCollaborator[];
-}
-
-export interface ApiTrashItem extends ApiSongSummary {
-  days_remaining: number;
-}
-
-export interface ApiFolder {
-  id: string;
-  name: string;
-  parent_id: string | null;
-  owner_id: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ApiProject {
-  id: string;
-  name: string;
-  description: string | null;
-  type: "SINGLE" | "EP" | "ALBUM" | "OTHER";
-  status: "PLANEJAMENTO" | "PRODUCAO" | "MIXAGEM" | "LANCADO";
-  style: "ACUSTICO" | "BANDA" | "AO_VIVO" | null;
-  release_date: string | null;
-  cover_url: string | null;
-  estimated_cost: number | null;
-  funding_target: number | null;
-  funding_current: number;
-  owner_id: string;
-  deleted_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ApiProjectDetail extends ApiProject {
-  songs: { song_id: string; track_number: number | null }[];
-}
+// Corpos de requisição
+export type ApiNewSong = NovaCancao;
+export type ApiSongPatch = AtualizarCancao;
+export type ApiNewBlock = NovoBloco;
+export type ApiBlockPatch = AtualizarBloco;
+export type ApiNewCollaborator = NovoColaborador;
+export type ApiContributions = DivisaoDeCoautoria;
+export type ApiMePatch = AtualizarEu;
+export type ApiNewFolder = NovaPasta;
+export type ApiFolderPatch = AtualizarPasta;
+export type ApiNewProject = NovoProjeto;
+export type ApiProjectPatch = AtualizarProjeto;

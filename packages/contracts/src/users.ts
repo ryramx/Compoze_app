@@ -30,6 +30,7 @@ export const UsuarioEu = UsuarioPublico.extend({
 export type UsuarioEu = z.infer<typeof UsuarioEu>;
 
 export const UsuarioNoMapa = UsuarioPublico.extend({ latitude: z.number(), longitude: z.number() });
+export type UsuarioNoMapa = z.infer<typeof UsuarioNoMapa>;
 
 const textoOpcional = (max: number) => z.string().trim().max(max).nullable().optional();
 

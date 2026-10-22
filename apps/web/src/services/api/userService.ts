@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { usuarioDaApi } from "@/services/api/adapters";
-import type { ApiUserMe, ApiUserPublic } from "@/services/api/dto";
+import type { ApiMePatch, ApiUserMe, ApiUserOnMap, ApiUserPublic } from "@/services/api/dto";
 import type { User } from "@/types";
 
 /** Resolve vários ids numa requisição só. Ids desconhecidos são omitidos. */
@@ -23,7 +23,7 @@ export async function getByUsername(username: string): Promise<User> {
 }
 
 export async function updateMe(patch: Partial<User>): Promise<User> {
-  const corpo: Record<string, unknown> = {};
+  const corpo: ApiMePatch = {};
   if ("name" in patch) corpo.name = patch.name;
   if ("bio" in patch) corpo.bio = patch.bio ?? null;
   if ("avatar" in patch) corpo.avatar_url = patch.avatar || null;
@@ -42,6 +42,6 @@ export async function updateMe(patch: Partial<User>): Promise<User> {
  * o perfil público nunca as inclui.
  */
 export async function noMapa(): Promise<User[]> {
-  const dados = await api.get<(ApiUserPublic & { latitude: number; longitude: number })[]>("/map/people");
+  const dados = await api.get<ApiUserOnMap[]>("/map/people");
   return dados.map(usuarioDaApi);
 }

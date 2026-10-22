@@ -220,8 +220,8 @@ troca isso por:
    já com as colunas de sincronização do ADR 0005.~~ Feito. Staging descrito em
    `render.yaml` ([deploy.md](deploy.md)). Guia de uso em
    [desenvolvimento.md](desenvolvimento.md).
-3. ~~Fase 1: rotas do contrato v1 com testes contra o banco real.~~ Feito; falta
-   só ver o front de staging rodando contra a API publicada.
-4. Trocar `services/api/dto.ts` do front pelos tipos de `packages/contracts`
-   (os schemas Zod já cobrem o contrato inteiro).
+3. ~~Fase 1: rotas do contrato v1 com testes contra o banco real.~~ Feito, e no ar em
+   staging (Render + Neon) desde 2026-10-22.
+4. ~~Trocar `services/api/dto.ts` do front pelos tipos de `packages/contracts`.~~
+   Feito: respostas e corpos de requisição vêm dos schemas.
 5. Fase 2: Hocuspocus + Yjs no editor e as rotas de sincronização offline.

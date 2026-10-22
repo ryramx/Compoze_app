@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { pastaDaApi } from "@/services/api/adapters";
-import type { ApiFolder } from "@/services/api/dto";
+import type { ApiFolder, ApiFolderPatch, ApiNewFolder } from "@/services/api/dto";
 import type { Folder } from "@/types";
 
 export async function list(): Promise<Folder[]> {
@@ -15,16 +15,16 @@ export async function create(name: string, parentId?: string): Promise<Folder> {
     await api.post<ApiFolder>("/folders", {
       name,
       ...(parentId ? { parent_id: parentId } : {}),
-    }),
+    } satisfies ApiNewFolder),
   );
 }
 
 export async function rename(id: string, name: string): Promise<Folder> {
-  return pastaDaApi(await api.patch<ApiFolder>(`/folders/${id}`, { name }));
+  return pastaDaApi(await api.patch<ApiFolder>(`/folders/${id}`, { name } satisfies ApiFolderPatch));
 }
 
 export async function move(id: string, parentId: string | null): Promise<Folder> {
-  return pastaDaApi(await api.patch<ApiFolder>(`/folders/${id}`, { parent_id: parentId }));
+  return pastaDaApi(await api.patch<ApiFolder>(`/folders/${id}`, { parent_id: parentId } satisfies ApiFolderPatch));
 }
 
 export async function remove(id: string): Promise<void> {

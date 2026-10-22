@@ -361,7 +361,7 @@ export default function SongEditor() {
                 <Bloco
                   key={b.id}
                   bloco={b}
-                  autor={getUser(b.authorId)}
+                  autor={b.authorId ? getUser(b.authorId) : undefined}
                   meu={b.authorId === euId}
                   assinarNaMargem={!anterior || anterior.authorId !== b.authorId || anterior.type === "section"}
                   letraEmMono={letraEmMono}

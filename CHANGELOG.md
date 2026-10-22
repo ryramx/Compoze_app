@@ -48,6 +48,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   projeto.
 
 ### Alterado
+- `apps/web` passa a usar os tipos de `@compoze/contracts` (respostas e corpos
+  de requisição) em `services/api/dto.ts`; mudança no contrato quebra o
+  `typecheck` do front. Bloco sem autora (conta apagada) agora é tipado como
+  `authorId: null`.
 - Menu lateral e "Ir para" da busca mostram ícones em vez dos números
   `01`–`09`; os cabeçalhos de página também perderam o número.
 

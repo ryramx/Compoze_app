@@ -23,6 +23,7 @@ import type {
   ApiFolder,
   ApiProjectDetail,
   ApiSongDetail,
+  ApiSongPatch,
   ApiSongSummary,
   ApiSongStatus,
   ApiUserMe,
@@ -120,8 +121,8 @@ export function musicaDaApi(s: ApiSongDetail | ApiSongSummary): Song {
 }
 
 /** Converte um patch da interface no corpo que a API espera. */
-export function patchDeMusicaParaApi(patch: Partial<Song>): Record<string, unknown> {
-  const corpo: Record<string, unknown> = {};
+export function patchDeMusicaParaApi(patch: Partial<Song>): ApiSongPatch {
+  const corpo: ApiSongPatch = {};
 
   if ("title" in patch) corpo.title = patch.title;
   if ("status" in patch && patch.status) corpo.status = statusParaApi(patch.status);
