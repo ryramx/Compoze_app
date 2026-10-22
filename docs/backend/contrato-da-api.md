@@ -14,6 +14,11 @@ implementa. O backend novo deve cumprir este documento; o que estiver em
 - `204` sem corpo em exclusões.
 - Datas em ISO 8601 UTC; datas sem hora (`release_date`) em `YYYY-MM-DD`.
 - Ids são UUID v7 (gerados pelo `uuidv7()` do Postgres 18, ordenáveis por tempo) e opacos para o cliente.
+  Criações (`POST /songs`, `/songs/{id}/blocks`, `/folders`, `/projects`) aceitam `id` opcional gerado
+  no aparelho (ADR 0005); id repetido devolve `409`.
+- Outros status: `403` quando a pessoa vê o recurso mas não pode fazer aquilo
+  (ex.: coautor tentando apagar), `409` em conflito (canção na lixeira,
+  duplicata), `429` em excesso de tentativas de login.
 
 ## Autenticação
 
@@ -47,7 +52,7 @@ O perfil público nunca inclui coordenadas nem e-mail.
 
 | Método | Rota | Resposta / regra |
 | --- | --- | --- |
-| GET | `/songs?q=&status=&folder_id=` | `SongSummary[]` ativas em que a pessoa é dona ou coautora. `q` busca em título, tags e texto dos blocos (sem acento, sem caixa) |
+| GET | `/songs?q=&status=&folder_id=&expand=` | `SongSummary[]` ativas em que a pessoa é dona ou coautora. `q` busca em título, tags e texto dos blocos (sem acento, sem caixa). Com `expand=blocks,collaborators`, `SongDetail[]` |
 | POST | `/songs` | `{ title, folder_id? }` → `201 SongDetail`, já com a pessoa como `OWNER` a 100% |
 | GET | `/songs/{id}` | `SongDetail` · `404` também quando a pessoa não tem acesso |
 | PATCH | `/songs/{id}` | `title, status, folder_id, musical_key, bpm, time_signature, tags, visibility, description` → `SongDetail` |
@@ -84,8 +89,12 @@ autoria fina por trecho vem com a edição em tempo real, Fase 2).
 
 `Collaborator = { id, user_id, role: OWNER|COMPOSER|LYRICIST|MUSICIAN|PRODUCER|VIEWER, contribution_percent }`
 
+Convidar, remover e acertar a divisão são ações da dona. `POST` de coautor que
+já está na canção não duplica (devolve a canção como está).
+
 **RN05:** com `confirm: false` qualquer soma é aceita e `contributions_confirmed`
-vira `false`. Com `confirm: true`, a soma precisa ser exatamente 100, senão
+vira `false`. Com `confirm: true`, a soma de todos os coautores (os enviados
+com o valor novo, os demais com o atual) precisa ser exatamente 100, senão
 `422` "A divisão soma X%. Precisa fechar em 100%."
 
 ## Pastas
@@ -103,7 +112,7 @@ vira `false`. Com `confirm: true`, a soma precisa ser exatamente 100, senão
 
 | Método | Rota | Corpo / regra |
 | --- | --- | --- |
-| GET | `/projects` | `Project[]` ativos da pessoa |
+| GET | `/projects` | `ProjectDetail[]` ativos da pessoa (já com as faixas) |
 | POST | `/projects` | `{ name, type?, style?, description?, release_date?, estimated_cost?, funding_target? }` |
 | GET | `/projects/{id}` | `ProjectDetail` |
 | PATCH | `/projects/{id}` | mesmos campos + `status` |
@@ -124,9 +133,9 @@ Valores monetários em reais, inteiros (centavos não são usados na v1).
 
 ## Pendências (melhorias de contrato)
 
-1. `GET /songs?expand=blocks,collaborators` — hoje o frontend busca o detalhe
-   de cada canção para mostrar versos e coautores no índice.
-2. `GET /projects` com `songs` (ou `song_count`) — mesma razão.
+1. ~~`GET /songs?expand=blocks,collaborators`~~ — feito na Fase 1: devolve
+   `SongDetail[]`.
+2. ~~`GET /projects` com `songs`~~ — feito na Fase 1: devolve `ProjectDetail[]`.
 3. Paginação por cursor nas listagens (`?cursor=&limit=`), quando os cadernos
    crescerem.
 4. `ETag`/`If-Match` em `PATCH` de canção e bloco para detectar edição

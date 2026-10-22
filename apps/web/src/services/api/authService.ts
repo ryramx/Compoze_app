@@ -53,14 +53,27 @@ export function logout(): void {
   guardarRefresh(null);
 }
 
+let restauracaoEmAndamento: Promise<User | null> | null = null;
+
 /**
  * Tenta restaurar a sessão a partir do refresh token guardado.
  *
  * Usado na abertura do app: o access token dura 30 minutos, então quem volta
  * depois disso tem um token expirado mas um refresh válido — e não deveria
  * precisar digitar a senha de novo.
+ *
+ * Chamadas simultâneas (StrictMode, duas telas montando juntas) compartilham a
+ * mesma requisição. O refresh é de uso único: enviá-lo duas vezes faria o
+ * servidor ver o segundo envio como reuso e encerrar a sessão.
  */
-export async function restaurarSessao(): Promise<User | null> {
+export function restaurarSessao(): Promise<User | null> {
+  restauracaoEmAndamento ??= restaurar().finally(() => {
+    restauracaoEmAndamento = null;
+  });
+  return restauracaoEmAndamento;
+}
+
+async function restaurar(): Promise<User | null> {
   const refresh = lerRefresh();
   if (!refresh) return null;
 

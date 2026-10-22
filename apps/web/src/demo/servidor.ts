@@ -264,7 +264,8 @@ const rotasPrivadas: Rota[] = [
             s.title.toLowerCase().includes(q) ||
             s.tags.some((t) => t.toLowerCase().includes(q)),
         );
-      return json(lista.map(resumo));
+      // expand=blocks,collaborators: canções completas, como na API.
+      return json(query.get("expand") ? lista : lista.map(resumo));
     }
 
     if (partes.length === 1 && metodo === "POST") {
@@ -450,7 +451,7 @@ const rotasPrivadas: Rota[] = [
     const db = carregar();
 
     if (partes.length === 1 && metodo === "GET") {
-      return json(db.projetos.filter((p) => p.owner_id === userId && !p.deleted_at));
+      return json(db.projetos.filter((p) => p.owner_id === userId && !p.deleted_at).map(projetoCompleto));
     }
     if (partes.length === 1 && metodo === "POST") {
       const p: ApiProject = {

@@ -1,21 +1,17 @@
 import { conectar, type Conexao } from "@compoze/db";
-import { migrar } from "@compoze/db/migrar";
-import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { z } from "zod";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { construirApp, type App } from "../src/app";
 import { lerConfig } from "../src/config";
+import { configDeTeste } from "./ajuda";
 
-let pg: StartedPostgreSqlContainer;
 let banco: Conexao;
 let app: App;
 
 beforeAll(async () => {
-  pg = await new PostgreSqlContainer("postgis/postgis:18-3.6").start();
-  await migrar(pg.getConnectionUri());
-  banco = conectar(pg.getConnectionUri());
-  const config = lerConfig({ NODE_ENV: "test", DATABASE_URL: pg.getConnectionUri(), LOG_LEVEL: "silent" });
+  const config = configDeTeste();
+  banco = conectar(config.DATABASE_URL);
   app = await construirApp({ config, banco });
 
   // Rotas só de teste, para exercitar a validação e o formato de erro.
@@ -33,7 +29,6 @@ beforeAll(async () => {
 afterAll(async () => {
   await app?.close();
   await banco?.fechar();
-  await pg?.stop();
 });
 
 describe("GET /health", () => {
@@ -88,5 +83,6 @@ describe("documentação e borda", () => {
 describe("configuração", () => {
   it("falha cedo e diz o que falta", () => {
     expect(() => lerConfig({})).toThrow(/DATABASE_URL/);
+    expect(() => lerConfig({ DATABASE_URL: "postgres://x@y/z", JWT_SECRET: "curto" })).toThrow(/JWT_SECRET/);
   });
 });

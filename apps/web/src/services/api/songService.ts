@@ -12,6 +12,8 @@ export interface FiltroBusca {
   q?: string;
   status?: SongStatus;
   folderId?: string;
+  /** Traz versos e coautores junto (`expand=blocks,collaborators`). */
+  completas?: boolean;
 }
 
 function querystring(filtro: FiltroBusca): string {
@@ -19,6 +21,7 @@ function querystring(filtro: FiltroBusca): string {
   if (filtro.q) p.set("q", filtro.q);
   if (filtro.status) p.set("status", statusParaApi(filtro.status));
   if (filtro.folderId) p.set("folder_id", filtro.folderId);
+  if (filtro.completas) p.set("expand", "blocks,collaborators");
   const s = p.toString();
   return s ? `?${s}` : "";
 }

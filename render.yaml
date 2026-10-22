@@ -1,85 +1,85 @@
 # Blueprint do Render: ambiente de staging do Compoze.
+# Sem `projects:` de propósito: o plano Hobby limita projetos, e um Blueprint
+# com projeto novo não é aceito numa conta que já tem um.
 # Como usar: Render → New → Blueprint → escolher este repositório.
 # Guia: docs/backend/deploy.md
 
-projects:
-  - name: compoze
-    environments:
-      - name: staging
-        databases:
-          # PostgreSQL 18: o schema usa uuidv7(), que só existe a partir do 18.
-          # Versão, nome, usuário e região não mudam depois de criados.
-          - name: compoze-db-staging
-            plan: basic-256mb
-            region: virginia
-            postgresMajorVersion: "18"
-            databaseName: compoze
-            user: compoze
-            ipAllowList: []   # só a rede privada do Render alcança o banco
+databases:
+  # PostgreSQL 18: o schema usa uuidv7(), que só existe a partir do 18.
+  # Versão, nome, usuário e região não mudam depois de criados.
+  - name: compoze-db-staging
+    plan: basic-256mb
+    region: virginia
+    postgresMajorVersion: "18"
+    databaseName: compoze
+    user: compoze
+    ipAllowList: []   # só a rede privada do Render alcança o banco
 
-        services:
-          - type: web
-            name: compoze-api-staging
-            runtime: node
-            region: virginia
-            plan: free
-            branch: main
-            buildCommand: corepack enable && pnpm install --frozen-lockfile
-            # As migrações rodam na subida (apps/api/src/servidor.ts).
-            startCommand: pnpm --filter @compoze/api start
-            healthCheckPath: /health
-            autoDeployTrigger: checksPass
-            buildFilter:
-              paths:
-                - apps/api/**
-                - packages/**
-                - package.json
-                - pnpm-lock.yaml
-                - render.yaml
-              ignoredPaths:
-                - "**/*.md"
-                - "**/test/**"
-            envVars:
-              - key: NODE_VERSION
-                value: "24"
-              - key: NODE_ENV
-                value: production
-              - key: DATABASE_URL
-                fromDatabase:
-                  name: compoze-db-staging
-                  property: connectionString
-              # URL pública do front de staging (abaixo).
-              - key: CORS_ORIGINS
-                value: https://compoze-web-staging.onrender.com
+services:
+  - type: web
+    name: compoze-api-staging
+    runtime: node
+    region: virginia
+    plan: free
+    branch: main
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    # As migrações rodam na subida (apps/api/src/servidor.ts).
+    startCommand: pnpm --filter @compoze/api start
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - apps/api/**
+        - packages/**
+        - package.json
+        - pnpm-lock.yaml
+        - render.yaml
+      ignoredPaths:
+        - "**/*.md"
+        - "**/test/**"
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: compoze-db-staging
+          property: connectionString
+      # Gerado pelo Render na criação; nunca fica no repositório (ADR 0006).
+      - key: JWT_SECRET
+        generateValue: true
+      # URL pública do front de staging (abaixo).
+      - key: CORS_ORIGINS
+        value: https://compoze-web-staging.onrender.com
 
-          - type: web
-            name: compoze-web-staging
-            runtime: static
-            branch: main
-            buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @compoze/web build
-            staticPublishPath: apps/web/dist
-            autoDeployTrigger: checksPass
-            buildFilter:
-              paths:
-                - apps/web/**
-                - package.json
-                - pnpm-lock.yaml
-                - render.yaml
-              ignoredPaths:
-                - "**/*.md"
-            routes:
-              # SPA: toda rota cai no index.html e o React Router resolve.
-              - type: rewrite
-                source: /*
-                destination: /index.html
-            headers:
-              - path: /assets/*
-                name: Cache-Control
-                value: public, max-age=31536000, immutable
-            envVars:
-              - key: NODE_VERSION
-                value: "24"
-              # Até a Fase 1 ligar login e canções na API, o front de staging
-              # roda no modo demonstração. Depois: a URL de compoze-api-staging.
-              - key: VITE_API_URL
-                value: demo
+  - type: web
+    name: compoze-web-staging
+    runtime: static
+    branch: main
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @compoze/web build
+    staticPublishPath: apps/web/dist
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - apps/web/**
+        - package.json
+        - pnpm-lock.yaml
+        - render.yaml
+      ignoredPaths:
+        - "**/*.md"
+    routes:
+      # SPA: toda rota cai no index.html e o React Router resolve.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      # A API de staging. Para apresentar sem backend, troque por "demo".
+      - key: VITE_API_URL
+        value: https://compoze-api-staging.onrender.com

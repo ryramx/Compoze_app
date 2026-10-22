@@ -3,6 +3,7 @@ import { migrar } from "@compoze/db/migrar";
 
 import { construirApp } from "./app";
 import { lerConfig } from "./config";
+import { agendarExpurgo } from "./modules/lixeira/expurgo";
 
 const config = lerConfig();
 const banco = conectar(config.DATABASE_URL);
@@ -20,10 +21,13 @@ const app = await construirApp({
       : { level: config.LOG_LEVEL },
 });
 
+const jobs = config.JOBS ? await agendarExpurgo(config.DATABASE_URL, banco.db, app.log) : null;
+
 for (const sinal of ["SIGINT", "SIGTERM"] as const) {
   process.once(sinal, async () => {
     app.log.info({ sinal }, "encerrando");
     await app.close();
+    await jobs?.stop();
     await banco.fechar();
     process.exit(0);
   });

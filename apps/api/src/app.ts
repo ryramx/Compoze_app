@@ -1,6 +1,7 @@
 import type { Conexao } from "@compoze/db";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
+import rateLimit from "@fastify/rate-limit";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import Fastify, { type FastifyServerOptions } from "fastify";
@@ -12,7 +13,13 @@ import {
 } from "fastify-type-provider-zod";
 
 import type { Config } from "./config";
+import { rotasDeAutenticacao } from "./modules/auth/rotas";
+import { rotasDePastas } from "./modules/folders/rotas";
 import { rotasDeSaude } from "./modules/health/rotas";
+import { rotasDeProjetos } from "./modules/projects/rotas";
+import { rotasDeCancoes } from "./modules/songs/rotas";
+import { rotasDePessoas } from "./modules/users/rotas";
+import { autenticacao } from "./plugins/autenticacao";
 import { registrarErros } from "./plugins/erros";
 import { VERSAO } from "./versao";
 
@@ -51,7 +58,21 @@ export async function construirApp({ config, banco, logger }: Dependencias) {
     // A documentação em /docs precisa dos scripts inline do Swagger UI.
     contentSecurityPolicy: false,
   });
-  await app.register(cors, { origin: config.CORS_ORIGINS, credentials: true });
+  await app.register(cors, {
+    origin: config.CORS_ORIGINS,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  });
+  // Limite só onde é ativado por rota (login, cadastro, refresh): contra
+  // tentativa de senha em massa, sem atrapalhar quem usa o app.
+  await app.register(rateLimit, {
+    global: false,
+    errorResponseBuilder: (_req, ctx) =>
+      Object.assign(new Error(`Muitas tentativas. Tente de novo em ${Math.ceil(ctx.ttl / 1000)} segundos.`), {
+        statusCode: 429,
+      }),
+  });
+  await app.register(autenticacao);
 
   await app.register(swagger, {
     openapi: {
@@ -60,12 +81,19 @@ export async function construirApp({ config, banco, logger }: Dependencias) {
         version: VERSAO,
         description: "Contrato em docs/backend/contrato-da-api.md; schemas em packages/contracts.",
       },
+      components: { securitySchemes: { bearer: { type: "http", scheme: "bearer", bearerFormat: "JWT" } } },
+      security: [{ bearer: [] }],
     },
     transform: jsonSchemaTransform,
   });
   await app.register(swaggerUi, { routePrefix: "/docs" });
 
   await app.register(rotasDeSaude);
+  await app.register(rotasDeAutenticacao);
+  await app.register(rotasDePessoas);
+  await app.register(rotasDeCancoes);
+  await app.register(rotasDePastas);
+  await app.register(rotasDeProjetos);
 
   return app;
 }

@@ -34,7 +34,7 @@ Antes da stack, o que o Compoze pede de um servidor:
 | Validação e contrato | **Zod** em `packages/contracts` + `fastify-type-provider-zod` | O mesmo schema valida a requisição no servidor, tipa o cliente no front e gera o OpenAPI. Fim da classe de bug "front e back discordam do formato" |
 | Banco | **PostgreSQL 18** + `pg_trgm`, `unaccent`, `citext`, **PostGIS** | Exigência, e a versão que já roda na máquina de desenvolvimento. O 18 traz `uuidv7()` nativo (ids ordenáveis por tempo, sem extensão), I/O assíncrono (leituras mais rápidas nas listagens) e `RETURNING OLD/NEW` (útil no histórico de versões). As extensões cobrem busca em PT-BR e mapa sem serviço extra |
 | Acesso a dados | **Drizzle ORM** + `drizzle-kit` | SQL-first e tipado: o schema é TypeScript, as consultas parecem SQL, migrações versionadas em arquivos `.sql` revisáveis |
-| Autenticação | **Better Auth** (adapter Drizzle, plugin bearer/JWT) | E-mail+senha com argon2, verificação de e-mail, reset de senha, OAuth (Google, Apple), sessões revogáveis — sem escrever criptografia à mão |
+| Autenticação | **Própria**: argon2id + JWT (`jose`) + refresh rotacionado ([ADR 0006](../decisoes/0006-autenticacao-propria.md)) | Mantém o contrato que o front já usa e o par curto + longo que o offline pede. Better Auth reavaliado quando vierem verificação de e-mail, reset de senha e OAuth |
 | Tempo real | **Yjs + Hocuspocus** | CRDT padrão de mercado para edição colaborativa; presença e cursores reais (substitui os cursores simulados do protótipo antigo); persistência no Postgres |
 | Jobs | **pg-boss** | Fila sobre o próprio Postgres: expurgo da lixeira, e-mails, notificações. Sem Redis para operar |
 | Arquivos | **S3 compatível** (Cloudflare R2) | Upload direto do navegador com URL pré-assinada; sem custo de saída no R2 |
@@ -73,7 +73,7 @@ apps/
   api/                 Fastify: REST /v1, auth, regras de negócio
     src/
       modules/
-        auth/          rotas + serviço (Better Auth)
+        auth/          cadastro, login, refresh (ADR 0006)
         users/
         songs/         canções, blocos, coautoria, lixeira
         folders/
@@ -111,7 +111,7 @@ users              id uuid pk default uuidv7(), name, username citext unique, em
                    location geography(Point) null, show_on_map bool,
                    instruments text[], specialties text[], genres text[],
                    external_links text[], created_at, updated_at
-sessions/accounts/verifications   (Better Auth)
+refresh_tokens     id, user_id, family_id, token_hash, expires_at, used_at, revoked_at
 
 folders            id, owner_id → users, parent_id → folders null, name,
                    created_at, updated_at
@@ -194,7 +194,7 @@ troca isso por:
 
 ## 6. Segurança
 
-- Senhas com argon2id (Better Auth). Rate limit por IP e por conta em login,
+- Senhas com argon2id (ADR 0006). Rate limit por IP e por conta em login,
   cadastro e reset.
 - Tokens de acesso curtos; refresh rotacionado e revogável.
 - CORS restrito ao domínio do front. Cabeçalhos com `@fastify/helmet`.
@@ -220,5 +220,8 @@ troca isso por:
    já com as colunas de sincronização do ADR 0005.~~ Feito. Staging descrito em
    `render.yaml` ([deploy.md](deploy.md)). Guia de uso em
    [desenvolvimento.md](desenvolvimento.md).
-3. Escrever os schemas Zod a partir do contrato e trocar `services/api/dto.ts`
-   do front pelos tipos gerados de `packages/contracts`.
+3. ~~Fase 1: rotas do contrato v1 com testes contra o banco real.~~ Feito; falta
+   só ver o front de staging rodando contra a API publicada.
+4. Trocar `services/api/dto.ts` do front pelos tipos de `packages/contracts`
+   (os schemas Zod já cobrem o contrato inteiro).
+5. Fase 2: Hocuspocus + Yjs no editor e as rotas de sincronização offline.
