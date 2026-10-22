@@ -35,8 +35,8 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   Docker Compose com PostgreSQL 18 + PostGIS; testes contra Postgres real
   (Testcontainers) e job de CI da API.
 
-- Blueprint do Render (`render.yaml`) para staging: PostgreSQL 18, API e
-  front, com deploy automático após a CI passar.
+- Staging: API e front no Render (`render.yaml`), banco PostgreSQL 18 no
+  Neon (grátis), deploy automático após a CI passar.
 
 - Backend, Fase 1 (MVP do contrato): cadastro, login e refresh rotacionado
   com detecção de reuso e limite de tentativas (ADR 0006); perfil, pessoas e
