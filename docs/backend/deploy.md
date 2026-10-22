@@ -11,8 +11,10 @@ O ambiente de staging vive no Render e é descrito em [`render.yaml`](../../rend
 | `compoze-api-staging` | Web service Node | `free` | API; migra o banco ao subir; health check em `/health` |
 | `compoze-web-staging` | Static site | grátis | Front (SPA), com reescrita de rotas para `index.html` |
 
-Tudo na região **Virgínia**, a mais próxima do Brasil entre as do Render, dentro
-do projeto `compoze`, ambiente `staging`.
+Tudo na região **Virgínia**, a mais próxima do Brasil entre as do Render. O
+Blueprint não declara `projects:`: o plano Hobby do Render limita a quantidade
+de projetos, e a conta já tem um. Os recursos podem ser movidos para um
+projeto depois, pelo painel.
 
 Custo: o banco pago é o único item com cobrança (o plano grátis de banco do
 Render expira em 30 dias). A API no plano grátis dorme sem uso e leva alguns
