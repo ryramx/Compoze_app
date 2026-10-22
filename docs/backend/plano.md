@@ -31,7 +31,7 @@ Antes da stack, o que o Compoze pede de um servidor:
 | Runtime | **Node.js 24 LTS** | LTS atual; mesmo runtime do tooling do front |
 | Framework HTTP | **Fastify 5** | Rápido, maduro, ecossistema oficial (CORS, rate limit, WebSocket, multipart, Swagger), logs estruturados com pino nativos |
 | Validação e contrato | **Zod** em `packages/contracts` + `fastify-type-provider-zod` | O mesmo schema valida a requisição no servidor, tipa o cliente no front e gera o OpenAPI. Fim da classe de bug "front e back discordam do formato" |
-| Banco | **PostgreSQL 17** + `pg_trgm`, `unaccent`, `citext`, **PostGIS** | Exigência; as extensões cobrem busca em PT-BR e mapa sem serviço extra |
+| Banco | **PostgreSQL 18** + `pg_trgm`, `unaccent`, `citext`, **PostGIS** | Exigência, e a versão que já roda na máquina de desenvolvimento. O 18 traz `uuidv7()` nativo (ids ordenáveis por tempo, sem extensão), I/O assíncrono (leituras mais rápidas nas listagens) e `RETURNING OLD/NEW` (útil no histórico de versões). As extensões cobrem busca em PT-BR e mapa sem serviço extra |
 | Acesso a dados | **Drizzle ORM** + `drizzle-kit` | SQL-first e tipado: o schema é TypeScript, as consultas parecem SQL, migrações versionadas em arquivos `.sql` revisáveis |
 | Autenticação | **Better Auth** (adapter Drizzle, plugin bearer/JWT) | E-mail+senha com argon2, verificação de e-mail, reset de senha, OAuth (Google, Apple), sessões revogáveis — sem escrever criptografia à mão |
 | Tempo real | **Yjs + Hocuspocus** | CRDT padrão de mercado para edição colaborativa; presença e cursores reais (substitui os cursores simulados do protótipo antigo); persistência no Postgres |
@@ -104,7 +104,7 @@ acesso evita revelar que o recurso existe.
 ## 4. Modelo de dados (v1)
 
 ```
-users              id uuid pk, name, username citext unique, email citext unique,
+users              id uuid pk default uuidv7(), name, username citext unique, email citext unique,
                    bio, avatar_url, city, state, country,
                    location geography(Point) null, show_on_map bool,
                    instruments text[], specialties text[], genres text[],
@@ -147,6 +147,8 @@ projects           id, owner_id, name, description, type, status, style,
 
 project_songs      project_id, song_id, track_number, PRIMARY KEY (project_id, song_id)
 ```
+
+Todas as chaves primárias usam `uuid DEFAULT uuidv7()`, nativo do Postgres 18.
 
 Fase 3 acrescenta `follows`, `posts`, `post_likes`, `comments`,
 `conversations`, `conversation_members`, `messages`, `notifications`.
@@ -193,7 +195,7 @@ mesmo bloco ao mesmo tempo perdem texto. A Fase 2 troca isso por:
 
 | Fase | Entrega | Pronto quando |
 | --- | --- | --- |
-| **0 · Fundação** | Turborepo, `packages/contracts` e `packages/db`, `apps/api` com Fastify, Drizzle e primeira migração, Docker Compose com Postgres+PostGIS, CI (lint, typecheck, testes com Testcontainers), deploy de staging | `GET /health` em staging; CI verde |
+| **0 · Fundação** | Turborepo, `packages/contracts` e `packages/db`, `apps/api` com Fastify, Drizzle e primeira migração, Docker Compose com Postgres 18 + PostGIS (mesma versão do ambiente local), CI (lint, typecheck, testes com Testcontainers), deploy de staging | `GET /health` em staging; CI verde |
 | **1 · MVP do contrato** | Auth, pessoas, canções, blocos, coautoria (RN05), lixeira + expurgo (RN07/08), pastas, projetos, mapa (RN11), as pendências 1 e 2 do contrato | Front com `VITE_API_URL` apontando para staging, sem modo demo, passando o roteiro de testes manuais; cobertura de cada RN por teste |
 | **2 · Escrita junto** | Hocuspocus + Yjs no editor, presença, convites por e-mail, histórico de versões e registro com hash, notificações | Duas pessoas editam o mesmo verso ao mesmo tempo sem perda |
 | **3 · Gente** | Seguidores, mural, conversas em tempo real, uploads (avatar, capa, demo em áudio), financiamento (PIX via Mercado Pago ou Stripe) | Telas de Mural e Conversas sem o aviso de prévia |

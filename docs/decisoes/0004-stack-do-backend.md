@@ -13,7 +13,7 @@ busca em português, geografia, jobs) estão em `docs/backend/plano.md`, seção
 ## Decisão proposta
 
 TypeScript de ponta a ponta: **Node 24 + Fastify 5 + Zod (contratos
-compartilhados) + Drizzle ORM + PostgreSQL 17 (pg_trgm, unaccent, citext,
+compartilhados) + Drizzle ORM + PostgreSQL 18 (pg_trgm, unaccent, citext,
 PostGIS) + Better Auth + Yjs/Hocuspocus + pg-boss**, testado com Vitest e
 Testcontainers, implantado no Render.
 
@@ -26,6 +26,10 @@ Testcontainers, implantado no Render.
 | Hono | Feito para edge; precisamos de WebSocket longo e Postgres com extensões |
 | Prisma | Abstrai o SQL; PostGIS e trigram viram consultas cruas |
 | Supabase/Firebase como backend | Regras de negócio espalhadas em políticas e funções |
+
+Versão do banco: **PostgreSQL 18**, a mesma do ambiente local do Ryan. Usamos
+`uuidv7()` nativo para chaves primárias. Staging e produção precisam rodar 18
+também; o provedor escolhido tem que oferecê-lo.
 
 ## Consequências
 

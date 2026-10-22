@@ -13,7 +13,7 @@ implementa. O backend novo deve cumprir este documento; o que estiver em
   Validação devolve `422` com `detail` (texto ou lista de erros por campo).
 - `204` sem corpo em exclusões.
 - Datas em ISO 8601 UTC; datas sem hora (`release_date`) em `YYYY-MM-DD`.
-- Ids são UUID (v7, ordenáveis por tempo) e opacos para o cliente.
+- Ids são UUID v7 (gerados pelo `uuidv7()` do Postgres 18, ordenáveis por tempo) e opacos para o cliente.
 
 ## Autenticação
 

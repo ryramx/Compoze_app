@@ -24,6 +24,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - Documentação: visão do produto, arquitetura e design system do front,
   contrato da API, plano do backend, ADRs.
 - CI do frontend (lint, typecheck, testes, build).
+- Plano do backend fixa PostgreSQL 18 (versão do ambiente local), com `uuidv7()` nativo.
 
 ### Removido
 - Cursores de colaboradores simulados.
