@@ -1,7 +1,7 @@
 # Plano do backend
 
-Status: **proposta** — aguardando confirmação da stack (ver
-[ADR 0004](../decisoes/0004-stack-do-backend.md)).
+Status: **aceito** em 2026-10-22 ([ADR 0004](../decisoes/0004-stack-do-backend.md)).
+Mobile e offline: [ADR 0005](../decisoes/0005-mobile-e-offline.md).
 Ponto de partida: do zero. Nada de backends anteriores é reaproveitado; a
 referência é o [contrato da API](contrato-da-api.md) que o frontend novo já
 consome. Única exigência fixa: **PostgreSQL**.
@@ -20,7 +20,8 @@ Antes da stack, o que o Compoze pede de um servidor:
 | Geografia | Mapa de quem compõe perto (RN11) | PostGIS |
 | Processos agendados | Expurgo da lixeira (RN08), e-mails, notificações | Fila de jobs |
 | Arquivos | Capas, avatares, demos em áudio | Storage S3 com upload direto (URL pré-assinada) |
-| Social e mensagens | Mural, conversas (Fases 2–3) | WebSocket, notificações |
+| Social e mensagens | Mural, conversas (Fase 4) | WebSocket, notificações |
+| **Uso offline no celular** | A ideia vem onde não tem sinal; coautores editam a mesma canção offline | Dados local-first: CRDT (Yjs) para a letra, fila de operações idempotentes e delta por cursor para o resto, ids gerados no aparelho (ADR 0005) |
 
 ## 2. Stack recomendada
 
@@ -78,14 +79,15 @@ apps/
         folders/
         projects/
         map/
-        social/        Fase 3
+        sync/          delta por cursor e lote de operações (Fase 2)
+        social/        Fase 4
       db/
         schema/        tabelas Drizzle, uma por arquivo
         migrations/    SQL gerado e revisado
       jobs/            pg-boss: expurgo, e-mails
       plugins/         auth, erros, rate limit, cors, openapi
       server.ts
-  collab/              Hocuspocus: WebSocket do editor (Fase 2)
+  collab/              Hocuspocus: sincroniza o documento Yjs de cada canção (Fase 2)
   worker/              consumidor de jobs (pode começar dentro da api)
 packages/
   contracts/           schemas Zod compartilhados (requisição/resposta)
@@ -138,7 +140,7 @@ song_versions      id, song_id, number, snapshot jsonb, sha256, created_by,
                    reason (manual | estágio | registro), created_at
                    — imutável: base da prova de autoria
 
-song_documents     song_id pk, ydoc bytea, updated_at        (Fase 2, Yjs)
+song_documents     song_id pk, ydoc bytea, updated_at        (Yjs; fonte do conteúdo a partir da Fase 2)
 
 projects           id, owner_id, name, description, type, status, style,
                    release_date date, cover_url, estimated_cost int,
@@ -148,9 +150,13 @@ projects           id, owner_id, name, description, type, status, style,
 project_songs      project_id, song_id, track_number, PRIMARY KEY (project_id, song_id)
 ```
 
-Todas as chaves primárias usam `uuid DEFAULT uuidv7()`, nativo do Postgres 18.
+Todas as chaves primárias usam `uuid DEFAULT uuidv7()`, nativo do Postgres 18,
+**mas aceitam o id enviado pelo cliente**: algo criado offline já nasce com o
+id definitivo (ADR 0005). Toda tabela que sincroniza tem ainda `version int`
+(incrementada a cada escrita), `updated_at` definido pelo servidor e exclusão
+lógica (`deleted_at`), para que o delta consiga informar o que foi apagado.
 
-Fase 3 acrescenta `follows`, `posts`, `post_likes`, `comments`,
+Fase 4 acrescenta `follows`, `posts`, `post_likes`, `comments`,
 `conversations`, `conversation_members`, `messages`, `notifications`.
 
 **Onde cada regra vive**
@@ -164,10 +170,11 @@ Fase 3 acrescenta `follows`, `posts`, `post_likes`, `comments`,
 | RN11 mapa só com opt-in | `location` nula por padrão | `/map/people` filtra `show_on_map`; perfil público nunca seleciona `location` |
 | Pasta sem ciclo | trigger | checagem antes do `UPDATE` |
 
-## 5. Edição em tempo real (Fase 2)
+## 5. Editor colaborativo e offline (Fase 2)
 
 Hoje o editor salva bloco a bloco com atraso de 600 ms; duas pessoas editando o
-mesmo bloco ao mesmo tempo perdem texto. A Fase 2 troca isso por:
+mesmo bloco ao mesmo tempo perdem texto, e nada funciona sem rede. A Fase 2
+troca isso por:
 
 1. Cada canção é um documento Yjs (`Y.Array` de blocos, cada bloco um `Y.Map`
    com `Y.Text`). A autoria por trecho vem dos atributos de inserção do Yjs, o
@@ -178,7 +185,12 @@ mesmo bloco ao mesmo tempo perdem texto. A Fase 2 troca isso por:
    **projeta** os blocos em `song_blocks` — que continua sendo a fonte para
    busca, listagens e a API REST.
 4. Presença (quem está na canção, onde está o cursor) vem do awareness do Yjs.
-5. Mudança de estágio para "Registrada" grava um `song_versions` com hash.
+5. No aparelho, o mesmo documento fica salvo no IndexedDB (`y-indexeddb`).
+   Edições offline são fundidas na reconexão, sem conflito.
+6. Os dados estruturados sincronizam por `GET /sync/changes?since=` e
+   `POST /sync/push` (lote de operações com `Idempotency-Key`), detalhados no
+   ADR 0005.
+7. Mudança de estágio para "Registrada" grava um `song_versions` com hash.
 
 ## 6. Segurança
 
@@ -196,13 +208,17 @@ mesmo bloco ao mesmo tempo perdem texto. A Fase 2 troca isso por:
 | Fase | Entrega | Pronto quando |
 | --- | --- | --- |
 | **0 · Fundação** | Turborepo, `packages/contracts` e `packages/db`, `apps/api` com Fastify, Drizzle e primeira migração, Docker Compose com Postgres 18 + PostGIS (mesma versão do ambiente local), CI (lint, typecheck, testes com Testcontainers), deploy de staging | `GET /health` em staging; CI verde |
-| **1 · MVP do contrato** | Auth, pessoas, canções, blocos, coautoria (RN05), lixeira + expurgo (RN07/08), pastas, projetos, mapa (RN11), as pendências 1 e 2 do contrato | Front com `VITE_API_URL` apontando para staging, sem modo demo, passando o roteiro de testes manuais; cobertura de cada RN por teste |
-| **2 · Escrita junto** | Hocuspocus + Yjs no editor, presença, convites por e-mail, histórico de versões e registro com hash, notificações | Duas pessoas editam o mesmo verso ao mesmo tempo sem perda |
-| **3 · Gente** | Seguidores, mural, conversas em tempo real, uploads (avatar, capa, demo em áudio), financiamento (PIX via Mercado Pago ou Stripe) | Telas de Mural e Conversas sem o aviso de prévia |
+| **1 · MVP do contrato** | Auth, pessoas, canções, blocos, coautoria (RN05), lixeira + expurgo (RN07/08), pastas, projetos, mapa (RN11), as pendências 1 e 2 do contrato | Front com `VITE_API_URL` apontando para staging, sem modo demo; cobertura de cada RN por teste |
+| **2 · Escrita junto e offline** | Hocuspocus + Yjs no editor, presença, rotas de sincronização, banco local e fila no front, PWA instalável (service worker), convites por e-mail, histórico de versões e registro com hash | Duas pessoas editam o mesmo verso, uma delas offline, e nada se perde; o app abre e edita em modo avião |
+| **3 · Nas lojas** | Capacitor (iOS e Android), armazenamento seguro de tokens, SQLite nativo, gravação de memo de voz, compartilhar para o app, notificações push | App publicado na App Store e na Play Store |
+| **4 · Gente** | Seguidores, mural, conversas em tempo real, uploads (avatar, capa, áudio), financiamento (PIX via Mercado Pago ou Stripe) | Telas de Mural e Conversas sem o aviso de prévia |
 
 ## 8. Próximos passos
 
-1. Confirmar a stack (ADR 0004).
-2. Fase 0 neste repositório: `apps/api`, `packages/contracts`, `packages/db`.
+1. ~~Confirmar a stack (ADR 0004).~~ Feito.
+2. ~~Fase 0 neste repositório: `apps/api`, `packages/contracts`, `packages/db`,
+   já com as colunas de sincronização do ADR 0005.~~ Feito, exceto o deploy de
+   staging no Render, que depende de criar a conta/serviços. Guia de uso em
+   [desenvolvimento.md](desenvolvimento.md).
 3. Escrever os schemas Zod a partir do contrato e trocar `services/api/dto.ts`
    do front pelos tipos gerados de `packages/contracts`.

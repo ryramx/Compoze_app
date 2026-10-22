@@ -13,13 +13,16 @@ descontinuado e o frontend foi refeito aqui (ver
 ```
 apps/
   web/        Frontend — React 19, Vite, Tailwind CSS 4, Zustand
-  api/        Backend — ainda não existe; plano em docs/backend/plano.md
-docs/         Produto, arquitetura, design system, decisões (ADRs)
+  api/        Backend — Fastify 5, Zod, Drizzle, PostgreSQL 18
+packages/
+  contracts/  Schemas Zod do contrato da API, usados pelos dois lados
+  db/         Schema Drizzle, migrações SQL e conexão
+docs/         Produto, arquitetura, design system, backend, decisões (ADRs)
 ```
 
 ## Rodando o frontend
 
-Requisitos: Node 22+ e pnpm 10.
+Requisitos: Node 24 (22 também funciona) e pnpm 10.
 
 ```bash
 pnpm install
@@ -34,15 +37,33 @@ demonstração responde às rotas da API dentro do navegador e guarda os dados n
 
 Para apontar para uma API real, troque `VITE_API_URL` pela URL dela.
 
+## Rodando o backend
+
+Requisitos: os mesmos, mais Docker.
+
+```bash
+pnpm db:up                                # PostgreSQL 18 + PostGIS
+cp apps/api/.env.example apps/api/.env
+pnpm dev:api                              # http://localhost:3333 (docs em /docs)
+```
+
+Detalhes em [docs/backend/desenvolvimento.md](docs/backend/desenvolvimento.md).
+
 ## Comandos
 
 | Comando          | O que faz                                   |
 | ---------------- | ------------------------------------------- |
-| `pnpm dev`       | Servidor de desenvolvimento do frontend     |
-| `pnpm build`     | Typecheck + build de produção               |
-| `pnpm test`      | Testes (Vitest)                             |
-| `pnpm lint`      | ESLint                                      |
-| `pnpm typecheck` | TypeScript sem emitir                       |
+| `pnpm dev`         | Servidor de desenvolvimento do frontend          |
+| `pnpm dev:api`     | API em modo watch                                |
+| `pnpm db:up`       | Sobe o Postgres local (Docker Compose)           |
+| `pnpm db:generate` | Gera migração a partir do schema                 |
+| `pnpm db:migrate`  | Aplica migrações pendentes                       |
+| `pnpm build`       | Build de produção                                |
+| `pnpm test`        | Todos os testes (o backend usa Postgres real)    |
+| `pnpm lint`        | ESLint e checagens                               |
+| `pnpm typecheck`   | TypeScript sem emitir                            |
+
+Os comandos da raiz rodam pelo Turborepo, em todos os pacotes.
 
 ## Documentação
 

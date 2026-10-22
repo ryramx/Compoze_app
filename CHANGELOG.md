@@ -24,7 +24,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - Documentação: visão do produto, arquitetura e design system do front,
   contrato da API, plano do backend, ADRs.
 - CI do frontend (lint, typecheck, testes, build).
+- ADR 0005: app instalável (PWA, depois Capacitor nas lojas) e uso offline
+  local-first; plano do backend reorganizado em quatro fases.
+- Stack do backend aceita (ADR 0004).
 - Plano do backend fixa PostgreSQL 18 (versão do ambiente local), com `uuidv7()` nativo.
+- Backend, Fase 0: Turborepo; `packages/contracts` (Zod); `packages/db` com o
+  schema v1 completo, colunas de sincronização e gatilhos (versão e relógio do
+  servidor, pasta sem ciclo, versão registrada imutável); `apps/api` com
+  Fastify 5, `GET /health`, OpenAPI em `/docs` e erros no formato `{detail}`;
+  Docker Compose com PostgreSQL 18 + PostGIS; testes contra Postgres real
+  (Testcontainers) e job de CI da API.
 
 ### Removido
 - Cursores de colaboradores simulados.

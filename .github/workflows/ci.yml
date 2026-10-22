@@ -13,7 +13,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @compoze/web lint
@@ -22,3 +22,26 @@ jobs:
       - run: pnpm --filter @compoze/web build
         env:
           VITE_API_URL: demo
+
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Baixa a imagem antes, para o tempo do pull não contar no timeout dos testes.
+      - run: docker pull postgis/postgis:18-3.6
+      - run: pnpm --filter "./packages/*" --filter @compoze/api typecheck
+      # O schema TypeScript e as migrações SQL não podem divergir.
+      - name: Migrações em dia com o schema
+        run: |
+          pnpm --filter @compoze/db exec drizzle-kit check
+          pnpm --filter @compoze/db exec drizzle-kit generate
+          git diff --exit-code -- packages/db/migrations
+          test -z "$(git status --porcelain -- packages/db/migrations)"
+      # Testcontainers sobe PostgreSQL 18 + PostGIS reais.
+      - run: pnpm --filter @compoze/db --filter @compoze/api test

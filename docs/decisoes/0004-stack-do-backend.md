@@ -1,6 +1,6 @@
 # 0004 · Stack do backend
 
-- Status: **proposta** — aguardando confirmação
+- Status: aceita em 2026-10-22
 - Data: 2026-10-22
 
 ## Contexto
@@ -10,7 +10,7 @@ O backend será escrito do zero; qualquer código anterior é desconsiderado. A
 regras de integridade, edição colaborativa em tempo real, prova de autoria,
 busca em português, geografia, jobs) estão em `docs/backend/plano.md`, seção 1.
 
-## Decisão proposta
+## Decisão
 
 TypeScript de ponta a ponta: **Node 24 + Fastify 5 + Zod (contratos
 compartilhados) + Drizzle ORM + PostgreSQL 18 (pg_trgm, unaccent, citext,

@@ -1,0 +1,21 @@
+# Banco local de desenvolvimento: a mesma versão de produção (PostgreSQL 18)
+# com PostGIS. As extensões são criadas pela primeira migração.
+services:
+  postgres:
+    image: postgis/postgis:18-3.6
+    environment:
+      POSTGRES_USER: compoze
+      POSTGRES_PASSWORD: compoze
+      POSTGRES_DB: compoze
+    ports:
+      - "5432:5432"
+    volumes:
+      - compoze-pg:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U compoze"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  compoze-pg:
