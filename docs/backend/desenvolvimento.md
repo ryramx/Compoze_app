@@ -46,6 +46,10 @@ Validadas na subida por `src/config.ts`; faltando algo, a API não sobe e diz o 
 | `DATABASE_URL` | — (obrigatória) | Conexão com o Postgres |
 | `PORT` / `HOST` | `3333` / `0.0.0.0` | Onde escutar |
 | `CORS_ORIGINS` | `http://localhost:5173` | Origens do front, separadas por vírgula |
+| `JWT_SECRET` | — (obrigatória, ≥ 32 caracteres) | Assina os access tokens |
+| `ACCESS_TOKEN_MINUTOS` / `REFRESH_TOKEN_DIAS` | `30` / `30` | Validade dos tokens |
+| `LIMITE_AUTH_POR_MINUTO` | `10` | Tentativas por IP em `/auth/*` |
+| `JOBS` | `on` | Agenda o expurgo diário da lixeira (pg-boss); `off` nos testes |
 | `LOG_LEVEL` | `info` | Nível do pino |
 | `NODE_ENV` | `development` | Em `development` os logs saem formatados |
 
@@ -90,11 +94,10 @@ percentual de coautoria entre 0 e 100, e-mail e @ sem diferenciar maiúsculas
 - **Coautor removido e convidado de novo** reaproveita a mesma linha (limpa
   `deleted_at`), por isso `UNIQUE (song_id, user_id)` vale também para linhas
   apagadas. O mesmo para faixa de projeto, cuja chave é `(project_id, song_id)`.
-- **Busca**: o índice trigram no título já existe. A coluna `tsvector` com
-  `unaccent` fica para a Fase 1, junto com a rota de busca: `unaccent` não é
-  imutável e precisa de uma função própria para entrar numa coluna gerada.
-- **Contas e sessões** (`sessions`, `accounts`, `verifications`) entram com o
-  Better Auth na Fase 1; o schema dele é gerado pela própria biblioteca.
+- **Sessões**: `refresh_tokens` guarda só o hash de cada refresh, agrupado por
+  família para a detecção de reuso ([ADR 0006](../decisoes/0006-autenticacao-propria.md)).
+- **Busca** (migração 0004): `compoze_normalizar(texto)` = minúsculas sem
+  acento, imutável, com índices trigram no título e no texto dos blocos.
 
 ## Testes
 
@@ -109,6 +112,29 @@ Testcontainers (a mesma imagem do `docker-compose.yml`), aplicam as migrações 
 testam contra ele. Precisa de Docker rodando. O primeiro pull da imagem demora;
 depois, cada arquivo de teste leva poucos segundos.
 
+## Módulos da API
+
+Cada pasta em `apps/api/src/modules/` tem `rotas.ts` (HTTP + schemas do
+contrato) e `servico.ts` (regras e banco). Rota não tem regra de negócio.
+
+| Módulo | Rotas | Regras |
+| --- | --- | --- |
+| `auth` | `/auth/register`, `/auth/login`, `/auth/refresh` | ADR 0006 |
+| `users` | `/users/me`, `/users?ids=`, `/users/{username}`, `/map/people` | RN11 |
+| `songs` | `/songs…`, blocos, coautores, divisão, lixeira | RN05, RN07 |
+| `folders` | `/folders…` | pasta sem ciclo |
+| `projects` | `/projects…`, faixas | lixeira sem levar canções |
+| `lixeira` | job `expurgo-da-lixeira`, todo dia às 3h (Brasília) | RN08 |
+
+**Quem pode o quê numa canção** (`modules/songs/acesso.ts`):
+
+| Ação | Quem |
+| --- | --- |
+| Ver | dona e coautores (inclusive `VIEWER`); os demais recebem `404` |
+| Editar ficha e blocos | dona e coautores, menos `VIEWER` (`403`) |
+| Mudar de pasta, convidar/remover coautor, acertar a divisão, lixeira, apagar de vez | só a dona (`403`) |
+| Editar canção na lixeira | ninguém (`409`: restaure antes) |
+
 ## Erros
 
 Toda resposta de erro tem o formato do contrato, `{ "detail": ... }`:
@@ -116,4 +142,7 @@ Toda resposta de erro tem o formato do contrato, `{ "detail": ... }`:
 - validação → `422`, com `detail` como lista de `{ campo, mensagem }`;
 - erro de domínio → `throw new ErroDaApi(status, "mensagem para a pessoa")`;
 - rota inexistente → `404`;
+- restrição do banco que escapou do serviço → `409` (duplicata), `422`
+  (referência inválida, ciclo de pasta) — `plugins/erros.ts`;
+- excesso de tentativas de login → `429`;
 - qualquer outra coisa → `500` com `"Erro interno."`, e o detalhe só no log.

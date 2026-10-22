@@ -45,8 +45,15 @@ migração falhar, a API não sobe e o Render mantém a versão anterior no ar.
 `runtime` dos serviços. Mudar qualquer um deles no `render.yaml` exige um
 recurso novo (e migrar os dados).
 
-## Até a Fase 1
+## Front e API
 
-O front de staging roda com `VITE_API_URL=demo` porque login e canções ainda
-não estão na API. Quando estiverem, troca para a URL da API e o modo demo sai
-de staging.
+O front de staging aponta para `https://compoze-api-staging.onrender.com`. Se o
+Render der outra URL à API (nome já em uso), ajuste `VITE_API_URL` no front e
+faça um novo deploy dele: a variável entra no bundle na hora do build.
+
+`JWT_SECRET` é gerado pelo próprio Render na criação. Trocar o valor desloga
+todo mundo (os tokens antigos deixam de valer), o que serve de "botão de
+pânico" se o segredo vazar.
+
+O expurgo da lixeira roda dentro da API, às 3h. No plano grátis a API dorme sem
+uso; se estiver dormindo nessa hora, o pg-boss roda o job quando ela acordar.

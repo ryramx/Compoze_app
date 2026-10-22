@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { projetoDaApi } from "@/services/api/adapters";
-import type { ApiProject, ApiProjectDetail } from "@/services/api/dto";
+import type { ApiProjectDetail } from "@/services/api/dto";
 import type { Project, ProjectType } from "@/types";
 
 const TIPO_PARA_API = {
@@ -23,10 +23,9 @@ const STATUS_PARA_API = {
 } as const;
 
 export async function list(): Promise<Project[]> {
-  // A listagem não traz as músicas do projeto; `projetoDaApi` trata a ausência
-  // como lista vazia e a tela de detalhe busca o projeto completo.
-  const dados = await api.get<ApiProject[]>("/projects");
-  return dados.map((p) => projetoDaApi({ ...p, songs: [] }));
+  // A listagem já vem com as faixas de cada projeto.
+  const dados = await api.get<ApiProjectDetail[]>("/projects");
+  return dados.map(projetoDaApi);
 }
 
 export async function getById(id: string): Promise<Project> {

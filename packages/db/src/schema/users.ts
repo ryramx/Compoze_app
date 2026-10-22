@@ -10,6 +10,8 @@ export const users = pgTable(
     name: text("name").notNull(),
     username: citext("username").notNull().unique(),
     email: citext("email").notNull().unique(),
+    // argon2id. Nula para quem entrar só por OAuth (fase futura).
+    passwordHash: text("password_hash"),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),
     city: text("city"),

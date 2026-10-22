@@ -48,7 +48,7 @@ export const songs = pgTable(
     check("songs_bpm_check", sql`${t.bpm} BETWEEN 20 AND 300`),
     index("songs_owner_idx").on(t.ownerId, t.deletedAt),
     index("songs_tags_idx").using("gin", t.tags),
-    index("songs_title_trgm_idx").using("gin", sql`${t.title} gin_trgm_ops`),
+    // Índices de busca sem acento (compoze_normalizar) ficam na migração 0004.
   ],
 );
 

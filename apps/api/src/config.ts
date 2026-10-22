@@ -9,6 +9,16 @@ const Ambiente = z.object({
     .string()
     .default("http://localhost:5173")
     .transform((s) => s.split(",").map((o) => o.trim()).filter(Boolean)),
+  // Assina os access tokens (HS256). Em produção vem do Render (generateValue).
+  JWT_SECRET: z.string().min(32, "Use pelo menos 32 caracteres."),
+  ACCESS_TOKEN_MINUTOS: z.coerce.number().int().positive().default(30),
+  LIMITE_AUTH_POR_MINUTO: z.coerce.number().int().positive().default(10),
+  REFRESH_TOKEN_DIAS: z.coerce.number().int().positive().default(30),
+  // Liga o job diário de expurgo da lixeira (RN08). Desligado nos testes.
+  JOBS: z
+    .enum(["on", "off"])
+    .default("on")
+    .transform((v) => v === "on"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
 });
 

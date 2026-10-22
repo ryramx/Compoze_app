@@ -177,21 +177,15 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     try {
       // Ativas e lixeira juntas: as telas filtram por `deletedAt`, e buscar as
       // duas de uma vez mantém `listActive`/`listTrashed` funcionando como antes.
-      const [resumos, lixeira, folders, projects] = await Promise.all([
-        songApi.list(),
+      const [ativas, lixeira, folders, projects] = await Promise.all([
+        songApi.list({ completas: true }),
         songApi.listTrash(),
         folderApi.list(),
         projectApi.list(),
       ]);
-      // A listagem traz só o resumo; a Mesa, o índice e a busca mostram versos e
-      // coautores. Até a API oferecer a listagem expandida
-      // (docs/backend/contrato-da-api.md), busca o detalhe de cada canção ativa.
-      const ativas = await Promise.all(resumos.map((r) => songApi.getById(r.id)));
+      // A Mesa, o índice e a busca mostram versos e coautores: a listagem já
+      // vem completa (expand), numa requisição só.
       const songs = [...ativas, ...lixeira];
-
-      // A listagem de projetos não traz as faixas. Até a API devolver a contagem
-      // na listagem (docs/backend/contrato-da-api.md), busca o detalhe de cada um.
-      const projetosCompletos = await Promise.all(projects.map((p) => projectApi.getById(p.id)));
 
       // Resolve numa só requisição todas as pessoas citadas nas obras.
       const ids = new Set<string>([currentUserId]);
@@ -206,7 +200,7 @@ export const useCompoze = create<CompozeState>((set, get) => ({
       set({
         songs,
         folders,
-        projects: projetosCompletos,
+        projects,
         users: await userApi.getMany([...ids]),
         followingIds: userService.getFollowingIds(initialFollows, currentUserId),
         hidratado: true,

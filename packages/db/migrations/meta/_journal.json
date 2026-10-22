@@ -22,6 +22,27 @@
       "when": 1792704249631,
       "tag": "0002_gatilhos",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792707832218,
+      "tag": "0003_autenticacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792707833523,
+      "tag": "0004_busca",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792707846561,
+      "tag": "0005_busca_indices",
+      "breakpoints": true
     }
   ]
 }

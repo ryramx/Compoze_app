@@ -38,6 +38,19 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - Blueprint do Render (`render.yaml`) para staging: PostgreSQL 18, API e
   front, com deploy automático após a CI passar.
 
+- Backend, Fase 1 (MVP do contrato): cadastro, login e refresh rotacionado
+  com detecção de reuso e limite de tentativas (ADR 0006); perfil, pessoas e
+  mapa (RN11); canções com busca sem acento, blocos, coautoria e divisão
+  (RN05), lixeira (RN07) e expurgo diário (RN08); pastas sem ciclo; projetos
+  e faixas. Criações aceitam id gerado no aparelho.
+- `GET /songs?expand=blocks,collaborators` e `GET /projects` com faixas: o
+  front carrega tudo em quatro requisições, em vez de uma por canção e por
+  projeto.
+
+### Corrigido
+- Abrir o app em duas abas (ou no StrictMode) não derruba mais a sessão: a
+  renovação do token é compartilhada.
+
 ### Removido
 - Cursores de colaboradores simulados.
 - Modal de pré-visualização de canção (o editor abre direto).

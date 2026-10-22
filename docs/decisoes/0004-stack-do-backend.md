@@ -1,6 +1,6 @@
 # 0004 · Stack do backend
 
-- Status: aceita em 2026-10-22
+- Status: aceita em 2026-10-22. O item Better Auth foi substituído pelo [0006](0006-autenticacao-propria.md)
 - Data: 2026-10-22
 
 ## Contexto
