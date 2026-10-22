@@ -35,6 +35,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   Docker Compose com PostgreSQL 18 + PostGIS; testes contra Postgres real
   (Testcontainers) e job de CI da API.
 
+- Blueprint do Render (`render.yaml`) para staging: PostgreSQL 18, API e
+  front, com deploy automático após a CI passar.
+
 ### Removido
 - Cursores de colaboradores simulados.
 - Modal de pré-visualização de canção (o editor abre direto).

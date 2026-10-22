@@ -7,6 +7,7 @@
 | [frontend/design-system.md](frontend/design-system.md) | Linguagem visual "Caderno": tipografia, cores, componentes e o porquê |
 | [backend/plano.md](backend/plano.md) | Stack recomendada, arquitetura, modelo de dados e fases do backend |
 | [backend/desenvolvimento.md](backend/desenvolvimento.md) | Rodar, testar e mudar o backend e o banco no dia a dia |
+| [backend/deploy.md](backend/deploy.md) | Staging no Render: o que o Blueprint cria e como publicar |
 | [backend/contrato-da-api.md](backend/contrato-da-api.md) | Rotas que o frontend já consome, com formatos e regras |
 | [decisoes/](decisoes/) | Registros de decisão (ADRs), um por escolha relevante |
 | [../CHANGELOG.md](../CHANGELOG.md) | O que mudou, por versão |
