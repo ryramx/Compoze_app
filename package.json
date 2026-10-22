@@ -4,9 +4,19 @@
   "packageManager": "pnpm@10.13.1",
   "scripts": {
     "dev": "pnpm --filter @compoze/web dev",
-    "build": "pnpm --filter @compoze/web build",
-    "test": "pnpm -r test",
-    "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck"
+    "dev:api": "pnpm --filter @compoze/api dev",
+    "db:up": "docker compose up -d postgres",
+    "db:generate": "pnpm --filter @compoze/db generate",
+    "db:migrate": "pnpm --filter @compoze/db migrate",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.5"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

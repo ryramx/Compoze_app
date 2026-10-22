@@ -216,7 +216,9 @@ troca isso por:
 ## 8. Próximos passos
 
 1. ~~Confirmar a stack (ADR 0004).~~ Feito.
-2. Fase 0 neste repositório: `apps/api`, `packages/contracts`, `packages/db`,
-   já com as colunas de sincronização do ADR 0005.
+2. ~~Fase 0 neste repositório: `apps/api`, `packages/contracts`, `packages/db`,
+   já com as colunas de sincronização do ADR 0005.~~ Feito, exceto o deploy de
+   staging no Render, que depende de criar a conta/serviços. Guia de uso em
+   [desenvolvimento.md](desenvolvimento.md).
 3. Escrever os schemas Zod a partir do contrato e trocar `services/api/dto.ts`
    do front pelos tipos gerados de `packages/contracts`.
