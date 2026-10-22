@@ -52,7 +52,7 @@ export default function MapPage() {
 
   return (
     <Pagina>
-      <Cabecalho indice="07" secao="Gente" titulo="Mapa" descricao="Quem compõe perto de você. Só aparece quem escolheu aparecer." />
+      <Cabecalho secao="Gente" titulo="Mapa" descricao="Quem compõe perto de você. Só aparece quem escolheu aparecer." />
 
       {isPending ? null : noMapa.length === 0 ? (
         <div className="mt-8">

@@ -67,7 +67,7 @@ export default function Settings() {
 
   return (
     <Pagina>
-      <Cabecalho indice="09" titulo="Ajustes" />
+      <Cabecalho titulo="Ajustes" />
 
       <Bloco titulo="Perfil" descricao="Como você aparece nos créditos, no mapa e para quem escreve com você.">
         <form onSubmit={salvar} className="space-y-6">

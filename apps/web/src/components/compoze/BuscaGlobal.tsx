@@ -92,7 +92,7 @@ export function BuscaGlobal({ aberta, aoMudar }: { aberta: boolean; aoMudar: (v:
               <Command.Group heading="Ir para" className={grupo}>
                 {TODAS.map((p) => (
                   <Command.Item key={p.url} value={`ir ${p.titulo}`} onSelect={() => ir(p.url)} className={item}>
-                    <span className="numeral w-5 text-[11px] text-tinta-3">{p.indice}</span>
+                    <p.icone aria-hidden className="size-4 shrink-0 text-tinta-3" strokeWidth={1.5} />
                     <span>{p.titulo}</span>
                   </Command.Item>
                 ))}

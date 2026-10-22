@@ -18,7 +18,7 @@ function ItemDoTrilho({ item, aoClicar }: { item: ItemDeNavegacao; aoClicar?: ()
       onClick={aoClicar}
       className={({ isActive }) =>
         cn(
-          "group relative flex items-baseline gap-3 py-[7px] pr-3 pl-5 text-[14px] transition-colors",
+          "group relative flex items-center gap-3 py-[7px] pr-3 pl-5 text-[14px] transition-colors",
           isActive ? "text-tinta" : "text-tinta-2 hover:text-tinta",
         )
       }
@@ -31,7 +31,7 @@ function ItemDoTrilho({ item, aoClicar }: { item: ItemDeNavegacao; aoClicar?: ()
               isActive ? "opacity-100" : "opacity-0",
             )}
           />
-          <span className={cn("numeral w-5 text-[11px]", isActive ? "text-lapis" : "text-tinta-3")}>{item.indice}</span>
+          <item.icone aria-hidden className={cn("size-4 shrink-0", isActive ? "text-lapis" : "text-tinta-3")} strokeWidth={1.5} />
           <span className={cn(isActive && "font-medium")}>{item.titulo}</span>
         </>
       )}

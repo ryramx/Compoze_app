@@ -16,7 +16,6 @@ export default function Projects() {
   return (
     <Pagina>
       <Cabecalho
-        indice="04"
         secao="Escrita"
         titulo="Projetos"
         descricao="Singles, EPs e álbuns: as canções em ordem de faixa, o dinheiro e a data de lançamento."

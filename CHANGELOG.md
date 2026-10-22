@@ -47,6 +47,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   front carrega tudo em quatro requisições, em vez de uma por canção e por
   projeto.
 
+### Alterado
+- Menu lateral e "Ir para" da busca mostram ícones em vez dos números
+  `01`–`09`; os cabeçalhos de página também perderam o número.
+
 ### Corrigido
 - Build no Render: `corepack enable` falha lá (diretório global só leitura);
   o pnpm passa a vir pelo `npx`, na versão fixada.

@@ -83,7 +83,6 @@ export default function Songs() {
   return (
     <Pagina>
       <Cabecalho
-        indice="02"
         secao="Escrita"
         titulo="Canções"
         descricao={`${ativas.length} ${ativas.length === 1 ? "obra" : "obras"} no caderno, da primeira ideia à gravação.`}

@@ -30,7 +30,7 @@ export default function Messages() {
 
   return (
     <Pagina>
-      <Cabecalho indice="06" secao="Gente" titulo="Conversas" />
+      <Cabecalho secao="Gente" titulo="Conversas" />
       <AvisoDePrevia />
 
       <div className="mt-8 grid min-h-[60vh] border-y border-linha md:grid-cols-[300px_minmax(0,1fr)]">
