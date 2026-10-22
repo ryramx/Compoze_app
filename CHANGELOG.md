@@ -24,6 +24,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - Documentação: visão do produto, arquitetura e design system do front,
   contrato da API, plano do backend, ADRs.
 - CI do frontend (lint, typecheck, testes, build).
+- ADR 0005: app instalável (PWA, depois Capacitor nas lojas) e uso offline
+  local-first; plano do backend reorganizado em quatro fases.
+- Stack do backend aceita (ADR 0004).
 - Plano do backend fixa PostgreSQL 18 (versão do ambiente local), com `uuidv7()` nativo.
 
 ### Removido

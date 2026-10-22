@@ -34,6 +34,7 @@ quê e com qual percentual.
 | Busca global (⌘K) | Pronto | qualquer tela |
 | Mural, conversas, seguidores | Prévia com dados de exemplo (Fases 2 e 3) | `/feed`, `/messages` |
 | Edição simultânea em tempo real | Planejado (Fase 2 do backend) | — |
+| App instalável e uso offline | Planejado: PWA na Fase 2, lojas na Fase 3 (ADR 0005) | — |
 
 ## Regras de negócio
 

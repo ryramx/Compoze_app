@@ -131,4 +131,7 @@ Valores monetários em reais, inteiros (centavos não são usados na v1).
    crescerem.
 4. `ETag`/`If-Match` em `PATCH` de canção e bloco para detectar edição
    concorrente até a Fase 2 trazer o tempo real.
-5. Rotas sociais (mural, seguidores, conversas, notificações) — Fase 3.
+5. Sincronização offline (ADR 0005): `POST` de criação aceita `id` do cliente
+   (UUID v7); todas as escritas aceitam `Idempotency-Key`; registros ganham
+   `version`; novas rotas `GET /sync/changes?since=` e `POST /sync/push` — Fase 2.
+6. Rotas sociais (mural, seguidores, conversas, notificações) — Fase 4.
