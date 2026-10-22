@@ -48,6 +48,8 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   projeto.
 
 ### Corrigido
+- Build no Render: `corepack enable` falha lá (diretório global só leitura);
+  o pnpm passa a vir pelo `npx`, na versão fixada.
 - Abrir o app em duas abas (ou no StrictMode) não derruba mais a sessão: a
   renovação do token é compartilhada.
 
