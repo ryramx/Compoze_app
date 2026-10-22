@@ -3,19 +3,16 @@ import {
   musicaDaApi,
   patchDeMusicaParaApi,
   statusParaApi,
-  tipoDeBlocoParaApi,
 } from "@/services/api/adapters";
 import type {
-  ApiBlockPatch,
   ApiContributions,
-  ApiNewBlock,
   ApiNewCollaborator,
   ApiNewSong,
   ApiSongDetail,
   ApiSongSummary,
   ApiTrashItem,
 } from "@/services/api/dto";
-import type { Song, SongBlock, SongStatus } from "@/types";
+import type { Song, SongStatus } from "@/types";
 
 export interface FiltroBusca {
   q?: string;
@@ -74,38 +71,6 @@ export async function restore(id: string): Promise<Song> {
 
 export async function permanentDelete(id: string): Promise<void> {
   await api.delete(`/songs/${id}/permanent`);
-}
-
-// ---------------------------------------------------------------- blocos
-
-export async function addBlock(
-  songId: string,
-  bloco: { type: SongBlock["type"]; text?: string; label?: string; position?: number },
-): Promise<void> {
-  const corpo: ApiNewBlock = {
-    type: tipoDeBlocoParaApi(bloco.type),
-    content: bloco.text ?? "",
-    label: bloco.label ?? null,
-    // Só envia posição quando há uma: ausente significa "no fim da música".
-    ...(bloco.position === undefined ? {} : { position: bloco.position }),
-  };
-  await api.post(`/songs/${songId}/blocks`, corpo);
-}
-
-export async function updateBlock(
-  songId: string,
-  blockId: string,
-  patch: Partial<SongBlock>,
-): Promise<void> {
-  const corpo: ApiBlockPatch = {};
-  if ("text" in patch) corpo.content = patch.text;
-  if ("label" in patch) corpo.label = patch.label ?? null;
-  if ("type" in patch && patch.type) corpo.type = tipoDeBlocoParaApi(patch.type);
-  await api.patch(`/songs/${songId}/blocks/${blockId}`, corpo);
-}
-
-export async function removeBlock(songId: string, blockId: string): Promise<void> {
-  await api.delete(`/songs/${songId}/blocks/${blockId}`);
 }
 
 // --------------------------------------------------------- colaboradores

@@ -11,6 +11,8 @@ export interface BlocoProps {
   /** Mostrar o nome do autor na margem (só no primeiro bloco de uma sequência do mesmo autor). */
   assinarNaMargem: boolean;
   letraEmMono: boolean;
+  /** Outra pessoa com o cursor neste bloco agora (edição em tempo real). */
+  escrevendoAgora?: User;
   focar: boolean;
   aoFocar: () => void;
   aoFocarTratado: () => void;
@@ -41,6 +43,7 @@ export function Bloco({
   meu,
   assinarNaMargem,
   letraEmMono,
+  escrevendoAgora,
   focar,
   aoFocar,
   aoFocarTratado,
@@ -99,12 +102,23 @@ export function Bloco({
     </button>
   );
 
+  // Quem está escrevendo aqui agora tem precedência sobre a assinatura de
+  // quem escreveu: é a informação que muda o que a pessoa faz em seguida.
   const margem = (
     <div className="hidden pt-1.5 pr-4 text-right text-[11px] leading-tight md:block">
-      {!meu && assinarNaMargem && autor && (
-        <span style={{ color: cor }} className="font-medium">
-          {autor.name.split(" ")[0]}
+      {escrevendoAgora ? (
+        <span style={{ color: corDoAutor(escrevendoAgora.authorColor) }} className="font-medium">
+          {escrevendoAgora.name.split(" ")[0]}
+          <span className="block font-normal italic opacity-80">escrevendo</span>
         </span>
+      ) : (
+        !meu &&
+        assinarNaMargem &&
+        autor && (
+          <span style={{ color: cor }} className="font-medium">
+            {autor.name.split(" ")[0]}
+          </span>
+        )
       )}
     </div>
   );

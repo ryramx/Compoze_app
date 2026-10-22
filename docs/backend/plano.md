@@ -87,7 +87,8 @@ apps/
       jobs/            pg-boss: expurgo, e-mails
       plugins/         auth, erros, rate limit, cors, openapi
       server.ts
-  collab/              Hocuspocus: sincroniza o documento Yjs de cada canção (Fase 2)
+  collab/              Hocuspocus: sincroniza o documento Yjs de cada canção (Fase 2;
+                       por ora dentro de apps/api, em src/modules/colab)
   worker/              consumidor de jobs (pode começar dentro da api)
 packages/
   contracts/           schemas Zod compartilhados (requisição/resposta)
@@ -172,15 +173,16 @@ Fase 4 acrescenta `follows`, `posts`, `post_likes`, `comments`,
 
 ## 5. Editor colaborativo e offline (Fase 2)
 
-Hoje o editor salva bloco a bloco com atraso de 600 ms; duas pessoas editando o
-mesmo bloco ao mesmo tempo perdem texto, e nada funciona sem rede. A Fase 2
-troca isso por:
+Até a Fase 1 o editor salvava bloco a bloco com atraso de 600 ms; duas pessoas
+editando o mesmo bloco ao mesmo tempo perdiam texto, e nada funcionava sem
+rede. A Fase 2 troca isso pelo que segue. Os itens 1 a 5 estão feitos (Fase 2a,
+detalhes no [ADR 0007](../decisoes/0007-documento-yjs-da-cancao.md)):
 
 1. Cada canção é um documento Yjs (`Y.Array` de blocos, cada bloco um `Y.Map`
    com `Y.Text`). A autoria por trecho vem dos atributos de inserção do Yjs, o
    que permite marcar autoria por palavra, não só por bloco.
-2. O navegador conecta ao serviço `collab` (Hocuspocus) via WebSocket,
-   autenticado com o mesmo token.
+2. O navegador conecta ao Hocuspocus via WebSocket em `/collab`, autenticado
+   com o mesmo token. Na Fase 2a ele roda dentro do processo da API.
 3. O Hocuspocus persiste o estado binário em `song_documents` e, com debounce,
    **projeta** os blocos em `song_blocks` — que continua sendo a fonte para
    busca, listagens e a API REST.
@@ -224,4 +226,9 @@ troca isso por:
    staging (Render + Neon) desde 2026-10-22.
 4. ~~Trocar `services/api/dto.ts` do front pelos tipos de `packages/contracts`.~~
    Feito: respostas e corpos de requisição vêm dos schemas.
-5. Fase 2: Hocuspocus + Yjs no editor e as rotas de sincronização offline.
+5. ~~Fase 2a: Hocuspocus + Yjs no editor, presença, documento salvo no
+   aparelho.~~ Feito (ADR 0007).
+6. Fase 2b: banco local e fila de envio no front, rotas `/sync/changes` e
+   `/sync/push` (título, ficha, pastas e projetos offline).
+7. Fase 2c: PWA instalável (o app abre sem rede).
+8. Fase 2d: convites por e-mail, histórico de versões e registro com hash.

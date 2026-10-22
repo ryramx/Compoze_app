@@ -58,7 +58,7 @@ export default function Settings() {
 
   async function restaurarExemplo() {
     const { restaurarDadosDeExemplo } = await import("@/demo/servidor");
-    restaurarDadosDeExemplo();
+    await restaurarDadosDeExemplo();
     limpar();
     if (eu) await hidratar(eu.id);
     toast("Dados de exemplo restaurados.");

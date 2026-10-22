@@ -73,7 +73,17 @@ type RequestOptions = {
   signal?: AbortSignal;
 };
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+let renovador: (() => Promise<boolean>) | null = null;
+
+/**
+ * Quem sabe renovar a sessão (o authService) se registra aqui. Fica do lado
+ * de lá para este arquivo continuar sem saber nada de rotas de domínio.
+ */
+export function definirRenovador(fn: () => Promise<boolean>): void {
+  renovador = fn;
+}
+
+async function request<T>(path: string, options: RequestOptions = {}, repetida = false): Promise<T> {
   const { method = "GET", body, signal } = options;
 
   const headers: Record<string, string> = {};
@@ -103,6 +113,12 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   const isJson = response.headers.get("content-type")?.includes("application/json");
   const payload = isJson ? await response.json().catch(() => null) : null;
+
+  // Access token venceu no meio do uso: renova uma vez e repete. As rotas de
+  // /auth ficam de fora, senão um refresh recusado tentaria se renovar.
+  if (response.status === 401 && !repetida && renovador && !path.startsWith("/auth/") && (await renovador())) {
+    return request<T>(path, options, true);
+  }
 
   if (!response.ok) {
     // FastAPI devolve o motivo em `detail`, string ou lista de erros do Pydantic.

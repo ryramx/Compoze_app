@@ -1,9 +1,13 @@
 import type { AtualizarCancao, DetalheDaCancao, ResumoDaCancao } from "@compoze/contracts";
 import { folders, songBlocks, songCollaborators, songs, users, type Banco } from "@compoze/db";
-import { and, asc, desc, eq, gt, gte, inArray, isNotNull, isNull, sql, type SQL } from "drizzle-orm";
+import { editarTexto, inserirBloco, lerBlocos, mudarBloco, removerBloco as removerDoDocumento } from "@compoze/documento";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, sql, type SQL } from "drizzle-orm";
 
 import { bloco, colaborador, resumoDaCancao } from "../../lib/mapear";
+import { uuidv7 } from "../../lib/uuidv7";
 import { ErroDaApi } from "../../plugins/erros";
+import { editarDocumento } from "../colab/editar";
+import { fecharEditores, type Colaboracao } from "../colab/servidor";
 import { acessar, exigirDona, exigirEscrita, type Acesso } from "./acesso";
 
 /** RN08: dias que uma canção fica na lixeira antes do expurgo. */
@@ -32,9 +36,6 @@ async function recarregar(db: Banco | Tx, id: string) {
   const [c] = await db.select().from(songs).where(eq(songs.id, id));
   return detalhe(db, c!);
 }
-
-/** Marca a canção como alterada (o gatilho sobe `version` e `updated_at`). */
-const tocar = (tx: Tx, id: string) => tx.update(songs).set({ updatedAt: sql`now()` }).where(eq(songs.id, id));
 
 /** Uma pasta só aceita canções da própria dona da pasta. */
 async function exigirPastaDa(db: Banco | Tx, folderId: string, donaId: string) {
@@ -177,10 +178,12 @@ export async function atualizar(db: Banco, songId: string, usuarioId: string, p:
 // ------------------------------------------------------------ lixeira
 
 /** RN07: vai para a lixeira sem perder pasta nem projetos. */
-export async function mandarParaLixeira(db: Banco, songId: string, usuarioId: string) {
+export async function mandarParaLixeira(db: Banco, colab: Colaboracao, songId: string, usuarioId: string) {
   const a = await acessar(db, songId, usuarioId);
   exigirDona(a, "mandar a canção para a lixeira");
   if (!a.cancao.deletedAt) await db.update(songs).set({ deletedAt: sql`now()` }).where(eq(songs.id, songId));
+  // Quem estava com a canção aberta reconecta já sem poder escrever.
+  fecharEditores(colab, songId);
 }
 
 export async function lixeira(db: Banco, usuarioId: string) {
@@ -192,98 +195,74 @@ export async function lixeira(db: Banco, usuarioId: string) {
   return linhas.map((l) => ({ ...resumoDaCancao(l.cancao), days_remaining: Math.max(0, RETENCAO_DIAS - l.dias) }));
 }
 
-export async function restaurar(db: Banco, songId: string, usuarioId: string) {
+export async function restaurar(db: Banco, colab: Colaboracao, songId: string, usuarioId: string) {
   const a = await acessar(db, songId, usuarioId);
   exigirDona(a, "restaurar a canção");
   if (!a.cancao.deletedAt) return detalhe(db, a.cancao);
   const [c] = await db.update(songs).set({ deletedAt: null }).where(eq(songs.id, songId)).returning();
+  fecharEditores(colab, songId);
   return detalhe(db, c!);
 }
 
-export async function apagarDeVez(db: Banco, songId: string, usuarioId: string) {
+export async function apagarDeVez(db: Banco, colab: Colaboracao, songId: string, usuarioId: string) {
   const a = await acessar(db, songId, usuarioId);
   exigirDona(a, "apagar a canção de vez");
   await db.delete(songs).where(eq(songs.id, songId));
+  fecharEditores(colab, songId);
 }
 
 // ------------------------------------------------------------- blocos
+//
+// O conteúdo da canção mora no documento Yjs (ADR 0007). As rotas REST de
+// blocos editam esse documento, como mais um editor; a gravação refaz
+// `song_blocks`, que é de onde a resposta é lida.
+
+type TipoDoBloco = DetalheDaCancao["blocks"][number]["type"];
+
+const blocoNaoEncontrado = () => new ErroDaApi(404, "Bloco não encontrado.");
 
 export async function adicionarBloco(
   db: Banco,
+  colab: Colaboracao,
   songId: string,
   usuarioId: string,
-  b: { id?: string; type: DetalheDaCancao["blocks"][number]["type"]; content: string; label?: string | null; position?: number },
+  b: { id?: string; type: TipoDoBloco; content: string; label?: string | null; position?: number },
 ) {
-  const a = await acessar(db, songId, usuarioId);
-  exigirEscrita(a);
-  return db.transaction(async (tx) => {
-    // Trava a canção: dois blocos inseridos ao mesmo tempo não disputam a posição.
-    await tx.execute(sql`SELECT 1 FROM ${songs} WHERE ${songs.id} = ${songId} FOR UPDATE`);
-    const [{ total }] = (await tx
-      .select({ total: sql<number>`count(*)::int` })
-      .from(songBlocks)
-      .where(eq(songBlocks.songId, songId))) as [{ total: number }];
-    const posicao = b.position === undefined ? total : Math.min(b.position, total);
-    if (posicao < total) {
-      await tx
-        .update(songBlocks)
-        .set({ position: sql`${songBlocks.position} + 1` })
-        .where(and(eq(songBlocks.songId, songId), gte(songBlocks.position, posicao)));
-    }
-    await tx.insert(songBlocks).values({
-      ...(b.id ? { id: b.id } : {}),
-      songId,
-      type: b.type,
-      content: b.content,
-      label: b.label ?? null,
-      position: posicao,
-      authorId: usuarioId,
-    });
-    await tocar(tx, songId);
-    return recarregar(tx, songId);
+  exigirEscrita(await acessar(db, songId, usuarioId));
+  const id = b.id ?? uuidv7();
+  await editarDocumento(colab, songId, usuarioId, (doc) => {
+    if (lerBlocos(doc).some((x) => x.id === id)) throw new ErroDaApi(409, "Já existe um bloco com esse id.");
+    inserirBloco(doc, { id, type: b.type, label: b.label ?? null, content: b.content, author_id: usuarioId }, b.position);
   });
+  return recarregar(db, songId);
 }
 
 export async function atualizarBloco(
   db: Banco,
+  colab: Colaboracao,
   songId: string,
   blocoId: string,
   usuarioId: string,
-  p: { content?: string; label?: string | null; type?: DetalheDaCancao["blocks"][number]["type"] },
+  p: { content?: string; label?: string | null; type?: TipoDoBloco },
 ) {
-  const a = await acessar(db, songId, usuarioId);
-  exigirEscrita(a);
-  return db.transaction(async (tx) => {
-    const mudancas: Partial<typeof songBlocks.$inferInsert> = {};
-    if (p.content !== undefined) mudancas.content = p.content;
-    if (p.label !== undefined) mudancas.label = p.label;
-    if (p.type !== undefined) mudancas.type = p.type;
-    const alvo = and(eq(songBlocks.id, blocoId), eq(songBlocks.songId, songId));
-    const [b] =
-      Object.keys(mudancas).length > 0
-        ? await tx.update(songBlocks).set(mudancas).where(alvo).returning()
-        : await tx.select().from(songBlocks).where(alvo);
-    if (!b) throw new ErroDaApi(404, "Bloco não encontrado.");
-    if (Object.keys(mudancas).length > 0) await tocar(tx, songId);
-    return bloco(b);
+  exigirEscrita(await acessar(db, songId, usuarioId));
+  await editarDocumento(colab, songId, usuarioId, (doc) => {
+    if (!lerBlocos(doc).some((x) => x.id === blocoId)) throw blocoNaoEncontrado();
+    if (p.content !== undefined) editarTexto(doc, blocoId, p.content);
+    mudarBloco(doc, blocoId, { label: p.label, type: p.type });
   });
+  const [linha] = await db
+    .select()
+    .from(songBlocks)
+    .where(and(eq(songBlocks.id, blocoId), eq(songBlocks.songId, songId)));
+  if (!linha) throw blocoNaoEncontrado();
+  return bloco(linha);
 }
 
-export async function removerBloco(db: Banco, songId: string, blocoId: string, usuarioId: string) {
-  const a = await acessar(db, songId, usuarioId);
-  exigirEscrita(a);
-  await db.transaction(async (tx) => {
-    const [b] = await tx
-      .delete(songBlocks)
-      .where(and(eq(songBlocks.id, blocoId), eq(songBlocks.songId, songId)))
-      .returning();
-    if (!b) throw new ErroDaApi(404, "Bloco não encontrado.");
-    // Recompacta: as posições continuam 0, 1, 2… sem buraco.
-    await tx
-      .update(songBlocks)
-      .set({ position: sql`${songBlocks.position} - 1` })
-      .where(and(eq(songBlocks.songId, songId), gt(songBlocks.position, b.position)));
-    await tocar(tx, songId);
+export async function removerBloco(db: Banco, colab: Colaboracao, songId: string, blocoId: string, usuarioId: string) {
+  exigirEscrita(await acessar(db, songId, usuarioId));
+  await editarDocumento(colab, songId, usuarioId, (doc) => {
+    if (!removerDoDocumento(doc, blocoId)) throw blocoNaoEncontrado();
   });
 }
 

@@ -17,6 +17,7 @@
  */
 
 import { semear, type BancoDemo } from "@/demo/semente";
+import { apagarDocumentosLocais } from "@/lib/colaboracao";
 import type {
   ApiBlock,
   ApiFolder,
@@ -54,9 +55,12 @@ function gravar(): void {
 }
 
 /** Volta aos dados de exemplo. Usado em Ajustes. */
-export function restaurarDadosDeExemplo(): void {
+export async function restaurarDadosDeExemplo(): Promise<void> {
   banco = semear();
   gravar();
+  // As letras editadas moram nos documentos do aparelho; sem apagá-los, as
+  // canções de exemplo voltariam com o texto de antes.
+  await apagarDocumentosLocais();
 }
 
 // ------------------------------------------------------------- utilidades
@@ -532,6 +536,42 @@ function bloco(
     created_at: agora(),
     updated_at: agora(),
   };
+}
+
+/**
+ * O que o servidor real faz ao gravar o documento Yjs de uma canção: refaz os
+ * blocos da canção a partir dele (ADR 0007). Na demonstração não há
+ * WebSocket; o editor chama isto direto, para que listagens e busca vejam o
+ * que foi escrito.
+ */
+export function projetarDocumento(
+  songId: string,
+  blocos: { id: string; type: ApiBlock["type"]; label: string | null; content: string; author_id: string | null }[],
+): void {
+  const musica = carregar().musicas.find((m) => m.id === songId);
+  if (!musica) return;
+  const antes = new Map(musica.blocks.map((b) => [b.id, b]));
+  const quando = agora();
+  let mudou = blocos.length !== musica.blocks.length;
+  musica.blocks = blocos.map((b, position) => {
+    const anterior = antes.get(b.id);
+    const igual =
+      anterior &&
+      anterior.position === position &&
+      anterior.content === b.content &&
+      anterior.label === b.label &&
+      anterior.type === b.type;
+    if (!igual) mudou = true;
+    return {
+      ...b,
+      position,
+      created_at: anterior?.created_at ?? quando,
+      updated_at: igual ? anterior.updated_at : quando,
+    };
+  });
+  if (!mudou) return;
+  musica.updated_at = quando;
+  gravar();
 }
 
 /** Ponto de entrada: recebe o que `fetch` receberia e devolve uma `Response`. */

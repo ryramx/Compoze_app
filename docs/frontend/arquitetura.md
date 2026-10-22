@@ -37,15 +37,20 @@ componente.
 
 Escritas são **otimistas e adiadas**: o estado local muda na hora e a gravação
 vai ao servidor 600 ms depois da última tecla, por chave (`song:id`,
-`block:id`…). Uma falha recarrega do servidor.
+`folder:id`…). Uma falha recarrega do servidor.
+
+O conteúdo das canções (blocos) não passa por aí: é do documento Yjs de cada
+canção (ADR 0007), editado pelo `useDocumentoDaCancao`. O store só recebe uma
+cópia dos blocos (`definirBlocos`) para Mesa, listas e busca ficarem em dia.
+
+Uma requisição que volta `401` renova o access token pelo refresh e repete uma
+vez (`definirRenovador` em `lib/api.ts`, registrado pelo `authService`).
 
 TanStack Query é usado onde o dado não pertence ao conjunto de trabalho (ex.:
 pessoas no mapa).
 
-Duas cargas extras existem porque o contrato atual não as evita: a listagem de
-canções não traz blocos e a de projetos não traz faixas, então o store busca o
-detalhe de cada item. O contrato do backend novo resolve isso
-(`docs/backend/contrato-da-api.md`, "Pendências").
+A carga inicial pede as canções completas (`expand=blocks,collaborators`) e os
+projetos já com as faixas, numa ida cada.
 
 ## Rotas
 
@@ -71,8 +76,19 @@ carregadas sob demanda (`React.lazy`).
   abaixo; Backspace num bloco vazio o remove e volta ao anterior.
 - Inserção pelo cursor: abaixo do bloco em foco; cifra pedida sobre um verso
   entra acima dele.
-- Desfazer/refazer cobre texto e metadados (não inserção/remoção de blocos —
-  ver ADR 0002).
+- Os blocos vivem no documento Yjs da canção (ADR 0007), salvo no IndexedDB do
+  aparelho e sincronizado em tempo real pelo Hocuspocus. Offline continua
+  escrevendo; a barra diz se está sincronizando, salvo, offline (salvo no
+  aparelho) ou, na demonstração, salvo no aparelho.
+- Quem mais está com a canção aberta aparece na barra ("aqui agora") e na
+  margem do bloco em que está ("Fulana escrevendo").
+- Desfazer/refazer (Ctrl+Z na folha) é do `Y.UndoManager`: desfaz só o que
+  esta pessoa fez, inclusive inserir e remover blocos. Título e ficha usam o
+  desfazer do próprio campo.
+- No modo demonstração não há servidor: a primeira abertura semeia o documento
+  com os blocos de exemplo, e cada mudança é projetada de volta no servidor de
+  demonstração (`projetarDocumento`). "Restaurar dados de exemplo" e sair da
+  conta apagam as cópias locais.
 - "Alinhar" troca a letra para fonte monoespaçada, para que acorde e sílaba
   coincidam. A preferência fica no navegador.
 - A autoria aparece como marginália: fio na cor de quem escreveu e o nome na
@@ -81,4 +97,6 @@ carregadas sob demanda (`React.lazy`).
 ## Testes
 
 Vitest + Testing Library (`pnpm test`). Cobrem adapters, transporte, store,
-desfazer/refazer, guarda de rota e o servidor de demonstração.
+guarda de rota e o servidor de demonstração. A fusão de edições do documento é
+testada em `packages/documento`, e a edição em tempo real com dois editores,
+em `apps/api/test/colaboracao.test.ts`.

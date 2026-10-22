@@ -44,4 +44,4 @@ jobs:
           git diff --exit-code -- packages/db/migrations
           test -z "$(git status --porcelain -- packages/db/migrations)"
       # Testcontainers sobe PostgreSQL 18 + PostGIS reais.
-      - run: pnpm --filter @compoze/db --filter @compoze/api test
+      - run: pnpm --filter @compoze/documento --filter @compoze/db --filter @compoze/api test

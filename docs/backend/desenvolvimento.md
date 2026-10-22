@@ -13,6 +13,8 @@ packages/contracts   Schemas Zod do contrato (enums, erro, health). Fonte única
 packages/db          Schema Drizzle (uma tabela por arquivo em src/schema),
                      migrações SQL em migrations/, conexão (`conectar`) e
                      `migrar`.
+packages/documento   Formato do documento Yjs de cada canção (ADR 0007),
+                     usado pelo editor e pela API. Testes de fusão offline.
 apps/api             Fastify 5. `src/app.ts` monta a API sem abrir porta;
                      `src/servidor.ts` migra, sobe e escuta. Cada domínio vira
                      uma pasta em src/modules.
@@ -104,7 +106,8 @@ percentual de coautoria entre 0 e 100, e-mail e @ sem diferenciar maiúsculas
 ```bash
 pnpm test                                  # tudo, via Turborepo
 pnpm --filter @compoze/db test             # schema, restrições, gatilhos
-pnpm --filter @compoze/api test            # rotas com fastify.inject
+pnpm --filter @compoze/api test            # rotas com fastify.inject e o WebSocket do editor
+pnpm --filter @compoze/documento test      # formato do documento e fusão offline
 ```
 
 Os testes do backend sobem um PostgreSQL 18 + PostGIS de verdade com
@@ -122,6 +125,7 @@ contrato) e `servico.ts` (regras e banco). Rota não tem regra de negócio.
 | `auth` | `/auth/register`, `/auth/login`, `/auth/refresh` | ADR 0006 |
 | `users` | `/users/me`, `/users?ids=`, `/users/{username}`, `/map/people` | RN11 |
 | `songs` | `/songs…`, blocos, coautores, divisão, lixeira | RN05, RN07 |
+| `colab` | WebSocket `/collab` (Hocuspocus) | ADR 0007: documento Yjs, projeção em `song_blocks` |
 | `folders` | `/folders…` | pasta sem ciclo |
 | `projects` | `/projects…`, faixas | lixeira sem levar canções |
 | `lixeira` | job `expurgo-da-lixeira`, todo dia às 3h (Brasília) | RN08 |
@@ -133,7 +137,7 @@ contrato) e `servico.ts` (regras e banco). Rota não tem regra de negócio.
 | Ver | dona e coautores (inclusive `VIEWER`); os demais recebem `404` |
 | Editar ficha e blocos | dona e coautores, menos `VIEWER` (`403`) |
 | Mudar de pasta, convidar/remover coautor, acertar a divisão, lixeira, apagar de vez | só a dona (`403`) |
-| Editar canção na lixeira | ninguém (`409`: restaure antes) |
+| Editar canção na lixeira | ninguém (`409`: restaure antes; no editor em tempo real, só leitura) |
 
 ## Erros
 
