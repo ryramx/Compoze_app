@@ -106,7 +106,11 @@ export const songVersions = pgTable(
     number: integer("number").notNull(),
     snapshot: jsonb("snapshot").notNull(),
     sha256: text("sha256").notNull(),
+    /** Hash da versão anterior da mesma canção: as versões formam uma corrente (ADR 0009). */
+    previousSha256: text("previous_sha256"),
     reason: versionReason("reason").notNull(),
+    /** Nome dado por quem guardou ("antes do refrão novo"); nulo nas automáticas. */
+    label: text("label"),
     createdBy: uuid("created_by").references(() => users.id, { onDelete: "set null" }),
     createdAt: quando("created_at").notNull().defaultNow(),
   },

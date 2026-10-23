@@ -5,3 +5,5 @@ export * from "./users";
 export * from "./songs";
 export * from "./folders";
 export * from "./projects";
+export * from "./versoes";
+export * from "./canonico";

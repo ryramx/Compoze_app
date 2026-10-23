@@ -14,3 +14,4 @@ duas apontam uma para a outra.
 | [0006](0006-autenticacao-propria.md) | Autenticação própria no contrato v1; Better Auth adiado | Aceita |
 | [0007](0007-documento-yjs-da-cancao.md) | O conteúdo da canção é um documento Yjs (Hocuspocus na API) | Aceita; substitui o desfazer do 0002 |
 | [0008](0008-fila-offline-sobre-o-rest.md) | Escritas offline: fila no aparelho sobre as rotas REST | Aceita |
+| [0009](0009-versoes-e-registro.md) | Versões da canção e registro com hash | Aceita |

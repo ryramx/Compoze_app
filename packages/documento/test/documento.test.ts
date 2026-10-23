@@ -9,6 +9,7 @@ import {
   nomeDoDocumento,
   removerBloco,
   semear,
+  substituirBlocos,
 } from "../src/index";
 
 const novo = (id: string, content = "") => ({ id, type: "LYRIC" as const, label: null, content, author_id: "u1" });
@@ -75,5 +76,15 @@ describe("documento da canção", () => {
     semear(doc, [novo("a", "um"), novo("b", "dois")]);
     semear(doc, [novo("z")]);
     expect(lerBlocos(doc).map((b) => b.content)).toEqual(["um", "dois"]);
+  });
+
+  it("substituir troca tudo numa transação, e um desfazer volta tudo", () => {
+    const doc = new Y.Doc();
+    semear(doc, [novo("a", "agora"), novo("b", "e mais")]);
+    const desfazer = new Y.UndoManager(doc.getArray("blocos"), { trackedOrigins: new Set(["eu"]) });
+    substituirBlocos(doc, [novo("v", "da versão 3")], "eu");
+    expect(lerBlocos(doc).map((b) => b.content)).toEqual(["da versão 3"]);
+    desfazer.undo();
+    expect(lerBlocos(doc).map((b) => b.content)).toEqual(["agora", "e mais"]);
   });
 });

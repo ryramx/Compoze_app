@@ -20,6 +20,7 @@ import { rotasDeSaude } from "./modules/health/rotas";
 import { rotasDeProjetos } from "./modules/projects/rotas";
 import { rotasDeCancoes } from "./modules/songs/rotas";
 import { rotasDePessoas } from "./modules/users/rotas";
+import { rotasDeVersoes } from "./modules/versoes/rotas";
 import { autenticacao } from "./plugins/autenticacao";
 import { registrarErros } from "./plugins/erros";
 import { idempotencia } from "./plugins/idempotencia";
@@ -102,6 +103,7 @@ export async function construirApp({ config, banco, logger }: Dependencias) {
   await app.register(rotasDeAutenticacao);
   await app.register(rotasDePessoas);
   await app.register(rotasDeCancoes);
+  await app.register(rotasDeVersoes);
   await app.register(rotasDePastas);
   await app.register(rotasDeProjetos);
 

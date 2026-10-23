@@ -36,12 +36,15 @@ import type {
   Pasta,
   Projeto,
   ResumoDaCancao,
+  ResumoDaVersao,
+  RetratoDaCancao,
   StatusDaCancao,
   TipoDeBloco,
   TipoDeProjeto,
   UsuarioEu,
   UsuarioNoMapa,
   UsuarioPublico,
+  Versao,
   Visibilidade,
 } from "@compoze/contracts";
 
@@ -67,6 +70,9 @@ export type ApiTrashItem = ItemDaLixeira;
 export type ApiFolder = Pasta;
 export type ApiProject = Projeto;
 export type ApiProjectDetail = DetalheDoProjeto;
+export type ApiVersionSummary = ResumoDaVersao;
+export type ApiVersion = Versao;
+export type ApiSnapshot = RetratoDaCancao;
 
 // Corpos de requisição
 export type ApiNewSong = NovaCancao;

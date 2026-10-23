@@ -8,6 +8,7 @@ import { uuidv7 } from "../../lib/uuidv7";
 import { ErroDaApi } from "../../plugins/erros";
 import { editarDocumento } from "../colab/editar";
 import { fecharEditores, type Colaboracao } from "../colab/servidor";
+import { guardar as guardarVersao } from "../versoes/servico";
 import { acessar, exigirDona, exigirEscrita, type Acesso } from "./acesso";
 
 /** RN08: dias que uma canção fica na lixeira antes do expurgo. */
@@ -154,9 +155,20 @@ export async function obter(db: Banco, songId: string, usuarioId: string) {
   return detalhe(db, cancao);
 }
 
-export async function atualizar(db: Banco, songId: string, usuarioId: string, p: AtualizarCancao) {
+export async function atualizar(
+  db: Banco,
+  colab: Colaboracao,
+  songId: string,
+  usuarioId: string,
+  p: AtualizarCancao,
+) {
   const a = await acessar(db, songId, usuarioId);
   exigirEscrita(a);
+  // "Registrada" afirma autoria: só pelo registro, que guarda a versão com
+  // hash e exige a divisão fechada (ADR 0009).
+  if (p.status === "REGISTRADA" && a.cancao.status !== "REGISTRADA") {
+    throw new ErroDaApi(409, "Para registrar a obra, use Registrar: ele guarda a versão com hash.");
+  }
   if (p.folder_id !== undefined) {
     // A pasta é da dona; mudar a canção de lugar é decisão dela.
     exigirDona(a, "mudar a canção de pasta");
@@ -175,6 +187,11 @@ export async function atualizar(db: Banco, songId: string, usuarioId: string, p:
   if (Object.keys(mudancas).length === 0) return detalhe(db, a.cancao);
 
   const [c] = await db.update(songs).set(mudancas).where(eq(songs.id, songId)).returning();
+  // Mudar de estágio guarda uma versão: o histórico mostra a canção como
+  // estava ao virar "Finalizada", "Gravada"…
+  if (p.status !== undefined && p.status !== a.cancao.status) {
+    await guardarVersao(db, colab, songId, usuarioId, "ESTAGIO");
+  }
   return detalhe(db, c!);
 }
 

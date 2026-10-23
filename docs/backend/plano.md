@@ -234,4 +234,5 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
    na API (título, ficha, pastas e projetos offline).~~ Feito (ADR 0008).
 7. ~~Fase 2c: PWA instalável (o app abre sem rede).~~ Feito: o app instala na
    tela inicial, abre e edita em modo avião, inclusive recarregando.
-8. Fase 2d: convites por e-mail, histórico de versões e registro com hash.
+8. Fase 2d: ~~histórico de versões e registro com hash~~ (feito, ADR 0009);
+   convites por e-mail (precisa de conta no Resend).

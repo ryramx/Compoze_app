@@ -135,6 +135,14 @@ que apaga dados de sites sem uso há 7 dias.
   com os blocos de exemplo, e cada mudança é projetada de volta no servidor de
   demonstração (`projetarDocumento`). "Restaurar dados de exemplo" e sair da
   conta apagam as cópias locais.
+- Histórico de versões (menu "Mais ações", ADR 0009). Dá para guardar a
+  versão de agora com um nome, ler as antigas, conferir o hash no aparelho
+  (`versionService.conferir`) e restaurar o texto de uma delas. Restaurar troca
+  os blocos do documento numa transação (`substituirBlocos`), entra no Ctrl+Z
+  e antes guarda o texto de agora como versão.
+- Clicar em "Registrada" na ficha abre "Registrar a obra". O diálogo mostra o
+  que falta (ser a dona, divisão fechada, internet) e chama
+  `POST /songs/{id}/register`.
 - "Alinhar" troca a letra para fonte monoespaçada, para que acorde e sílaba
   coincidam. A preferência fica no navegador.
 - A autoria aparece como marginália: fio na cor de quem escreveu e o nome na

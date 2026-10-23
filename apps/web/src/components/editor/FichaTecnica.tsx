@@ -36,6 +36,7 @@ export function FichaTecnica({ musica }: { musica: Song }) {
   const [novaTag, setNovaTag] = useState("");
   const [convidando, setConvidando] = useState(false);
   const [fechando, setFechando] = useState(false);
+  const [registrando, setRegistrando] = useState(false);
   // Convidar, remover e fechar a divisão mexem em quem pode o quê: o servidor
   // decide na hora, então pedem rede (ADR 0005). O resto da ficha vai pela fila.
   const online = useOnline();
@@ -73,7 +74,13 @@ export function FichaTecnica({ musica }: { musica: Song }) {
           {ESTAGIOS.map((e, i) => (
             <li key={e.valor}>
               <button
-                onClick={() => patch({ status: e.valor })}
+                onClick={() =>
+                  // "Registrada" afirma autoria: passa pelo registro, que guarda a
+                  // versão com hash (ADR 0009). Os outros estágios mudam direto.
+                  e.valor === "registrada" && musica.status !== "registrada"
+                    ? setRegistrando(true)
+                    : patch({ status: e.valor })
+                }
                 aria-pressed={musica.status === e.valor}
                 className={cn(
                   "flex w-full items-center gap-3 py-1 text-left transition-colors",
@@ -253,6 +260,7 @@ export function FichaTecnica({ musica }: { musica: Song }) {
       </section>
 
       <ConvidarColaborador musica={musica} aberto={convidando} aoMudar={setConvidando} />
+      <RegistrarObra musica={musica} aberto={registrando} aoMudar={setRegistrando} souDono={souDono} online={online} total={total} />
     </div>
   );
 }
@@ -309,6 +317,81 @@ function ConvidarColaborador({ musica, aberto, aoMudar }: { musica: Song; aberto
           ))}
         </ul>
       )}
+    </Dialogo>
+  );
+}
+
+function RegistrarObra({
+  musica,
+  aberto,
+  aoMudar,
+  souDono,
+  online,
+  total,
+}: {
+  musica: Song;
+  aberto: boolean;
+  aoMudar: (v: boolean) => void;
+  souDono: boolean;
+  online: boolean;
+  total: number;
+}) {
+  const registrar = useCompoze((s) => s.registrarObra);
+  const [enviando, setEnviando] = useState(false);
+  const fechada = musica.contributionsConfirmed && total === 100;
+  const condicoes = [
+    { ok: souDono, texto: "Você é a dona da canção", falta: "Só a dona pode registrar." },
+    { ok: fechada, texto: "A divisão de coautoria está fechada em 100%", falta: "Feche a divisão em Coautoria, aqui na ficha." },
+    { ok: online, texto: "Há internet", falta: PRECISA_DE_REDE },
+  ];
+  const pode = condicoes.every((c) => c.ok);
+
+  async function confirmar() {
+    setEnviando(true);
+    try {
+      const v = await registrar(musica.id);
+      aoMudar(false);
+      toast(`Obra registrada. Versão ${v.number}, hash ${v.sha256.slice(0, 12)}…`);
+    } catch (e) {
+      toast.error(e instanceof ApiError ? e.message : "Não foi possível registrar.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <Dialogo
+      aberto={aberto}
+      aoMudar={aoMudar}
+      titulo="Registrar a obra"
+      descricao="Guarda um retrato imutável da canção: a letra, quem escreveu cada parte e quanto cabe a cada pessoa."
+      rodape={
+        <>
+          <Botao variante="texto" onClick={() => aoMudar(false)}>
+            Agora não
+          </Botao>
+          <Botao variante="tinta" disabled={!pode || enviando} onClick={() => void confirmar()}>
+            Registrar
+          </Botao>
+        </>
+      }
+    >
+      <p className="text-[14px] leading-relaxed text-tinta-2">
+        O retrato leva um código SHA-256 que muda se qualquer letra mudar, e que qualquer pessoa pode conferir no
+        histórico. É a prova, dentro do Compoze, de que a obra existia assim nesta data. Não substitui o registro
+        oficial (Biblioteca Nacional ou sua associação de direitos), mas serve de base para ele.
+      </p>
+      <ul className="mt-5 space-y-2 text-[14px]">
+        {condicoes.map((c) => (
+          <li key={c.texto} className="flex items-start gap-2">
+            {c.ok ? <Check className="mt-0.5 size-4 shrink-0 text-ok" /> : <X className="mt-0.5 size-4 shrink-0 text-lapis" />}
+            <span>
+              {c.texto}
+              {!c.ok && <span className="block text-[12.5px] text-tinta-3">{c.falta}</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
     </Dialogo>
   );
 }
