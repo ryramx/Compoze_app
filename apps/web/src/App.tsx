@@ -41,8 +41,9 @@ const Trash = lazy(paginas.Trash);
 const Settings = lazy(paginas.Settings);
 
 // Com rede, baixa o resto do app logo depois de abrir: se a rede cair depois,
-// as telas ainda não visitadas continuam abrindo. (Recarregar a página offline
-// é com o service worker da Fase 2c.)
+// as telas ainda não visitadas continuam abrindo. Em produção o service worker
+// já guarda tudo (lib/pwa.ts); isto cobre a primeira visita, antes de ele
+// assumir, e o modo de desenvolvimento, que não tem service worker.
 if (typeof window !== "undefined") {
   const baixar = () => {
     if (navigator.onLine) for (const f of Object.values(paginas)) void f().catch(() => undefined);

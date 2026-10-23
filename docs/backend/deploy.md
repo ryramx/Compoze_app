@@ -57,6 +57,11 @@ mudou, e vice-versa.
 Migrações rodam na subida da API, antes de ela aceitar tráfego. Se uma
 migração falhar, a API não sobe e o Render mantém a versão anterior no ar.
 
+O front é uma PWA (Fase 2c). O `sw.js`, o `manifest.webmanifest` e o
+`index.html` vão com `Cache-Control: no-cache`, para que o service worker
+encontre logo a versão nova. Quem está com o app aberto vê o aviso "Há uma
+versão nova do Compoze" e escolhe a hora de atualizar.
+
 ## Campos que não mudam depois de criados
 
 `postgresMajorVersion`, `databaseName`, `user` e `region` do banco, e `type` e

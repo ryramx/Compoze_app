@@ -8,9 +8,11 @@ import "./index.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { registrarServiceWorker } from "./lib/pwa";
 import { iniciarTema } from "./lib/tema";
 
 iniciarTema();
+registrarServiceWorker();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

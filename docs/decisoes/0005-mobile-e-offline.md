@@ -117,7 +117,8 @@ Isto muda o plano (`docs/backend/plano.md`):
 
 ## Consequências para o frontend
 
-1. Service worker e manifesto (PWA).
+1. Service worker e manifesto (PWA). Feito na Fase 2c: `vite-plugin-pwa`,
+   ver `docs/frontend/arquitetura.md`.
 2. O store deixa de chamar `services/api` direto e passa a ler e escrever no
    banco local; uma camada de sincronização conversa com o servidor.
 3. O editor passa a editar o documento Yjs (blocos como `Y.Map` com `Y.Text`).
