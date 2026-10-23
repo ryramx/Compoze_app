@@ -27,11 +27,25 @@ type Acoes = {
   atualizarUsuario: (user: User) => void;
 };
 
-export const useAuth = create<Estado & Acoes>((set) => ({
+export const useAuth = create<Estado & Acoes>((set, get) => ({
   user: null,
   carregando: true,
 
   restaurarSessao: async () => {
+    // Quem já entrou neste aparelho abre na hora, com a cópia do caderno, e a
+    // sessão é conferida em segundo plano. No plano grátis do Render a API
+    // dorme sem uso e leva perto de um minuto para acordar; sem isto, a tela
+    // ficaria em "Verificando sessão" esse tempo todo. Enquanto ela acorda, o
+    // app funciona como offline: o que se escreve espera na fila.
+    const lembrada = authService.sessaoLembrada();
+    if (lembrada) {
+      set({ user: lembrada, carregando: false });
+      const user = await authService.restaurarSessao();
+      // Sessão recusada pelo servidor (expirou ou foi encerrada): sai de vez.
+      if (!user) get().logout();
+      else set({ user });
+      return;
+    }
     set({ carregando: true });
     const user = await authService.restaurarSessao();
     set({ user, carregando: false });

@@ -140,6 +140,14 @@ export async function tokenValido(): Promise<string> {
 }
 
 /**
+ * A última pessoa logada neste aparelho, se a sessão dela ainda estiver
+ * guardada. Serve para abrir o app na hora, sem esperar o servidor.
+ */
+export function sessaoLembrada(): User | null {
+  return lerRefresh() ? euLembrada() : null;
+}
+
+/**
  * Tenta restaurar a sessão a partir do refresh token guardado.
  *
  * Usado na abertura do app: o access token dura 30 minutos, então quem volta

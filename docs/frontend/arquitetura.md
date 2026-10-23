@@ -87,6 +87,13 @@ quando o navegador avisa que a rede voltou. Recusa definitiva de um item da
 fila vira aviso e releitura (`AppLayout`). O pé do menu mostra se está sem
 internet e quantas mudanças ainda estão só no aparelho.
 
+**Abrir sem esperar o servidor.** Quem já entrou no aparelho abre o app na
+hora, com a última sessão e a cópia do caderno, e a sessão é conferida em
+segundo plano (`restaurarSessao` no `authStore`). Se o servidor recusar a
+sessão, o app sai. Isso cobre a API dormindo no Render grátis, que leva até
+um minuto para acordar: nesse tempo o app funciona como offline, e o pé do
+menu avisa "Conectando ao servidor" se a leitura passar de 3 s.
+
 Ficam desligados offline, com a explicação no botão: convidar e remover
 coautor, aceitar convite e fechar a divisão de coautoria.
 
