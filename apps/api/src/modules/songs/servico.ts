@@ -1,5 +1,5 @@
 import type { AtualizarCancao, DetalheDaCancao, ResumoDaCancao } from "@compoze/contracts";
-import { folders, songBlocks, songCollaborators, songs, users, type Banco } from "@compoze/db";
+import { folders, songBlocks, songCollaborators, songs, type Banco } from "@compoze/db";
 import { editarTexto, inserirBloco, lerBlocos, mudarBloco, removerBloco as removerDoDocumento } from "@compoze/documento";
 import { and, asc, desc, eq, inArray, isNotNull, isNull, sql, type SQL } from "drizzle-orm";
 
@@ -14,7 +14,7 @@ import { acessar, exigirDona, exigirEscrita, type Acesso } from "./acesso";
 /** RN08: dias que uma canção fica na lixeira antes do expurgo. */
 export const RETENCAO_DIAS = 30;
 
-type Tx = Parameters<Parameters<Banco["transaction"]>[0]>[0];
+export type Tx = Parameters<Parameters<Banco["transaction"]>[0]>[0];
 
 export async function detalhe(db: Banco | Tx, cancao: typeof songs.$inferSelect): Promise<DetalheDaCancao> {
   const [blocos, colaboradores] = await Promise.all([
@@ -288,35 +288,34 @@ export async function removerBloco(db: Banco, colab: Colaboracao, songId: string
 
 // ---------------------------------------------------------- coautoria
 
-export async function convidar(db: Banco, songId: string, usuarioId: string, alvo: { user_id: string; role: Acesso["papel"] }) {
-  const a = await acessar(db, songId, usuarioId);
-  exigirDona(a, "convidar coautores");
-  exigirEscrita(a);
-  const [pessoa] = await db.select({ id: users.id }).from(users).where(eq(users.id, alvo.user_id));
-  if (!pessoa) throw new ErroDaApi(404, "Pessoa não encontrada.");
+/**
+ * Põe a pessoa na canção. Só é chamado ao aceitar um convite (ADR 0010):
+ * ninguém entra numa canção sem querer. Quem já está fica como está.
+ */
+export async function entrarNaCancao(
+  tx: Tx,
+  songId: string,
+  alvo: { user_id: string; role: Acesso["papel"]; invited_by: string | null },
+): Promise<void> {
+  const [existente] = await tx
+    .select()
+    .from(songCollaborators)
+    .where(and(eq(songCollaborators.songId, songId), eq(songCollaborators.userId, alvo.user_id)));
+  if (existente && !existente.deletedAt) return;
 
-  return db.transaction(async (tx) => {
-    const [existente] = await tx
-      .select()
-      .from(songCollaborators)
-      .where(and(eq(songCollaborators.songId, songId), eq(songCollaborators.userId, alvo.user_id)));
-    if (existente && !existente.deletedAt) return detalhe(tx, a.cancao);
-
-    if (existente) {
-      // Removida antes e convidada de novo: a mesma linha volta (lápide limpa).
-      await tx
-        .update(songCollaborators)
-        .set({ deletedAt: null, role: alvo.role, contributionPercent: 0, invitedBy: usuarioId })
-        .where(eq(songCollaborators.id, existente.id));
-    } else {
-      await tx
-        .insert(songCollaborators)
-        .values({ songId, userId: alvo.user_id, role: alvo.role, contributionPercent: 0, invitedBy: usuarioId });
-    }
-    // Entrou gente nova: a divisão precisa ser fechada de novo (RN05).
-    await tx.update(songs).set({ contributionsConfirmed: false }).where(eq(songs.id, songId));
-    return recarregar(tx, songId);
-  });
+  if (existente) {
+    // Removida antes e convidada de novo: a mesma linha volta (lápide limpa).
+    await tx
+      .update(songCollaborators)
+      .set({ deletedAt: null, role: alvo.role, contributionPercent: 0, invitedBy: alvo.invited_by })
+      .where(eq(songCollaborators.id, existente.id));
+  } else {
+    await tx
+      .insert(songCollaborators)
+      .values({ songId, userId: alvo.user_id, role: alvo.role, contributionPercent: 0, invitedBy: alvo.invited_by });
+  }
+  // Entrou gente nova: a divisão precisa ser fechada de novo (RN05).
+  await tx.update(songs).set({ contributionsConfirmed: false }).where(eq(songs.id, songId));
 }
 
 export async function removerCoautor(db: Banco, songId: string, usuarioId: string, alvoId: string) {

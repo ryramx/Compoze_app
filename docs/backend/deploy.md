@@ -80,3 +80,26 @@ pânico" se o segredo vazar.
 
 O expurgo da lixeira roda dentro da API, às 3h. No plano grátis a API dorme sem
 uso; se estiver dormindo nessa hora, o pg-boss roda o job quando ela acordar.
+
+## E-mail dos convites (desligado)
+
+Os convites funcionam por link sem nenhum e-mail (ADR 0010). O e-mail é um
+extra e está desligado: a conta no Resend existe, mas sem domínio próprio
+verificado o Resend só entrega para o e-mail da própria conta.
+
+Para ligar, quando houver um domínio:
+
+1. No Resend, em **Domains**, adicionar o domínio e criar no registro dele os
+   registros DNS que o Resend mostrar. Esperar o domínio ficar "Verified".
+2. Em **API Keys**, criar uma chave com permissão só de envio ("Sending
+   access").
+3. No Render, em `compoze-api-staging` → **Environment**:
+   - `RESEND_API_KEY`: a chave. Colar direto aqui, nunca em chat ou no
+     repositório.
+   - `EMAIL_FROM`: o remetente no domínio verificado, por exemplo
+     `Compoze <convites@seudominio.com.br>`.
+4. Salvar. O Render reinicia a API, e o log mostra "e-mail ligado (Resend)".
+   O diálogo de convite passa a mostrar o campo de e-mail.
+
+Os links dos e-mails apontam para a primeira origem de `CORS_ORIGINS` (o front
+de staging). `WEB_URL` troca esse endereço, se precisar.

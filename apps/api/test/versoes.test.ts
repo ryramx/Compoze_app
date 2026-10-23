@@ -5,7 +5,7 @@ import { songVersions } from "@compoze/db";
 import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 
-import { como, novaPessoa, usarApp } from "./ajuda";
+import { como, convidarEAceitar, novaPessoa, usarApp } from "./ajuda";
 
 const ctx = usarApp();
 
@@ -73,7 +73,7 @@ describe("versões (ADR 0009)", () => {
   it("registrar exige a dona e a divisão fechada, e faz estágio + versão juntos", async () => {
     const { api, cancao } = await cancaoDe();
     const coautora = await novaPessoa(ctx.app, "Coautora");
-    await api.post(`/songs/${cancao.id}/collaborators`, { user_id: coautora.id, role: "LYRICIST" });
+    await convidarEAceitar(ctx.app, api, cancao.id, coautora, "LYRICIST");
 
     // Não dá para pular o registro mudando o estágio direto.
     expect((await api.patch(`/songs/${cancao.id}`, { status: "REGISTRADA" })).statusCode).toBe(409);
@@ -108,7 +108,7 @@ describe("versões (ADR 0009)", () => {
     expect((await como(ctx.app, estranha.token).get(`/songs/${cancao.id}/versions`)).statusCode).toBe(404);
 
     const leitora = await novaPessoa(ctx.app);
-    await api.post(`/songs/${cancao.id}/collaborators`, { user_id: leitora.id, role: "VIEWER" });
+    await convidarEAceitar(ctx.app, api, cancao.id, leitora, "VIEWER");
     const comoLeitora = como(ctx.app, leitora.token);
     expect((await comoLeitora.get(`/songs/${cancao.id}/versions/1`)).statusCode).toBe(200);
     expect((await comoLeitora.post(`/songs/${cancao.id}/versions`, {})).statusCode).toBe(403);

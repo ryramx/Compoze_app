@@ -45,6 +45,7 @@ Conflito de e-mail ou usuário: `409`.
 | GET | `/users/me` | `UserMe` |
 | PATCH | `/users/me` | `UserMe` — aceita `name, bio, avatar_url, city, state, country, latitude, longitude, show_on_map, instruments, specialties, genres, external_links` |
 | GET | `/users?ids=a,b,c` | `UserPublic[]` (até 100 ids; desconhecidos são omitidos) |
+| GET | `/users?q=termo` | `UserPublic[]`: até 10 pessoas cujo @ começa com o termo ou cujo nome o contém (sem acento nem caixa; `@` no começo é ignorado). Não inclui quem busca |
 | GET | `/users/{username}` | `UserPublic` · `404` |
 | GET | `/map/people` | `UserPublic & { latitude, longitude }` de quem tem `show_on_map = true` (RN11) |
 
@@ -99,19 +100,41 @@ da canção é recusado; `VIEWER` e canção na lixeira entram só para leitura.
 
 | Método | Rota | Corpo / regra |
 | --- | --- | --- |
-| POST | `/songs/{id}/collaborators` | `{ user_id, role }` — entra com `contribution_percent = 0` e reabre a divisão |
 | DELETE | `/songs/{id}/collaborators/{user_id}` | Só a dona; não remove a dona |
 | PUT | `/songs/{id}/contributions` | `{ contributions: [{ user_id, percentage }], confirm }` |
 
 `Collaborator = { id, user_id, role: OWNER|COMPOSER|LYRICIST|MUSICIAN|PRODUCER|VIEWER, contribution_percent }`
 
-Convidar, remover e acertar a divisão são ações da dona. `POST` de coautor que
-já está na canção não duplica (devolve a canção como está).
+Convidar, remover e acertar a divisão são ações da dona. Ninguém entra numa
+canção sem aceitar um convite (abaixo).
 
 **RN05:** com `confirm: false` qualquer soma é aceita e `contributions_confirmed`
 vira `false`. Com `confirm: true`, a soma de todos os coautores (os enviados
 com o valor novo, os demais com o atual) precisa ser exatamente 100, senão
 `422` "A divisão soma X%. Precisa fechar em 100%."
+
+### Convites (ADR 0010)
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/songs/{id}/invites` | `{ email_enabled, invites: Invite[] }`, só os abertos. Só a dona |
+| POST | `/songs/{id}/invites` | `{ user_id, role? }` (pela conta) ou `{ link: true, role?, email? }` (por link) → `201 InviteCreated`. Só a dona. `role` padrão `COMPOSER`, nunca `OWNER`. Quem já está na canção: `409`; a própria dona: `422` |
+| DELETE | `/songs/{id}/invites/{invite_id}` | Cancela → `204` |
+| GET | `/invites` | `ReceivedInvite[]`: convites pela conta esperando resposta da pessoa |
+| POST | `/invites/{invite_id}/accept` | → `SongDetail`. Só a pessoa convidada |
+| POST | `/invites/{invite_id}/decline` | → `204` |
+| GET | `/invites/link/{token}` | `ReceivedInvite`: o que o link convida a fazer |
+| POST | `/invites/link/{token}/accept` | → `SongDetail`. Quem já está na canção não gasta o link |
+
+`Invite = { id, song_id, kind: USUARIO|LINK, role, invited_user_id, email, invited_by, created_at, expires_at }`
+`InviteCreated = Invite & { token, emailed }`: `token` só nos links, e só nesta resposta.
+`ReceivedInvite = { id, kind, song_id, song_title, role, invited_by: { id, name, username } | null, created_at, expires_at, already_member }`
+
+Pela conta, o convite vale 30 dias; por link, 7 dias e uma vez. Convidar a
+mesma pessoa de novo substitui o convite aberto. Convite de outra pessoa ou
+inexistente: `404`. Já usado, recusado, cancelado, vencido ou de canção na
+lixeira: `410`, com o motivo em `detail`. O e-mail sai só com
+`RESEND_API_KEY` configurada (`emailed: true`).
 
 ### Versões e registro (ADR 0009)
 
@@ -165,6 +188,8 @@ Valores monetários em reais, inteiros (centavos não são usados na v1).
 
 - **Expurgo da lixeira (RN08):** job diário apaga canções e projetos com
   `deleted_at` há mais de 30 dias.
+- **E-mail (ADR 0010):** com `RESEND_API_KEY`, os convites por link com
+  e-mail viram jobs do pg-boss (fila `enviar-email`, até 5 novas tentativas).
 
 ## Pendências (melhorias de contrato)
 

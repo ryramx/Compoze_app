@@ -25,6 +25,7 @@ const paginas = {
   Profile: () => import("@/pages/app/Profile"),
   Trash: () => import("@/pages/app/Trash"),
   Settings: () => import("@/pages/app/Settings"),
+  Convite: () => import("@/pages/app/Convite"),
   // Não é página, mas criar canção offline precisa dele (ADR 0008).
   folhaInicial: () => import("@/lib/folhaInicial"),
 };
@@ -39,6 +40,7 @@ const MapPage = lazy(paginas.Map);
 const Profile = lazy(paginas.Profile);
 const Trash = lazy(paginas.Trash);
 const Settings = lazy(paginas.Settings);
+const Convite = lazy(paginas.Convite);
 
 // Com rede, baixa o resto do app logo depois de abrir: se a rede cair depois,
 // as telas ainda não visitadas continuam abrindo. Em produção o service worker
@@ -100,6 +102,7 @@ export default function App() {
                 <Route path="/profile/:username" element={<Profile />} />
                 <Route path="/trash" element={<Trash />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/convite/:token" element={<Convite />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFound />} />

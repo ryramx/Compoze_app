@@ -29,7 +29,6 @@ vi.mock("@/services/api/songService", () => ({
   softDelete: vi.fn(async () => undefined),
   restore: vi.fn(async () => musicaBase),
   permanentDelete: vi.fn(async () => undefined),
-  inviteCollaborator: vi.fn(async () => undefined),
   setContributions: vi.fn(async () => undefined),
 }));
 

@@ -18,6 +18,12 @@ export async function getMany(ids: string[]): Promise<User[]> {
   return respostas.flat().map(usuarioDaApi);
 }
 
+/** Busca por nome ou @, para convidar. O servidor devolve até 10 e não inclui quem busca. */
+export async function buscar(termo: string): Promise<User[]> {
+  const dados = await api.get<ApiUserPublic[]>(`/users?q=${encodeURIComponent(termo)}`);
+  return dados.map(usuarioDaApi);
+}
+
 export async function getByUsername(username: string): Promise<User> {
   return usuarioDaApi(await api.get<ApiUserPublic>(`/users/${username}`));
 }

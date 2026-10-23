@@ -17,7 +17,7 @@
  */
 
 import { textoDaVersao } from "@compoze/contracts/canonico";
-import { semear, type BancoDemo } from "@/demo/semente";
+import { semear, type BancoDemo, type ConviteDemo } from "@/demo/semente";
 import { apagarDocumentosLocais } from "@/lib/colaboracao";
 import type {
   ApiBlock,
@@ -226,6 +226,15 @@ const rotasPrivadas: Rota[] = [
       }
     }
 
+    if (metodo === "GET" && partes.length === 1 && query.has("q")) {
+      const sem = (t: string) => t.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+      const t = sem((query.get("q") ?? "").trim().replace(/^@/, ""));
+      const achados = db.usuarios
+        .filter((u) => u.id !== userId && t && (u.username.startsWith(t) || sem(u.name).includes(t)))
+        .slice(0, 10);
+      return json(achados.map(publico));
+    }
+
     if (metodo === "GET" && partes.length === 1) {
       const ids = (query.get("ids") ?? "").split(",").filter(Boolean);
       const lista = ids.length ? db.usuarios.filter((u) => ids.includes(u.id)) : db.usuarios;
@@ -248,6 +257,123 @@ const rotasPrivadas: Rota[] = [
         .usuarios.filter((u) => u.show_on_map && u.latitude !== null)
         .map(({ email, ...resto }) => resto),
     );
+  },
+
+  // ------------------------------------------------------------ convites
+  // Mesmas regras da API (ADR 0010): a dona convida, quem é convidada aceita.
+  ({ metodo, partes, corpo, userId }) => {
+    const daCancao = partes[0] === "songs" && partes[2] === "invites";
+    if (!daCancao && partes[0] !== "invites") return null;
+    const db = carregar();
+    db.convites ??= [];
+    const aberto = (c: ConviteDemo) =>
+      !c.accepted_at && !c.declined_at && !c.revoked_at && +new Date(c.expires_at) > Date.now();
+    const publicoDoConvite = ({ token: _t, accepted_at: _a, declined_at: _d, revoked_at: _r, ...c }: ConviteDemo) => c;
+
+    if (daCancao) {
+      const s = db.musicas.find((x) => x.id === partes[1]);
+      if (!s || !podeVer(s, userId!)) return erro(404, "Canção não encontrada.");
+      if (s.owner_id !== userId) return erro(403, "Só a dona da canção pode convidar coautores.");
+      if (metodo === "GET") {
+        return json({ email_enabled: false, invites: db.convites.filter((c) => c.song_id === s.id && aberto(c)).map(publicoDoConvite) });
+      }
+      if (metodo === "POST") {
+        const role = (corpo.role as ConviteDemo["role"]) ?? "COMPOSER";
+        const paraConta = typeof corpo.user_id === "string";
+        if (paraConta) {
+          if (s.collaborators.some((c) => c.user_id === corpo.user_id)) return erro(409, "Essa pessoa já escreve nesta canção.");
+          for (const c of db.convites) if (c.song_id === s.id && c.invited_user_id === corpo.user_id && aberto(c)) c.revoked_at = agora();
+        }
+        const dias = paraConta ? 30 : 7;
+        const c: ConviteDemo = {
+          id: novoId("i"),
+          song_id: s.id,
+          kind: paraConta ? "USUARIO" : "LINK",
+          role,
+          invited_user_id: paraConta ? String(corpo.user_id) : null,
+          email: typeof corpo.email === "string" ? corpo.email : null,
+          invited_by: userId,
+          created_at: agora(),
+          expires_at: new Date(Date.now() + dias * 86_400_000).toISOString(),
+          token: paraConta ? null : `${novoId("t")}${novoId("t")}${novoId("t")}`,
+          accepted_at: null,
+          declined_at: null,
+          revoked_at: null,
+        };
+        db.convites.push(c);
+        gravar();
+        return json({ ...publicoDoConvite(c), token: c.token, emailed: false }, 201);
+      }
+      if (metodo === "DELETE") {
+        const c = db.convites.find((x) => x.id === partes[3] && x.song_id === s.id && aberto(x));
+        if (!c) return erro(404, "Convite não encontrado.");
+        c.revoked_at = agora();
+        gravar();
+        return json(null, 204);
+      }
+      return null;
+    }
+
+    const recebido = (c: ConviteDemo) => {
+      const s = db.musicas.find((x) => x.id === c.song_id);
+      const quem = db.usuarios.find((u) => u.id === c.invited_by);
+      return {
+        id: c.id,
+        kind: c.kind,
+        song_id: c.song_id,
+        song_title: s?.title ?? "",
+        role: c.role,
+        invited_by: quem ? { id: quem.id, name: quem.name, username: quem.username } : null,
+        created_at: c.created_at,
+        expires_at: c.expires_at,
+        already_member: !!s?.collaborators.some((x) => x.user_id === userId),
+      };
+    };
+    const conferir = (c: ConviteDemo | undefined) => {
+      if (!c) return erro(404, "Convite não encontrado.");
+      if (c.accepted_at) return erro(410, "Este convite já foi usado.");
+      if (c.declined_at) return erro(410, "Este convite foi recusado.");
+      if (c.revoked_at) return erro(410, "Este convite foi cancelado por quem convidou.");
+      if (+new Date(c.expires_at) <= Date.now()) return erro(410, "Este convite venceu. Peça um novo.");
+      return null;
+    };
+    const entrar = (c: ConviteDemo) => {
+      const s = db.musicas.find((x) => x.id === c.song_id)!;
+      if (!s.collaborators.some((x) => x.user_id === userId)) {
+        c.accepted_at = agora();
+        s.collaborators.push({ id: novoId("c"), user_id: userId!, role: c.role, contribution_percent: 0 });
+        s.contributions_confirmed = false;
+        s.updated_at = agora();
+      }
+      gravar();
+      return json(s);
+    };
+
+    if (metodo === "GET" && partes.length === 1) {
+      return json(
+        db.convites
+          .filter((c) => c.invited_user_id === userId && aberto(c) && !db.musicas.find((s) => s.id === c.song_id)?.deleted_at)
+          .map(recebido),
+      );
+    }
+    if (partes[1] === "link") {
+      const c = db.convites.find((x) => x.token === partes[2]);
+      const ruim = conferir(c);
+      if (ruim) return ruim;
+      if (metodo === "GET" && partes.length === 3) return json(recebido(c!));
+      if (metodo === "POST" && partes[3] === "accept") return entrar(c!);
+      return null;
+    }
+    const c = db.convites.find((x) => x.id === partes[1] && x.invited_user_id === userId);
+    const ruim = conferir(c);
+    if (ruim) return ruim;
+    if (metodo === "POST" && partes[2] === "accept") return entrar(c!);
+    if (metodo === "POST" && partes[2] === "decline") {
+      c!.declined_at = agora();
+      gravar();
+      return json(null, 204);
+    }
+    return null;
   },
 
   // ------------------------------------------------------------- versões
@@ -412,20 +538,6 @@ const rotasPrivadas: Rota[] = [
     }
 
     if (partes[2] === "collaborators") {
-      if (metodo === "POST") {
-        const alvo = String(corpo.user_id);
-        if (!s.collaborators.some((c) => c.user_id === alvo)) {
-          s.collaborators.push({
-            id: novoId("c"),
-            user_id: alvo,
-            role: (corpo.role as ApiSongDetail["collaborators"][number]["role"]) ?? "COMPOSER",
-            contribution_percent: 0,
-          });
-          s.contributions_confirmed = false;
-        }
-        tocar();
-        return json(s, 201);
-      }
       if (metodo === "DELETE") {
         s.collaborators = s.collaborators.filter((c) => c.user_id !== partes[3]);
         tocar();

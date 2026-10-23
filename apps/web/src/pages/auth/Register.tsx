@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { Botao } from "@/components/ui/Botao";
 import { Campo, Entrada } from "@/components/ui/Campo";
 import { ApiError } from "@/lib/api";
@@ -12,6 +12,10 @@ const USUARIO_VALIDO = /^[a-z0-9_.-]{3,30}$/;
 export default function Register() {
   const cadastrar = useAuth((s) => s.register);
   const navigate = useNavigate();
+  const location = useLocation();
+  // Quem veio de um link (um convite, por exemplo) volta para ele depois.
+  const destino = (location.state as { from?: string } | null)?.from ?? "/";
+  const deConvite = destino.startsWith("/convite/");
 
   const [dados, setDados] = useState({ name: "", username: "", email: "", password: "" });
   const [erros, setErros] = useState<Partial<Record<keyof typeof dados | "geral", string>>>({});
@@ -36,7 +40,7 @@ export default function Register() {
     setEnviando(true);
     try {
       await cadastrar({ ...dados, name: dados.name.trim() });
-      navigate("/", { replace: true });
+      navigate(destino, { replace: true });
     } catch (err) {
       setErros({
         geral:
@@ -52,11 +56,15 @@ export default function Register() {
   return (
     <AuthLayout
       titulo="Abra seu caderno."
-      subtitulo="Uma conta para escrever sozinho ou com quem você quiser."
+      subtitulo={
+        deConvite
+          ? "Crie sua conta e o convite já te leva para a canção."
+          : "Uma conta para escrever sozinho ou com quem você quiser."
+      }
       rodape={
         <>
           Já tem conta?{" "}
-          <Link to="/login" className="link-sublinhado text-tinta">
+          <Link to="/login" state={location.state} className="link-sublinhado text-tinta">
             Entrar
           </Link>
         </>

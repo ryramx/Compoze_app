@@ -23,7 +23,8 @@ import { lerCopia, salvarCopia } from "@/lib/copiaLocal";
 import { abrirFila, enfileirar, esvaziar } from "@/lib/fila";
 import { uuidv7 } from "@/lib/uuidv7";
 import { patchDeMusicaParaApi } from "@/services/api/adapters";
-import type { ApiVersion } from "@/services/api/dto";
+import type { ApiReceivedInvite, ApiVersion } from "@/services/api/dto";
+import * as inviteApi from "@/services/api/inviteService";
 import * as versionApi from "@/services/api/versionService";
 import * as folderApi from "@/services/api/folderService";
 import * as projectApi from "@/services/api/projectService";
@@ -107,7 +108,14 @@ interface CompozeState {
    * dia com ele sem esperar a próxima leitura da API.
    */
   definirBlocos: (songId: string, blocks: SongBlock[]) => void;
-  inviteCollaborator: (songId: string, userId: string, percentage?: number) => void;
+  /** Convites pela conta esperando resposta desta pessoa (ADR 0010). */
+  convitesRecebidos: ApiReceivedInvite[];
+  carregarConvites: () => Promise<void>;
+  /** Aceita um convite pela conta; a canção entra no caderno. Precisa de rede. */
+  aceitarConvite: (inviteId: string) => Promise<Song>;
+  recusarConvite: (inviteId: string) => Promise<void>;
+  /** Põe no caderno uma canção que chegou por convite (pela conta ou link). */
+  receberMusica: (musica: Song) => Promise<void>;
   removeCollaborator: (songId: string, userId: string) => void;
   setContribution: (songId: string, userId: string, percentage: number) => void;
   /** Fecha a divisão de coautoria. Rejeita com ApiError 422 se não somar 100 (RN05). */
@@ -286,6 +294,7 @@ export const useCompoze = create<CompozeState>((set, get) => ({
       songs: [],
       folders: [],
       projects: [],
+      convitesRecebidos: [],
       hidratado: false,
       erro: null,
       semRede: false,
@@ -465,11 +474,30 @@ export const useCompoze = create<CompozeState>((set, get) => ({
 
   // ----------------------------------------------------------- colaboradores
 
-  inviteCollaborator: (songId, userId) => {
-    void (async () => {
-      await songApi.inviteCollaborator(songId, userId);
-      await get().loadSong(songId);
-    })();
+  convitesRecebidos: [],
+
+  carregarConvites: async () => {
+    set({ convitesRecebidos: await inviteApi.recebidos() });
+  },
+
+  aceitarConvite: async (inviteId) => {
+    const musica = await inviteApi.aceitar(inviteId);
+    set({ convitesRecebidos: get().convitesRecebidos.filter((c) => c.id !== inviteId) });
+    await get().receberMusica(musica);
+    return musica;
+  },
+
+  recusarConvite: async (inviteId) => {
+    await inviteApi.recusar(inviteId);
+    set({ convitesRecebidos: get().convitesRecebidos.filter((c) => c.id !== inviteId) });
+  },
+
+  receberMusica: async (musica) => {
+    const ja = get().songs.some((s) => s.id === musica.id);
+    set({ songs: ja ? get().songs.map((s) => (s.id === musica.id ? musica : s)) : [musica, ...get().songs] });
+    const conhecidos = new Set(get().users.map((u) => u.id));
+    const faltando = [musica.creatorId, ...musica.collaborators.map((c) => c.userId)].filter((id) => !conhecidos.has(id));
+    if (faltando.length > 0) set({ users: [...get().users, ...(await userApi.getMany(faltando))] });
   },
 
   removeCollaborator: (songId, userId) => {

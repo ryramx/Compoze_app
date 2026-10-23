@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { como, novaPessoa, usarApp } from "./ajuda";
+import { como, convidarEAceitar, novaPessoa, usarApp } from "./ajuda";
 
 const ctx = usarApp();
 
@@ -114,7 +114,7 @@ describe("blocos", () => {
   it("autoria do bloco não muda quando outra pessoa edita", async () => {
     const { dona, api, cancao } = await cancaoDe();
     const coautora = await novaPessoa(ctx.app);
-    await api.post(`/songs/${cancao.id}/collaborators`, { user_id: coautora.id, role: "LYRICIST" });
+    await convidarEAceitar(ctx.app, api, cancao.id, coautora, "LYRICIST");
     const r = await como(ctx.app, coautora.token).patch(`/songs/${cancao.id}/blocks/${cancao.blocks[1].id}`, { content: "verso dela" });
     expect(r.statusCode).toBe(200);
     expect(r.json()).toMatchObject({ content: "verso dela", author_id: dona.id });
@@ -123,7 +123,7 @@ describe("blocos", () => {
   it("quem só vê não edita (403)", async () => {
     const { api, cancao } = await cancaoDe();
     const leitora = await novaPessoa(ctx.app);
-    await api.post(`/songs/${cancao.id}/collaborators`, { user_id: leitora.id, role: "VIEWER" });
+    await convidarEAceitar(ctx.app, api, cancao.id, leitora, "VIEWER");
     const leitura = como(ctx.app, leitora.token);
     expect((await leitura.get(`/songs/${cancao.id}`)).statusCode).toBe(200);
     expect((await leitura.patch(`/songs/${cancao.id}/blocks/${cancao.blocks[0].id}`, { content: "x" })).statusCode).toBe(403);
@@ -141,7 +141,7 @@ describe("coautoria (RN05)", () => {
     const { api, cancao } = await cancaoDe();
     await api.put(`/songs/${cancao.id}/contributions`, { contributions: [], confirm: true });
     const coautor = await novaPessoa(ctx.app);
-    const r = (await api.post(`/songs/${cancao.id}/collaborators`, { user_id: coautor.id, role: "COMPOSER" })).json();
+    const r = (await convidarEAceitar(ctx.app, api, cancao.id, coautor, "COMPOSER")).json();
     expect(r.contributions_confirmed).toBe(false);
     expect(r.collaborators).toContainEqual(expect.objectContaining({ user_id: coautor.id, contribution_percent: 0 }));
   });
@@ -149,7 +149,7 @@ describe("coautoria (RN05)", () => {
   it("só fecha quando soma exatamente 100", async () => {
     const { dona, api, cancao } = await cancaoDe();
     const coautor = await novaPessoa(ctx.app);
-    await api.post(`/songs/${cancao.id}/collaborators`, { user_id: coautor.id, role: "COMPOSER" });
+    await convidarEAceitar(ctx.app, api, cancao.id, coautor, "COMPOSER");
 
     const aberta = await api.put(`/songs/${cancao.id}/contributions`, {
       contributions: [{ user_id: dona.id, percentage: 70 }, { user_id: coautor.id, percentage: 20.5 }],
@@ -174,7 +174,7 @@ describe("coautoria (RN05)", () => {
   it("mexer na ficha não reabre a divisão, mas remover coautor reabre", async () => {
     const { dona, api, cancao } = await cancaoDe();
     const coautor = await novaPessoa(ctx.app);
-    await api.post(`/songs/${cancao.id}/collaborators`, { user_id: coautor.id, role: "COMPOSER" });
+    await convidarEAceitar(ctx.app, api, cancao.id, coautor, "COMPOSER");
     await api.put(`/songs/${cancao.id}/contributions`, {
       contributions: [{ user_id: dona.id, percentage: 50 }, { user_id: coautor.id, percentage: 50 }],
       confirm: true,
@@ -192,7 +192,7 @@ describe("coautoria (RN05)", () => {
     expect(r.statusCode).toBe(422);
 
     const coautor = await novaPessoa(ctx.app);
-    await api.post(`/songs/${cancao.id}/collaborators`, { user_id: coautor.id, role: "COMPOSER" });
+    await convidarEAceitar(ctx.app, api, cancao.id, coautor, "COMPOSER");
     const dele = await como(ctx.app, coautor.token).put(`/songs/${cancao.id}/contributions`, {
       contributions: [{ user_id: dona.id, percentage: 0 }],
     });
@@ -207,10 +207,10 @@ describe("coautoria (RN05)", () => {
   it("removido e convidado de novo volta como coautor", async () => {
     const { api, cancao } = await cancaoDe();
     const c = await novaPessoa(ctx.app);
-    await api.post(`/songs/${cancao.id}/collaborators`, { user_id: c.id, role: "COMPOSER" });
+    await convidarEAceitar(ctx.app, api, cancao.id, c, "COMPOSER");
     await api.delete(`/songs/${cancao.id}/collaborators/${c.id}`);
-    const r = await api.post(`/songs/${cancao.id}/collaborators`, { user_id: c.id, role: "PRODUCER" });
-    expect(r.statusCode).toBe(201);
+    const r = await convidarEAceitar(ctx.app, api, cancao.id, c, "PRODUCER");
+    expect(r.statusCode).toBe(200);
     expect(r.json().collaborators).toContainEqual(expect.objectContaining({ user_id: c.id, role: "PRODUCER" }));
     expect((await como(ctx.app, c.token).get(`/songs/${cancao.id}`)).statusCode).toBe(200);
   });
@@ -237,7 +237,7 @@ describe("lixeira (RN07)", () => {
   it("só a dona manda para a lixeira ou apaga de vez", async () => {
     const { api, cancao } = await cancaoDe();
     const c = await novaPessoa(ctx.app);
-    await api.post(`/songs/${cancao.id}/collaborators`, { user_id: c.id, role: "COMPOSER" });
+    await convidarEAceitar(ctx.app, api, cancao.id, c, "COMPOSER");
     expect((await como(ctx.app, c.token).delete(`/songs/${cancao.id}`)).statusCode).toBe(403);
     expect((await como(ctx.app, c.token).delete(`/songs/${cancao.id}/permanent`)).statusCode).toBe(403);
     expect((await api.delete(`/songs/${cancao.id}/permanent`)).statusCode).toBe(204);

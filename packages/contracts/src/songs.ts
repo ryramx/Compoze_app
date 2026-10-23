@@ -107,12 +107,6 @@ export const AtualizarBloco = z.object({
 });
 export type AtualizarBloco = z.input<typeof AtualizarBloco>;
 
-export const NovoColaborador = z.object({
-  user_id: Id,
-  role: PapelDeColaborador.exclude(["OWNER"]),
-});
-export type NovoColaborador = z.input<typeof NovoColaborador>;
-
 export const DivisaoDeCoautoria = z.object({
   contributions: z
     .array(z.object({ user_id: Id, percentage: z.number().min(0).max(100) }))

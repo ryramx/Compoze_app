@@ -13,10 +13,10 @@ async function chamar(caminho: string, opcoes: { method?: string; body?: unknown
   return { status: r.status, corpo: r.status === 204 ? null : await r.json() };
 }
 
-async function entrar() {
+async function entrar(quem = "laramendes") {
   const { corpo } = await chamar("/auth/login", {
     method: "POST",
-    body: { email: emailDemo("laramendes"), password: SENHA_DEMO },
+    body: { email: emailDemo(quem), password: SENHA_DEMO },
   });
   return corpo.access_token as string;
 }
@@ -108,5 +108,31 @@ describe("servidor de demonstração", () => {
     const { corpo } = await chamar("/map/people", { token });
     expect(corpo.length).toBeGreaterThan(0);
     expect(corpo.every((u: Record<string, unknown>) => !("email" in u))).toBe(true);
+  });
+
+  it("convite pela conta: busca por @, a pessoa aceita e só então entra (ADR 0010)", async () => {
+    const lara = await entrar();
+    const [iuri] = (await chamar("/users?q=@iu", { token: lara })).corpo;
+    expect(iuri.username).toBe("iuri");
+    const c = await chamar("/songs/s1/invites", { method: "POST", token: lara, body: { user_id: iuri.id, role: "LYRICIST" } });
+    expect(c.status).toBe(201);
+
+    const doIuri = await entrar("iuri");
+    expect((await chamar("/songs/s1", { token: doIuri })).status).toBe(404);
+    const [recebido] = (await chamar("/invites", { token: doIuri })).corpo;
+    expect(recebido).toMatchObject({ song_title: "Café da madrugada", role: "LYRICIST" });
+    const aceite = await chamar(`/invites/${recebido.id}/accept`, { method: "POST", token: doIuri, body: {} });
+    expect(aceite.corpo.collaborators.some((x: { user_id: string }) => x.user_id === iuri.id)).toBe(true);
+    expect((await chamar("/songs/s1", { token: doIuri })).status).toBe(200);
+  });
+
+  it("convite por link vale uma vez", async () => {
+    const lara = await entrar();
+    const { token } = (await chamar("/songs/s1/invites", { method: "POST", token: lara, body: { link: true } })).corpo;
+    const sofia = await entrar("sofialemos");
+    expect((await chamar(`/invites/link/${token}`, { token: sofia })).corpo.song_title).toBe("Café da madrugada");
+    expect((await chamar(`/invites/link/${token}/accept`, { method: "POST", token: sofia, body: {} })).status).toBe(200);
+    const theo = await entrar("theor");
+    expect((await chamar(`/invites/link/${token}/accept`, { method: "POST", token: theo, body: {} })).status).toBe(410);
   });
 });

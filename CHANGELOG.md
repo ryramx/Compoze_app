@@ -4,7 +4,19 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Não lançado]
 
+### Removido
+- `POST /songs/{id}/collaborators`: ninguém entra numa canção sem aceitar um
+  convite (ADR 0010).
+
 ### Adicionado
+- Fase 2d, convites (ADR 0010):
+  - "Convidar" busca qualquer pessoa do Compoze por nome ou @. A pessoa vê o
+    convite no alto da Mesa e aceita ou recusa; só entra na canção se aceitar.
+  - Link de convite para quem ainda não tem conta. Vale uma vez e por 7 dias.
+    Quem abre o link sem conta cria uma e volta direto para o convite.
+  - A dona vê os convites abertos e pode cancelar cada um.
+  - E-mail do convite pelo Resend, pronto mas desligado até haver domínio.
+  - API: `/songs/{id}/invites`, `/invites` e `GET /users?q=`.
 - Fase 2d, versões e registro (ADR 0009):
   - Histórico de versões no editor. Dá para guardar a versão de agora com um
     nome, ler as antigas, conferir o hash e restaurar o texto (Ctrl+Z desfaz).

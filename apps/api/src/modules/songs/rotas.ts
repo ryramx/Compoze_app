@@ -9,7 +9,6 @@ import {
   ItemDaLixeira,
   NovaCancao,
   NovoBloco,
-  NovoColaborador,
   ResumoDaCancao,
 } from "@compoze/contracts";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
@@ -97,12 +96,7 @@ export const rotasDeCancoes: FastifyPluginAsyncZod = async (app) => {
   });
 
   // --------------------------------------------------------- coautoria
-  app.post(
-    "/songs/:id/collaborators",
-    { schema: { tags, params: ParamCancao, body: NovoColaborador, response: { 201: DetalheDaCancao } } },
-    async (req, reply) => reply.status(201).send(await s.convidar(db, req.params.id, req.usuarioId, req.body)),
-  );
-
+  // Entrar numa canção é por convite (modules/convites, ADR 0010).
   app.delete(
     "/songs/:id/collaborators/:user_id",
     { schema: { tags, params: ParamCancao.extend({ user_id: Id }) } },
