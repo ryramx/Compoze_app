@@ -23,6 +23,8 @@ import { lerCopia, salvarCopia } from "@/lib/copiaLocal";
 import { abrirFila, enfileirar, esvaziar } from "@/lib/fila";
 import { uuidv7 } from "@/lib/uuidv7";
 import { patchDeMusicaParaApi } from "@/services/api/adapters";
+import type { ApiVersion } from "@/services/api/dto";
+import * as versionApi from "@/services/api/versionService";
 import * as folderApi from "@/services/api/folderService";
 import * as projectApi from "@/services/api/projectService";
 import * as songApi from "@/services/api/songService";
@@ -110,6 +112,10 @@ interface CompozeState {
   setContribution: (songId: string, userId: string, percentage: number) => void;
   /** Fecha a divisão de coautoria. Rejeita com ApiError 422 se não somar 100 (RN05). */
   confirmContributions: (songId: string) => Promise<void>;
+  /** Guarda uma versão da canção (ADR 0009). Precisa de rede. */
+  guardarVersao: (songId: string, rotulo?: string | null) => Promise<ApiVersion>;
+  /** Registra a obra: estágio "Registrada" + versão com hash. Precisa de rede e da divisão fechada. */
+  registrarObra: (songId: string) => Promise<ApiVersion>;
 
   renameFolder: (id: string, name: string) => void;
   deleteFolder: (id: string) => void;
@@ -144,7 +150,10 @@ interface CompozeState {
  * da mesma chave se acumulam: mudar o título e logo depois o tom grava os dois.
  */
 const ATRASO_DE_GRAVACAO = 600;
-const adiadas = new Map<string, { patch: object; temporizador: ReturnType<typeof setTimeout> }>();
+const adiadas = new Map<
+  string,
+  { patch: object; temporizador: ReturnType<typeof setTimeout>; gravar: (acumulado: object) => void }
+>();
 
 function agendarGravacao<P extends object>(chave: string, patch: P, gravar: (acumulado: P) => void): void {
   const anterior = adiadas.get(chave);
@@ -152,11 +161,21 @@ function agendarGravacao<P extends object>(chave: string, patch: P, gravar: (acu
   const acumulado = { ...(anterior?.patch as P | undefined), ...patch };
   adiadas.set(chave, {
     patch: acumulado,
+    gravar: gravar as (acumulado: object) => void,
     temporizador: setTimeout(() => {
       adiadas.delete(chave);
       gravar(acumulado);
     }, ATRASO_DE_GRAVACAO),
   });
+}
+
+/** Põe na fila agora o que estava esperando a pessoa parar de digitar. */
+function gravarJa(chave: string): void {
+  const pendente = adiadas.get(chave);
+  if (!pendente) return;
+  clearTimeout(pendente.temporizador);
+  adiadas.delete(chave);
+  pendente.gravar(pendente.patch);
 }
 
 /** Descarta uma gravação adiada (quem vai gravar tudo de uma vez é outro). */
@@ -474,6 +493,23 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     if (!(await esvaziar())) throw new ApiError(0, "Sem conexão. Confirme a divisão quando a internet voltar.");
     await songApi.setContributions(songId, musica.collaborators, true);
     await get().loadSong(songId);
+  },
+
+  guardarVersao: async (songId, rotulo) => {
+    // O que a pessoa acabou de mudar na ficha entra na versão.
+    gravarJa(`song:${songId}`);
+    if (!(await esvaziar())) throw new ApiError(0, "Sem conexão. Guarde a versão quando a internet voltar.");
+    return versionApi.guardar(songId, rotulo);
+  },
+
+  registrarObra: async (songId) => {
+    gravarJa(`song:${songId}`);
+    gravarJa(`contrib:${songId}`);
+    if (!(await esvaziar())) throw new ApiError(0, "Sem conexão. Registre quando a internet voltar.");
+    const { musica, versao } = await versionApi.registrar(songId);
+    // Os blocos da tela vêm do documento; o resto, do servidor.
+    set({ songs: get().songs.map((s) => (s.id === songId ? { ...musica, blocks: s.blocks } : s)) });
+    return versao;
   },
 
   setContribution: (songId, userId, percentage) => {

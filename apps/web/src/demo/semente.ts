@@ -14,6 +14,7 @@ import type {
   ApiProject,
   ApiSongDetail,
   ApiUserMe,
+  ApiVersion,
 } from "@/services/api/dto";
 
 export interface BancoDemo {
@@ -23,6 +24,8 @@ export interface BancoDemo {
   pastas: ApiFolder[];
   projetos: ApiProject[];
   faixas: { project_id: string; song_id: string; track_number: number | null }[];
+  /** Versões das canções (ADR 0009). Opcional: dados salvos antes delas não têm. */
+  versoes?: ApiVersion[];
 }
 
 export const SENHA_DEMO = "compoze";

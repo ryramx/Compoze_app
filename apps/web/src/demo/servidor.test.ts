@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { emailDemo, SENHA_DEMO } from "@/demo/semente";
 import { responder, restaurarDadosDeExemplo } from "@/demo/servidor";
+import { conferir } from "@/services/api/versionService";
 
 async function chamar(caminho: string, opcoes: { method?: string; body?: unknown; token?: string } = {}) {
   const r = await responder(caminho, {
@@ -69,6 +70,28 @@ describe("servidor de demonstração", () => {
     });
     expect(fechada.status).toBe(200);
     expect(fechada.corpo.contributions_confirmed).toBe(true);
+  });
+
+  it("registra a obra só com a divisão fechada, e o hash confere (ADR 0009)", async () => {
+    const token = await entrar();
+    expect((await chamar("/songs/s1", { method: "PATCH", token, body: { status: "REGISTRADA" } })).status).toBe(409);
+    await chamar("/songs/s1/contributions", { method: "PUT", token, body: { contributions: [], confirm: false } });
+    expect((await chamar("/songs/s1/register", { method: "POST", token })).status).toBe(409);
+
+    await chamar("/songs/s1/contributions", {
+      method: "PUT",
+      token,
+      body: { contributions: [{ user_id: "u1", percentage: 70 }, { user_id: "u3", percentage: 30 }], confirm: true },
+    });
+    const r = await chamar("/songs/s1/register", { method: "POST", token });
+    expect(r.status).toBe(201);
+    expect(r.corpo.song.status).toBe("REGISTRADA");
+    expect(await conferir(r.corpo.version)).toBe(true);
+
+    const v2 = (await chamar("/songs/s1/versions", { method: "POST", token, body: { label: "depois" } })).corpo;
+    expect(v2.previous_sha256).toBe(r.corpo.version.sha256);
+    const lista = (await chamar("/songs/s1/versions", { token })).corpo;
+    expect(lista.map((v: { number: number }) => v.number)).toEqual([2, 1]);
   });
 
   it("exclusão é reversível: vai para a lixeira e volta", async () => {

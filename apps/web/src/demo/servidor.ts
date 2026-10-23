@@ -16,6 +16,7 @@
  * interface se comportar de forma crível. A referência é docs/backend/.
  */
 
+import { textoDaVersao } from "@compoze/contracts/canonico";
 import { semear, type BancoDemo } from "@/demo/semente";
 import { apagarDocumentosLocais } from "@/lib/colaboracao";
 import type {
@@ -27,6 +28,7 @@ import type {
   ApiSongSummary,
   ApiUserMe,
   ApiUserPublic,
+  ApiVersion,
 } from "@/services/api/dto";
 
 const CHAVE = "compoze.demo.v1";
@@ -151,7 +153,7 @@ type Contexto = {
   userId: string | null;
 };
 
-type Rota = (ctx: Contexto) => Response | null;
+type Rota = (ctx: Contexto) => Response | null | Promise<Response | null>;
 
 const rotasPublicas: Rota[] = [
   ({ metodo, partes, corpo }) => {
@@ -248,6 +250,36 @@ const rotasPrivadas: Rota[] = [
     );
   },
 
+  // ------------------------------------------------------------- versões
+  // Mesmas regras da API (ADR 0009), com o hash calculado no navegador.
+  async ({ metodo, partes, corpo, userId }) => {
+    if (partes[0] !== "songs" || !["versions", "register"].includes(partes[2] ?? "")) return null;
+    const db = carregar();
+    const s = db.musicas.find((x) => x.id === partes[1]);
+    if (!s || !podeVer(s, userId!)) return erro(404, "Canção não encontrada.");
+    const minhas = (db.versoes ?? []).filter((v) => v.song_id === s.id).sort((a, b) => b.number - a.number);
+
+    if (partes[2] === "versions" && partes.length === 3 && metodo === "GET") {
+      return json(minhas.map(({ snapshot, ...resumo }) => resumo));
+    }
+    if (partes[2] === "versions" && partes.length === 4 && metodo === "GET") {
+      const v = minhas.find((x) => x.number === Number(partes[3]));
+      return v ? json(v) : erro(404, "Versão não encontrada.");
+    }
+    if (partes[2] === "versions" && partes.length === 3 && metodo === "POST") {
+      return json(await guardarVersao(s, userId!, "MANUAL", (corpo.label as string | undefined) ?? null), 201);
+    }
+    if (partes[2] === "register" && metodo === "POST") {
+      if (s.owner_id !== userId) return erro(403, "Só a dona da canção pode registrar a obra.");
+      if (!s.contributions_confirmed) return erro(409, "Feche a divisão de coautoria antes de registrar.");
+      s.status = "REGISTRADA";
+      s.updated_at = agora();
+      const version = await guardarVersao(s, userId!, "REGISTRO", null);
+      return json({ song: s, version }, 201);
+    }
+    return null;
+  },
+
   // ------------------------------------------------------------- músicas
   ({ metodo, partes, query, corpo, userId }) => {
     if (partes[0] !== "songs") return null;
@@ -320,8 +352,14 @@ const rotasPrivadas: Rota[] = [
     if (partes.length === 2) {
       if (metodo === "GET") return json(s);
       if (metodo === "PATCH") {
+        if (corpo.status === "REGISTRADA" && s.status !== "REGISTRADA") {
+          return erro(409, "Para registrar a obra, use Registrar: ele guarda a versão com hash.");
+        }
+        const mudouDeEstagio = corpo.status !== undefined && corpo.status !== s.status;
         Object.assign(s, corpo);
         tocar();
+        // Como na API: mudar de estágio guarda uma versão (ADR 0009).
+        if (mudouDeEstagio) void guardarVersao(s, uid, "ESTAGIO", null).then(gravar);
         return json(s);
       }
       if (metodo === "DELETE") {
@@ -576,6 +614,55 @@ export function projetarDocumento(
   gravar();
 }
 
+async function guardarVersao(
+  s: ApiSongDetail,
+  uid: string,
+  motivo: ApiVersion["reason"],
+  label: string | null,
+): Promise<ApiVersion> {
+  const db = carregar();
+  db.versoes ??= [];
+  const anterior = db.versoes.filter((v) => v.song_id === s.id).sort((a, b) => b.number - a.number)[0];
+  const semHash = {
+    song_id: s.id,
+    number: (anterior?.number ?? 0) + 1,
+    reason: motivo,
+    label,
+    created_by: uid,
+    created_at: agora(),
+    previous_sha256: anterior?.sha256 ?? null,
+    snapshot: {
+      formato: 1 as const,
+      song_id: s.id,
+      title: s.title,
+      status: s.status,
+      musical_key: s.musical_key,
+      bpm: s.bpm,
+      time_signature: s.time_signature,
+      tags: s.tags,
+      description: s.description,
+      blocks: s.blocks.map((b) => ({ id: b.id, type: b.type, label: b.label, content: b.content, author_id: b.author_id })),
+      collaborators: s.collaborators.map((c) => {
+        const u = db.usuarios.find((x) => x.id === c.user_id);
+        return {
+          user_id: c.user_id,
+          name: u?.name ?? "",
+          username: u?.username ?? "",
+          role: c.role,
+          contribution_percent: c.contribution_percent,
+        };
+      }),
+      contributions_confirmed: s.contributions_confirmed,
+    },
+  };
+  const bytes = new TextEncoder().encode(textoDaVersao(semHash));
+  const hash = await crypto.subtle.digest("SHA-256", bytes);
+  const sha256 = [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const v: ApiVersion = { ...semHash, id: novoId("v"), title: s.title, sha256 };
+  db.versoes.push(v);
+  return v;
+}
+
 /** Ponto de entrada: recebe o que `fetch` receberia e devolve uma `Response`. */
 export async function responder(
   caminho: string,
@@ -592,7 +679,7 @@ export async function responder(
   };
 
   for (const rota of rotasPublicas) {
-    const r = rota(ctx);
+    const r = await rota(ctx);
     if (r) {
       gravar();
       return r;
@@ -603,7 +690,7 @@ export async function responder(
   expurgarLixeira();
 
   for (const rota of rotasPrivadas) {
-    const r = rota(ctx);
+    const r = await rota(ctx);
     if (r) {
       gravar();
       return r;

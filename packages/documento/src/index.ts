@@ -153,4 +153,17 @@ export function semear(doc: Y.Doc, blocos: NovoBlocoDoDocumento[], origem?: unkn
   }, origem);
 }
 
+/**
+ * Troca todos os blocos de uma vez (restaurar uma versão, ADR 0009). Numa
+ * transação só: o desfazer volta tudo com um Ctrl+Z, e quem está com a canção
+ * aberta vê a troca inteira, não bloco a bloco.
+ */
+export function substituirBlocos(doc: Y.Doc, blocos: NovoBlocoDoDocumento[], origem?: unknown): void {
+  doc.transact(() => {
+    const lista = blocosDe(doc);
+    lista.delete(0, lista.length);
+    lista.insert(0, blocos.map(criarMapa));
+  }, origem);
+}
+
 export { Y };

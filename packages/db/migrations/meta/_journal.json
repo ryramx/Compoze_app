@@ -50,6 +50,13 @@
       "when": 1792712328619,
       "tag": "0006_idempotencia",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792753488312,
+      "tag": "0007_versoes",
+      "breakpoints": true
     }
   ]
 }

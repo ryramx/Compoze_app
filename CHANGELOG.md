@@ -5,6 +5,15 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Adicionado
+- Fase 2d, versões e registro (ADR 0009):
+  - Histórico de versões no editor. Dá para guardar a versão de agora com um
+    nome, ler as antigas, conferir o hash e restaurar o texto (Ctrl+Z desfaz).
+  - Mudar de estágio guarda uma versão sozinho.
+  - "Registrar a obra": só a dona, com a divisão de coautoria fechada. O
+    registro grava um retrato imutável com SHA-256 encadeado ao da versão
+    anterior.
+  - API: `/songs/{id}/versions` e `/songs/{id}/register`; o estágio
+    "Registrada" passa a valer só pelo registro.
 - Fase 2c, PWA: o Compoze instala na tela inicial (celular e computador) e
   abre sem internet, inclusive recarregando a página. Quando sai versão nova,
   o app avisa e a pessoa escolhe a hora de atualizar. Depois do login, ele

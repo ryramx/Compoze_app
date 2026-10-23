@@ -19,6 +19,8 @@ export const PAPEIS_DE_COLABORADOR = ["OWNER", "COMPOSER", "LYRICIST", "MUSICIAN
 export const TIPOS_DE_PROJETO = ["SINGLE", "EP", "ALBUM", "OTHER"] as const;
 export const FASES_DE_PROJETO = ["PLANEJAMENTO", "PRODUCAO", "MIXAGEM", "LANCADO"] as const;
 export const ESTILOS_DE_PROJETO = ["ACUSTICO", "BANDA", "AO_VIVO"] as const;
+/** Por que uma versão da canção foi guardada (ADR 0009). */
+export const MOTIVOS_DE_VERSAO = ["MANUAL", "ESTAGIO", "REGISTRO"] as const;
 
 export const StatusDaCancao = z.enum(STATUS_DA_CANCAO);
 export const Visibilidade = z.enum(VISIBILIDADES);
@@ -27,6 +29,7 @@ export const PapelDeColaborador = z.enum(PAPEIS_DE_COLABORADOR);
 export const TipoDeProjeto = z.enum(TIPOS_DE_PROJETO);
 export const FaseDeProjeto = z.enum(FASES_DE_PROJETO);
 export const EstiloDeProjeto = z.enum(ESTILOS_DE_PROJETO);
+export const MotivoDaVersao = z.enum(MOTIVOS_DE_VERSAO);
 
 export type StatusDaCancao = z.infer<typeof StatusDaCancao>;
 export type Visibilidade = z.infer<typeof Visibilidade>;
@@ -35,3 +38,4 @@ export type PapelDeColaborador = z.infer<typeof PapelDeColaborador>;
 export type TipoDeProjeto = z.infer<typeof TipoDeProjeto>;
 export type FaseDeProjeto = z.infer<typeof FaseDeProjeto>;
 export type EstiloDeProjeto = z.infer<typeof EstiloDeProjeto>;
+export type MotivoDaVersao = z.infer<typeof MotivoDaVersao>;

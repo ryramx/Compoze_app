@@ -57,7 +57,7 @@ export const rotasDeCancoes: FastifyPluginAsyncZod = async (app) => {
   app.patch(
     "/songs/:id",
     { schema: { tags, params: ParamCancao, body: AtualizarCancao, response: { 200: DetalheDaCancao } } },
-    async (req) => s.atualizar(db, req.params.id, req.usuarioId, req.body),
+    async (req) => s.atualizar(db, app.colab, req.params.id, req.usuarioId, req.body),
   );
 
   app.delete("/songs/:id", { schema: { tags, params: ParamCancao } }, async (req, reply) => {

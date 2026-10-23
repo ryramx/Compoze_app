@@ -1,5 +1,5 @@
-import { editarTexto, inserirBloco, mudarBloco, removerBloco } from "@compoze/documento";
-import { ArrowLeft, Link2, MoreHorizontal, Redo2, SlidersHorizontal, Trash2, Undo2, X } from "lucide-react";
+import { editarTexto, inserirBloco, mudarBloco, removerBloco, substituirBlocos } from "@compoze/documento";
+import { ArrowLeft, History, Link2, MoreHorizontal, Redo2, SlidersHorizontal, Trash2, Undo2, X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import { Confirmar } from "@/components/compoze/Confirmar";
 import { PilhaDeMonogramas } from "@/components/compoze/Monograma";
 import { Bloco } from "@/components/editor/Bloco";
 import { FichaTecnica } from "@/components/editor/FichaTecnica";
+import { Historico } from "@/components/editor/Historico";
 import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { Dica } from "@/components/ui/Dica";
@@ -74,6 +75,7 @@ export default function SongEditor() {
   const [letraEmMono, setLetraEmMono] = useState(() => preferencia("compoze.editor.mono", false));
   const [fichaAberta, setFichaAberta] = useState(false);
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+  const [historicoAberto, setHistoricoAberto] = useState(false);
   const tituloRef = useRef<HTMLTextAreaElement>(null);
 
   // A listagem pode não trazer os blocos; o editor busca a canção completa ao
@@ -299,6 +301,9 @@ export default function SongEditor() {
               </Botao>
             }
           >
+            <ItemDeMenu icone={<History />} aoEscolher={() => setHistoricoAberto(true)}>
+              Histórico de versões
+            </ItemDeMenu>
             <ItemDeMenu icone={<Link2 />} aoEscolher={copiarLink}>
               Copiar link
             </ItemDeMenu>
@@ -440,6 +445,14 @@ export default function SongEditor() {
           </div>
         </div>
       )}
+
+      <Historico
+        musica={musica}
+        aberto={historicoAberto}
+        aoMudar={setHistoricoAberto}
+        podeEscrever={documento.estado !== "recusado"}
+        aoRestaurar={(blocos) => doc && substituirBlocos(doc, blocos, ORIGEM_LOCAL)}
+      />
 
       <Confirmar
         aberto={confirmandoExclusao}

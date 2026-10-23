@@ -130,6 +130,7 @@ contrato) e `servico.ts` (regras e banco). Rota não tem regra de negócio.
 | `users` | `/users/me`, `/users?ids=`, `/users/{username}`, `/map/people` | RN11 |
 | `songs` | `/songs…`, blocos, coautores, divisão, lixeira | RN05, RN07 |
 | `colab` | WebSocket `/collab` (Hocuspocus) | ADR 0007: documento Yjs, projeção em `song_blocks` |
+| `versoes` | `/songs/{id}/versions…`, `/songs/{id}/register` | ADR 0009: retrato imutável, corrente de hash, registro só com a divisão fechada |
 | `folders` | `/folders…` | pasta sem ciclo |
 | `projects` | `/projects…`, faixas | lixeira sem levar canções |
 | `lixeira` | job `expurgo-da-lixeira`, todo dia às 3h (Brasília) | RN08; também apaga chaves de idempotência com mais de 24 h |

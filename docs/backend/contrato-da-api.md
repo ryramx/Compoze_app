@@ -60,7 +60,7 @@ O perfil público nunca inclui coordenadas nem e-mail.
 | GET | `/songs?q=&status=&folder_id=&expand=` | `SongSummary[]` ativas em que a pessoa é dona ou coautora. `q` busca em título, tags e texto dos blocos (sem acento, sem caixa). Com `expand=blocks,collaborators`, `SongDetail[]` |
 | POST | `/songs` | `{ id?, title, folder_id?, folha_pautada? }` → `201 SongDetail`, já com a pessoa como `OWNER` a 100%. Com `folha_pautada: false` nasce sem blocos (o aparelho semeia "Verso 1" no documento; padrão `true`) |
 | GET | `/songs/{id}` | `SongDetail` · `404` também quando a pessoa não tem acesso |
-| PATCH | `/songs/{id}` | `title, status, folder_id, musical_key, bpm, time_signature, tags, visibility, description` → `SongDetail` |
+| PATCH | `/songs/{id}` | `title, status, folder_id, musical_key, bpm, time_signature, tags, visibility, description` → `SongDetail`. Mudar `status` guarda uma versão `ESTAGIO`; mudar para `REGISTRADA` devolve `409` (use `/register`) |
 | DELETE | `/songs/{id}` | Lixeira (RN07): preenche `deleted_at`, preserva pasta e projetos → `204` |
 | GET | `/songs/trash` | `(SongSummary & { days_remaining })[]` da pessoa |
 | POST | `/songs/{id}/restore` | `SongDetail` |
@@ -112,6 +112,25 @@ já está na canção não duplica (devolve a canção como está).
 vira `false`. Com `confirm: true`, a soma de todos os coautores (os enviados
 com o valor novo, os demais com o atual) precisa ser exatamente 100, senão
 `422` "A divisão soma X%. Precisa fechar em 100%."
+
+### Versões e registro (ADR 0009)
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/songs/{id}/versions` | `VersionSummary[]`, da mais nova à mais antiga. Quem vê a canção vê o histórico |
+| GET | `/songs/{id}/versions/{number}` | `Version` (com `snapshot`) · `404` |
+| POST | `/songs/{id}/versions` | `{ label? }` → `201 Version` (`reason: MANUAL`). Quem escreve na canção; `VIEWER` recebe `403` |
+| POST | `/songs/{id}/register` | → `201 { song: SongDetail, version: Version }`. Muda o estágio para `REGISTRADA` e grava a versão `REGISTRO`, juntos. Só a dona (`403`), só com a divisão fechada (`409`) |
+
+`VersionSummary = { id, song_id, number, reason: MANUAL|ESTAGIO|REGISTRO, label, title, sha256, previous_sha256, created_by, created_at }`
+`Version = VersionSummary & { snapshot }`, com `snapshot = { formato: 1, song_id, title, status, musical_key, bpm, time_signature, tags, description, blocks: [{ id, type, label, content, author_id }], collaborators: [{ user_id, name, username, role, contribution_percent }], contributions_confirmed }`.
+
+`sha256` é o SHA-256 (hex) do JSON canônico de `{ formato: 1, song_id, number,
+reason, label, created_by, created_at, previous_sha256, snapshot }`. JSON
+canônico quer dizer chaves em ordem alfabética em todos os níveis, sem espaços
+e com strings como `JSON.stringify` as escreve. A função de referência é
+`textoDaVersao` em `packages/contracts/src/canonico.ts`. Versões são
+imutáveis: o banco recusa UPDATE.
 
 ## Pastas
 

@@ -3,7 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
+  "exports": {
+    ".": "./src/index.ts",
+    "./canonico": "./src/canonico.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
