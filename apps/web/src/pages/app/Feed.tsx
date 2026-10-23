@@ -29,7 +29,7 @@ export default function Feed() {
 
   return (
     <Pagina estreita>
-      <Cabecalho indice="05" secao="Gente" titulo="Mural" descricao="O que está saindo do caderno de quem você acompanha." />
+      <Cabecalho secao="Gente" titulo="Mural" descricao="O que está saindo do caderno de quem você acompanha." />
       <AvisoDePrevia />
 
       <form

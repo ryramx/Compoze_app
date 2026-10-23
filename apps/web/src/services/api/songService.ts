@@ -3,10 +3,16 @@ import {
   musicaDaApi,
   patchDeMusicaParaApi,
   statusParaApi,
-  tipoDeBlocoParaApi,
 } from "@/services/api/adapters";
-import type { ApiSongDetail, ApiSongSummary, ApiTrashItem } from "@/services/api/dto";
-import type { Song, SongBlock, SongStatus } from "@/types";
+import type {
+  ApiContributions,
+  ApiNewCollaborator,
+  ApiNewSong,
+  ApiSongDetail,
+  ApiSongSummary,
+  ApiTrashItem,
+} from "@/services/api/dto";
+import type { Song, SongStatus } from "@/types";
 
 export interface FiltroBusca {
   q?: string;
@@ -36,7 +42,7 @@ export async function getById(id: string): Promise<Song> {
 }
 
 export async function create(input: { title: string; folderId?: string }): Promise<Song> {
-  const corpo: Record<string, unknown> = { title: input.title };
+  const corpo: ApiNewSong = { title: input.title };
   if (input.folderId) corpo.folder_id = input.folderId;
   return musicaDaApi(await api.post<ApiSongDetail>("/songs", corpo));
 }
@@ -67,43 +73,13 @@ export async function permanentDelete(id: string): Promise<void> {
   await api.delete(`/songs/${id}/permanent`);
 }
 
-// ---------------------------------------------------------------- blocos
-
-export async function addBlock(
-  songId: string,
-  bloco: { type: SongBlock["type"]; text?: string; label?: string; position?: number },
-): Promise<void> {
-  await api.post(`/songs/${songId}/blocks`, {
-    type: tipoDeBlocoParaApi(bloco.type),
-    content: bloco.text ?? "",
-    label: bloco.label ?? null,
-    // Só envia posição quando há uma: ausente significa "no fim da música".
-    ...(bloco.position === undefined ? {} : { position: bloco.position }),
-  });
-}
-
-export async function updateBlock(
-  songId: string,
-  blockId: string,
-  patch: Partial<SongBlock>,
-): Promise<void> {
-  const corpo: Record<string, unknown> = {};
-  if ("text" in patch) corpo.content = patch.text;
-  if ("label" in patch) corpo.label = patch.label ?? null;
-  if ("type" in patch && patch.type) corpo.type = tipoDeBlocoParaApi(patch.type);
-  await api.patch(`/songs/${songId}/blocks/${blockId}`, corpo);
-}
-
-export async function removeBlock(songId: string, blockId: string): Promise<void> {
-  await api.delete(`/songs/${songId}/blocks/${blockId}`);
-}
-
 // --------------------------------------------------------- colaboradores
 
 export async function inviteCollaborator(songId: string, userId: string): Promise<void> {
   // Papel padrão COMPOSER: a interface ainda não tem seletor de função, e
   // COMPOSER é o papel com escrita mais próximo de "colaborador" genérico.
-  await api.post(`/songs/${songId}/collaborators`, { user_id: userId, role: "COMPOSER" });
+  const corpo: ApiNewCollaborator = { user_id: userId, role: "COMPOSER" };
+  await api.post(`/songs/${songId}/collaborators`, corpo);
 }
 
 export async function removeCollaborator(songId: string, userId: string): Promise<void> {
@@ -122,8 +98,9 @@ export async function setContributions(
   contribuicoes: { userId: string; percentage: number }[],
   confirmar = false,
 ): Promise<void> {
-  await api.put(`/songs/${songId}/contributions`, {
+  const corpo: ApiContributions = {
     contributions: contribuicoes.map((c) => ({ user_id: c.userId, percentage: c.percentage })),
     confirm: confirmar,
-  });
+  };
+  await api.put(`/songs/${songId}/contributions`, corpo);
 }

@@ -24,7 +24,6 @@ export default function Trash() {
   return (
     <Pagina>
       <Cabecalho
-        indice="08"
         titulo="Lixeira"
         descricao={`O que você exclui fica aqui por ${TRASH_RETENTION_DAYS} dias, no lugar onde estava. Depois disso é apagado de vez.`}
       />

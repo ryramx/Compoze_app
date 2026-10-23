@@ -61,18 +61,18 @@ export const rotasDeCancoes: FastifyPluginAsyncZod = async (app) => {
   );
 
   app.delete("/songs/:id", { schema: { tags, params: ParamCancao } }, async (req, reply) => {
-    await s.mandarParaLixeira(db, req.params.id, req.usuarioId);
+    await s.mandarParaLixeira(db, app.colab, req.params.id, req.usuarioId);
     return reply.status(204).send();
   });
 
   app.post(
     "/songs/:id/restore",
     { schema: { tags, params: ParamCancao, response: { 200: DetalheDaCancao } } },
-    async (req) => s.restaurar(db, req.params.id, req.usuarioId),
+    async (req) => s.restaurar(db, app.colab, req.params.id, req.usuarioId),
   );
 
   app.delete("/songs/:id/permanent", { schema: { tags, params: ParamCancao } }, async (req, reply) => {
-    await s.apagarDeVez(db, req.params.id, req.usuarioId);
+    await s.apagarDeVez(db, app.colab, req.params.id, req.usuarioId);
     return reply.status(204).send();
   });
 
@@ -82,17 +82,17 @@ export const rotasDeCancoes: FastifyPluginAsyncZod = async (app) => {
   app.post(
     "/songs/:id/blocks",
     { schema: { tags, params: ParamCancao, body: NovoBloco, response: { 201: DetalheDaCancao } } },
-    async (req, reply) => reply.status(201).send(await s.adicionarBloco(db, req.params.id, req.usuarioId, req.body)),
+    async (req, reply) => reply.status(201).send(await s.adicionarBloco(db, app.colab, req.params.id, req.usuarioId, req.body)),
   );
 
   app.patch(
     "/songs/:id/blocks/:block_id",
     { schema: { tags, params: ParamBloco, body: AtualizarBloco, response: { 200: Bloco } } },
-    async (req) => s.atualizarBloco(db, req.params.id, req.params.block_id, req.usuarioId, req.body),
+    async (req) => s.atualizarBloco(db, app.colab, req.params.id, req.params.block_id, req.usuarioId, req.body),
   );
 
   app.delete("/songs/:id/blocks/:block_id", { schema: { tags, params: ParamBloco } }, async (req, reply) => {
-    await s.removerBloco(db, req.params.id, req.params.block_id, req.usuarioId);
+    await s.removerBloco(db, app.colab, req.params.id, req.params.block_id, req.usuarioId);
     return reply.status(204).send();
   });
 

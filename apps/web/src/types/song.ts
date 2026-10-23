@@ -10,7 +10,8 @@ export interface SongBlock {
   type: "section" | "chord-line" | "lyric-line" | "note";
   label?: string; // ex: Verso 1, Refrão
   text: string;
-  authorId: string; // who wrote it
+  /** Quem escreveu; `null` quando a conta de quem escreveu foi apagada. */
+  authorId: string | null;
 }
 
 export interface Song {

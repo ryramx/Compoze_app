@@ -14,6 +14,7 @@ import {
 
 import type { Config } from "./config";
 import { rotasDeAutenticacao } from "./modules/auth/rotas";
+import { anexarColaboracao, criarColaboracao, type Colaboracao } from "./modules/colab/servidor";
 import { rotasDePastas } from "./modules/folders/rotas";
 import { rotasDeSaude } from "./modules/health/rotas";
 import { rotasDeProjetos } from "./modules/projects/rotas";
@@ -27,6 +28,8 @@ declare module "fastify" {
   interface FastifyInstance {
     banco: Conexao;
     config: Config;
+    /** Hocuspocus: documentos Yjs das canções (ADR 0007). */
+    colab: Colaboracao;
   }
 }
 
@@ -51,6 +54,8 @@ export async function construirApp({ config, banco, logger }: Dependencias) {
   app.setSerializerCompiler(serializerCompiler);
   app.decorate("banco", banco);
   app.decorate("config", config);
+  app.decorate("colab", criarColaboracao({ db: banco.db, segredo: config.JWT_SECRET, log: app.log }));
+  anexarColaboracao(app, app.colab);
 
   registrarErros(app);
 

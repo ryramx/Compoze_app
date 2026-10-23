@@ -57,8 +57,10 @@ Utilitários próprios: `rotulo` (versalete 10.5px espaçado), `numeral`
 
 ## Componentes de assinatura
 
-- **Índice numerado.** A navegação é um sumário: `01 Mesa`, `02 Canções`… O
-  mesmo número aparece no cabeçalho da página.
+- **Navegação com ícones.** Cada seção tem um ícone de traço fino (lucide,
+  `strokeWidth` 1.5) em cinza; na seção atual ele fica vermelho, ao lado do
+  traço vertical. Os mesmos ícones aparecem em "Ir para", na busca. (Até
+  2026-10-22 a navegação era um sumário numerado, `01 Mesa`, `02 Canções`…)
 - **Marcador de estágio.** Seis traços crescentes, preenchidos até onde a obra
   chegou, com o atual em vermelho. Mostra posição no fluxo, não só um nome.
 - **Monograma.** Iniciais em serifa itálica sobre a cor de autor. Sem foto de

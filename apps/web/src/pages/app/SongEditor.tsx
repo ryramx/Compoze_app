@@ -1,3 +1,4 @@
+import { editarTexto, inserirBloco, mudarBloco, removerBloco } from "@compoze/documento";
 import { ArrowLeft, Link2, MoreHorizontal, Redo2, SlidersHorizontal, Trash2, Undo2, X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -10,20 +11,24 @@ import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { Dica } from "@/components/ui/Dica";
 import { ItemDeMenu, Menu, SeparadorDeMenu } from "@/components/ui/Menu";
-import { useUndoRedo } from "@/hooks/useUndoRedo";
+import { ORIGEM_LOCAL, useDocumentoDaCancao, type EstadoDoDocumento } from "@/hooks/useDocumentoDaCancao";
+import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { quando } from "@/lib/datas";
+import { uuidv7 } from "@/lib/uuidv7";
+import { tipoDeBlocoParaApi } from "@/services/api/adapters";
 import { useCompoze } from "@/store/compozeStore";
 import type { SongBlock } from "@/types";
 
-interface Retrato {
-  title: string;
-  blocks: SongBlock[];
-  key?: string;
-  bpm?: number;
-  timeSignature?: string;
-  tags?: string[];
-}
+/** O que a barra do documento diz sobre onde está o que foi escrito. */
+const ESTADO: Record<EstadoDoDocumento, { texto: string; cor: string }> = {
+  abrindo: { texto: "Abrindo…", cor: "bg-tinta-3" },
+  aparelho: { texto: "Salvo no aparelho", cor: "bg-ok" },
+  sincronizando: { texto: "Sincronizando…", cor: "bg-lapis" },
+  sincronizado: { texto: "Salvo", cor: "bg-ok" },
+  offline: { texto: "Offline · salvo no aparelho", cor: "bg-tinta-3" },
+  recusado: { texto: "Sem acesso para escrever", cor: "bg-lapis" },
+};
 
 type TipoDeBloco = SongBlock["type"];
 
@@ -59,9 +64,7 @@ export default function SongEditor() {
   const getUser = useCompoze((s) => s.getUser);
   const carregarMusica = useCompoze((s) => s.loadSong);
   const atualizarMusica = useCompoze((s) => s.updateSong);
-  const atualizarBloco = useCompoze((s) => s.updateBlock);
-  const inserirBloco = useCompoze((s) => s.insertBlock);
-  const removerBloco = useCompoze((s) => s.removeBlock);
+  const definirBlocos = useCompoze((s) => s.definirBlocos);
   const excluirMusica = useCompoze((s) => s.deleteSong);
   const restaurarMusica = useCompoze((s) => s.restoreSong);
 
@@ -71,67 +74,48 @@ export default function SongEditor() {
   const [letraEmMono, setLetraEmMono] = useState(() => preferencia("compoze.editor.mono", false));
   const [fichaAberta, setFichaAberta] = useState(false);
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
-  const [salvando, setSalvando] = useState(false);
   const tituloRef = useRef<HTMLTextAreaElement>(null);
 
-  // A listagem não traz os blocos; o editor busca a canção completa ao abrir.
+  // A listagem pode não trazer os blocos; o editor busca a canção completa ao
+  // abrir (ficha técnica, coautores e, na demonstração, a semente do documento).
   useEffect(() => {
     if (id) void carregarMusica(id).catch(() => undefined);
   }, [id, carregarMusica]);
 
-  // ------------------------------------------------------- desfazer / refazer
-  // O retrato cobre texto e metadados. Inserir ou remover blocos não entra no
-  // histórico: desfazer isso exigiria recriar blocos no servidor com ids novos,
-  // e a promessa "Ctrl+Z volta o que eu escrevi" é a que importa (ADR 0002).
-  const retrato = useMemo<Retrato | undefined>(
-    () =>
-      musica
-        ? { title: musica.title, blocks: musica.blocks, key: musica.key, bpm: musica.bpm, timeSignature: musica.timeSignature, tags: musica.tags }
-        : undefined,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [musica?.title, musica?.blocks, musica?.key, musica?.bpm, musica?.timeSignature, musica?.tags],
-  );
-
-  const { undo, redo, canUndo, canRedo } = useUndoRedo<Retrato>(retrato, (r) => {
-    if (!musica) return;
-    const { blocks, ...meta } = r;
-    atualizarMusica(musica.id, meta);
-    // Grava cada bloco cujo texto mudou — o PATCH da música não leva blocos.
-    for (const b of blocks) {
-      const atual = musica.blocks.find((x) => x.id === b.id);
-      if (atual && (atual.text !== b.text || atual.label !== b.label)) {
-        atualizarBloco(musica.id, b.id, { text: b.text, label: b.label });
-      }
-    }
+  // ------------------------------------------------------------- documento
+  // Letra, cifras, notas e seções vivem no documento Yjs da canção (ADR 0007):
+  // salvo no aparelho e, com rede, sincronizado com quem mais estiver aqui.
+  const documento = useDocumentoDaCancao(id, {
+    usuarioId: euId,
+    blocosIniciais: MODO_DEMO ? musica?.blocks : undefined,
+    aoMudar: (blocos, crus) => {
+      if (!id) return;
+      definirBlocos(id, blocos);
+      if (MODO_DEMO) void import("@/demo/servidor").then((d) => d.projetarDocumento(id, crus));
+    },
   });
+  const { doc, blocos, desfazer, refazer } = documento;
 
+  // Ctrl+Z na folha desfaz o que esta pessoa escreveu (e só isso: a edição de
+  // quem escreve junto não volta). No título e na ficha, fica o desfazer do
+  // próprio campo.
   useEffect(() => {
     const aoTeclar = (e: KeyboardEvent) => {
       if (!(e.ctrlKey || e.metaKey)) return;
+      if (!(e.target instanceof Element) || !e.target.closest("[data-folha]")) return;
       const k = e.key.toLowerCase();
       if (k === "z") {
         e.preventDefault();
-        if (e.shiftKey) redo();
-        else undo();
+        if (e.shiftKey) refazer();
+        else desfazer();
       } else if (k === "y") {
         e.preventDefault();
-        redo();
+        refazer();
       }
     };
     window.addEventListener("keydown", aoTeclar);
     return () => window.removeEventListener("keydown", aoTeclar);
-  }, [undo, redo]);
-
-  // Indicador de gravação: as escritas são adiadas no store; aqui só refletimos
-  // que houve mudança e, pouco depois, que ela assentou.
-  // Ignora as mudanças da abertura (carga da canção completa), que não são edição.
-  const abertoEm = useRef(Date.now());
-  useEffect(() => {
-    if (!retrato || Date.now() - abertoEm.current < 1500) return;
-    setSalvando(true);
-    const t = setTimeout(() => setSalvando(false), 1100);
-    return () => clearTimeout(t);
-  }, [retrato]);
+  }, [desfazer, refazer]);
 
   useLayoutEffect(() => {
     const el = tituloRef.current;
@@ -143,9 +127,16 @@ export default function SongEditor() {
   const focoTratado = useCallback(() => setFocoPendente(null), []);
 
   const visiveis = useMemo(
-    () => (musica?.blocks ?? []).filter((b) => mostrarCifras || b.type !== "chord-line"),
-    [musica?.blocks, mostrarCifras],
+    () => blocos.filter((b) => mostrarCifras || b.type !== "chord-line"),
+    [blocos, mostrarCifras],
   );
+
+  /** Quem mais está com a canção aberta, e em que bloco. */
+  const presentesPorBloco = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const p of documento.presentes) if (p.blocoId) m.set(p.blocoId, p.usuarioId);
+    return m;
+  }, [documento.presentes]);
 
   if (!musica) {
     return (
@@ -181,39 +172,44 @@ export default function SongEditor() {
    * Inserção conforme o cursor: abaixo do bloco em foco; cifra pedida sobre um
    * verso entra acima dele, que é onde a cifra fica numa folha. Sem foco, no fim.
    */
-  async function inserir(tipo: TipoDeBloco) {
-    if (!musica) return;
-    const ancora = musica.blocks.find((b) => b.id === ultimoFocoRef.current);
-    const opcoes = ancora
-      ? tipo === "chord-line" && ancora.type === "lyric-line"
-        ? { beforeId: ancora.id }
-        : { afterId: ancora.id }
-      : undefined;
+  function inserir(tipo: TipoDeBloco) {
+    if (!doc) return;
+    const i = blocos.findIndex((b) => b.id === ultimoFocoRef.current);
+    const ancora = blocos[i];
+    const posicao = ancora ? (tipo === "chord-line" && ancora.type === "lyric-line" ? i : i + 1) : undefined;
     if (tipo === "chord-line" && !mostrarCifras) {
       setMostrarCifras(true);
       guardar("compoze.editor.cifras", true);
     }
-    const novo = await inserirBloco(
-      musica.id,
-      { type: tipo, label: tipo === "section" ? "" : undefined, text: "", authorId: euId },
-      opcoes,
+    criar(tipo, posicao);
+  }
+
+  function criar(tipo: TipoDeBloco, posicao?: number) {
+    if (!doc) return;
+    const novo = uuidv7();
+    inserirBloco(
+      doc,
+      { id: novo, type: tipoDeBlocoParaApi(tipo), label: tipo === "section" ? "" : null, content: "", author_id: euId },
+      posicao,
+      ORIGEM_LOCAL,
     );
     ultimoFocoRef.current = novo;
     setFocoPendente(novo);
   }
 
-  async function versoAbaixo(depoisDe: string) {
-    if (!musica) return;
-    const novo = await inserirBloco(musica.id, { type: "lyric-line", text: "", authorId: euId }, { afterId: depoisDe });
-    ultimoFocoRef.current = novo;
-    setFocoPendente(novo);
+  function versoAbaixo(depoisDe: string) {
+    const i = blocos.findIndex((b) => b.id === depoisDe);
+    criar("lyric-line", i >= 0 ? i + 1 : undefined);
+  }
+
+  function remover(blocoId: string) {
+    if (doc) removerBloco(doc, blocoId, ORIGEM_LOCAL);
   }
 
   function apagarVazio(blocoId: string) {
-    if (!musica) return;
     const i = visiveis.findIndex((b) => b.id === blocoId);
     const anterior = visiveis[i - 1];
-    removerBloco(musica.id, blocoId);
+    remover(blocoId);
     if (anterior) {
       ultimoFocoRef.current = anterior.id;
       setFocoPendente(anterior.id);
@@ -249,17 +245,28 @@ export default function SongEditor() {
           </Link>
           <span className="mx-1 hidden h-4 w-px bg-linha sm:block" />
           <span className="min-w-0 flex-1 truncate px-1 text-[13px] text-tinta-3">
-            <span className={cn("mr-1.5 inline-block size-1.5 rounded-full align-middle transition-colors", salvando ? "bg-lapis" : "bg-ok")} />
-            {salvando ? "Salvando…" : `Salvo · editada ${quando(musica.updatedAt)}`}
+            <span className={cn("mr-1.5 inline-block size-1.5 rounded-full align-middle transition-colors", ESTADO[documento.estado].cor)} />
+            {documento.estado === "sincronizado" || documento.estado === "aparelho"
+              ? `${ESTADO[documento.estado].texto} · editada ${quando(musica.updatedAt)}`
+              : ESTADO[documento.estado].texto}
           </span>
 
+          {documento.presentes.length > 0 && (
+            <Dica texto={`Aqui agora: ${documento.presentes.map((p) => getUser(p.usuarioId)?.name ?? "alguém").join(", ")}`}>
+              <span className="mr-1 flex items-center gap-1.5 text-[12px] text-tinta-3">
+                <PilhaDeMonogramas usuarios={documento.presentes.map((p) => getUser(p.usuarioId))} tamanho="xs" />
+                <span className="hidden md:inline">aqui agora</span>
+              </span>
+            </Dica>
+          )}
+
           <Dica texto="Desfazer (Ctrl+Z)">
-            <Botao variante="texto" tamanho="icone" onClick={undo} disabled={!canUndo} aria-label="Desfazer">
+            <Botao variante="texto" tamanho="icone" onClick={desfazer} disabled={!documento.podeDesfazer} aria-label="Desfazer">
               <Undo2 />
             </Botao>
           </Dica>
           <Dica texto="Refazer (Ctrl+Shift+Z)">
-            <Botao variante="texto" tamanho="icone" onClick={redo} disabled={!canRedo} aria-label="Refazer">
+            <Botao variante="texto" tamanho="icone" onClick={refazer} disabled={!documento.podeRefazer} aria-label="Refazer">
               <Redo2 />
             </Botao>
           </Dica>
@@ -351,27 +358,39 @@ export default function SongEditor() {
             </div>
           </div>
 
-          <div className="mt-10">
-            {visiveis.length === 0 && (
+          <div className="mt-10" data-folha>
+            {!documento.pronto && (
+              <p className="pl-3 font-serif text-lg text-tinta-3 italic md:pl-[7.25rem]">
+                {documento.estado === "offline"
+                  ? "Esta canção ainda não foi aberta neste aparelho. Conecte-se uma vez e ela passa a abrir sem internet."
+                  : "Abrindo a folha…"}
+              </p>
+            )}
+            {documento.pronto && visiveis.length === 0 && (
               <p className="pl-3 font-serif text-lg text-tinta-3 italic md:pl-[7.25rem]">Folha em branco. Comece por uma seção ou um verso.</p>
             )}
-            {visiveis.map((b, i) => {
+            {documento.pronto && visiveis.map((b, i) => {
               const anterior = visiveis[i - 1];
+              const aqui = presentesPorBloco.get(b.id);
               return (
                 <Bloco
                   key={b.id}
                   bloco={b}
-                  autor={getUser(b.authorId)}
+                  autor={b.authorId ? getUser(b.authorId) : undefined}
                   meu={b.authorId === euId}
                   assinarNaMargem={!anterior || anterior.authorId !== b.authorId || anterior.type === "section"}
                   letraEmMono={letraEmMono}
+                  escrevendoAgora={aqui ? getUser(aqui) : undefined}
                   focar={focoPendente === b.id}
-                  aoFocar={() => (ultimoFocoRef.current = b.id)}
+                  aoFocar={() => {
+                    ultimoFocoRef.current = b.id;
+                    documento.definirFoco(b.id);
+                  }}
                   aoFocarTratado={focoTratado}
-                  aoMudarTexto={(text) => atualizarBloco(musica.id, b.id, { text })}
-                  aoMudarRotulo={(label) => atualizarBloco(musica.id, b.id, { label })}
-                  aoRemover={() => removerBloco(musica.id, b.id)}
-                  aoEnter={() => void versoAbaixo(b.id)}
+                  aoMudarTexto={(text) => doc && editarTexto(doc, b.id, text, ORIGEM_LOCAL)}
+                  aoMudarRotulo={(label) => doc && mudarBloco(doc, b.id, { label }, ORIGEM_LOCAL)}
+                  aoRemover={() => remover(b.id)}
+                  aoEnter={() => versoAbaixo(b.id)}
                   aoApagarVazio={() => apagarVazio(b.id)}
                 />
               );
@@ -386,7 +405,8 @@ export default function SongEditor() {
                 <button
                   key={t.tipo}
                   onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => void inserir(t.tipo)}
+                  onClick={() => inserir(t.tipo)}
+                  disabled={!documento.pronto}
                   className="flex items-center gap-1.5 border-l border-linha px-3.5 py-2.5 text-[13.5px] text-tinta-2 transition-colors hover:bg-papel-2 hover:text-tinta"
                 >
                   <span className="font-serif text-[15px] text-lapis">{t.marca}</span>

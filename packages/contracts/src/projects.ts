@@ -39,6 +39,7 @@ export const NovoProjeto = z.object({
   estimated_cost: reais.nullable().optional(),
   funding_target: reais.nullable().optional(),
 });
+export type NovoProjeto = z.input<typeof NovoProjeto>;
 
 export const AtualizarProjeto = NovoProjeto.omit({ id: true })
   .partial()
@@ -49,3 +50,4 @@ export const NovaFaixa = z.object({
   song_id: Id,
   track_number: z.number().int().min(1).max(999).optional(),
 });
+export type NovaFaixa = z.input<typeof NovaFaixa>;

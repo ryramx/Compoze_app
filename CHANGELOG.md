@@ -5,6 +5,17 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Adicionado
+- Fase 2a, escrita junto (ADR 0007): cada canção é um documento Yjs.
+  - Duas pessoas editam o mesmo verso ao mesmo tempo, ou uma delas offline,
+    sem perder texto.
+  - O editor mostra quem está aqui agora e em que bloco.
+  - O texto fica salvo no aparelho (IndexedDB) e sincroniza quando a rede volta.
+  - Desfazer cobre inserir e remover blocos e nunca desfaz a edição de outra
+    pessoa.
+  - API: Hocuspocus em `/collab`, no mesmo processo. `song_blocks` passa a ser
+    projeção do documento, e as rotas REST de blocos editam o documento.
+  - `packages/documento` define o formato, compartilhado entre front e API.
+- Sessão longa: requisição que volta 401 renova o token e repete uma vez.
 - Monorepo `Compoze_app` com `apps/web` e `docs/` (ADR 0001).
 - Frontend reescrito com o design system "Caderno": papel, tinta e lápis
   vermelho; Newsreader, Hanken Grotesk e IBM Plex Mono; tema claro e escuro
@@ -46,6 +57,14 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - `GET /songs?expand=blocks,collaborators` e `GET /projects` com faixas: o
   front carrega tudo em quatro requisições, em vez de uma por canção e por
   projeto.
+
+### Alterado
+- `apps/web` passa a usar os tipos de `@compoze/contracts` (respostas e corpos
+  de requisição) em `services/api/dto.ts`; mudança no contrato quebra o
+  `typecheck` do front. Bloco sem autora (conta apagada) agora é tipado como
+  `authorId: null`.
+- Menu lateral e "Ir para" da busca mostram ícones em vez dos números
+  `01`–`09`; os cabeçalhos de página também perderam o número.
 
 ### Corrigido
 - Build no Render: `corepack enable` falha lá (diretório global só leitura);

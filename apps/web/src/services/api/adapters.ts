@@ -16,6 +16,7 @@
  *   percentual. É preservado ao ler e nunca sobrescrito ao escrever.
  */
 
+import type { BlocoDoDocumento } from "@compoze/documento";
 import type {
   ApiBlock,
   ApiBlockType,
@@ -23,6 +24,7 @@ import type {
   ApiFolder,
   ApiProjectDetail,
   ApiSongDetail,
+  ApiSongPatch,
   ApiSongSummary,
   ApiSongStatus,
   ApiUserMe,
@@ -77,6 +79,17 @@ const TIPO_PARA_API: Record<SongBlock["type"], ApiBlockType> = {
 export const tipoDeBlocoDaApi = (t: ApiBlockType): SongBlock["type"] => TIPO_DA_API[t];
 export const tipoDeBlocoParaApi = (t: SongBlock["type"]): ApiBlockType => TIPO_PARA_API[t];
 
+/** Bloco como o documento Yjs o guarda (ADR 0007), no formato da interface. */
+export function blocoDoDocumento(b: BlocoDoDocumento): SongBlock {
+  return {
+    id: b.id,
+    type: tipoDeBlocoDaApi(b.type),
+    label: b.label ?? undefined,
+    text: b.content,
+    authorId: b.author_id,
+  };
+}
+
 export function blocoDaApi(b: ApiBlock): SongBlock {
   return {
     id: b.id,
@@ -120,8 +133,8 @@ export function musicaDaApi(s: ApiSongDetail | ApiSongSummary): Song {
 }
 
 /** Converte um patch da interface no corpo que a API espera. */
-export function patchDeMusicaParaApi(patch: Partial<Song>): Record<string, unknown> {
-  const corpo: Record<string, unknown> = {};
+export function patchDeMusicaParaApi(patch: Partial<Song>): ApiSongPatch {
+  const corpo: ApiSongPatch = {};
 
   if ("title" in patch) corpo.title = patch.title;
   if ("status" in patch && patch.status) corpo.status = statusParaApi(patch.status);

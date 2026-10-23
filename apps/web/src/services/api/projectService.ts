@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
 import { projetoDaApi } from "@/services/api/adapters";
-import type { ApiProjectDetail } from "@/services/api/dto";
+import type { ApiNewProject, ApiProjectDetail, ApiProjectPatch } from "@/services/api/dto";
 import type { Project, ProjectType } from "@/types";
 
 const TIPO_PARA_API = {
@@ -43,7 +43,7 @@ export interface EntradaProjeto {
 }
 
 export async function create(input: EntradaProjeto): Promise<Project> {
-  const corpo: Record<string, unknown> = { name: input.name };
+  const corpo: ApiNewProject = { name: input.name };
   if (input.type) corpo.type = TIPO_PARA_API[input.type];
   if (input.style) corpo.style = ESTILO_PARA_API[input.style];
   if (input.description) corpo.description = input.description;
@@ -55,7 +55,7 @@ export async function create(input: EntradaProjeto): Promise<Project> {
 }
 
 export async function update(id: string, patch: Partial<Project>): Promise<Project> {
-  const corpo: Record<string, unknown> = {};
+  const corpo: ApiProjectPatch = {};
   if (patch.name) corpo.name = patch.name;
   if (patch.description !== undefined) corpo.description = patch.description;
   if (patch.type) corpo.type = TIPO_PARA_API[patch.type];

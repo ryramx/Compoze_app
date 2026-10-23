@@ -49,6 +49,7 @@ export const DetalheDaCancao = ResumoDaCancao.extend({
 export type DetalheDaCancao = z.infer<typeof DetalheDaCancao>;
 
 export const ItemDaLixeira = ResumoDaCancao.extend({ days_remaining: z.number().int() });
+export type ItemDaLixeira = z.infer<typeof ItemDaLixeira>;
 
 export const FiltroDeCancoes = z.object({
   q: z.string().trim().max(200).optional(),
@@ -68,6 +69,7 @@ export const NovaCancao = z.object({
   title: z.string().trim().min(1).max(200),
   folder_id: Id.nullable().optional(),
 });
+export type NovaCancao = z.input<typeof NovaCancao>;
 
 export const AtualizarCancao = z.object({
   title: z.string().trim().min(1).max(200).optional(),
@@ -89,17 +91,20 @@ export const NovoBloco = z.object({
   label: z.string().trim().max(80).nullable().optional(),
   position: z.number().int().min(0).optional(),
 });
+export type NovoBloco = z.input<typeof NovoBloco>;
 
 export const AtualizarBloco = z.object({
   content: z.string().max(20_000).optional(),
   label: z.string().trim().max(80).nullable().optional(),
   type: TipoDeBloco.optional(),
 });
+export type AtualizarBloco = z.input<typeof AtualizarBloco>;
 
 export const NovoColaborador = z.object({
   user_id: Id,
   role: PapelDeColaborador.exclude(["OWNER"]),
 });
+export type NovoColaborador = z.input<typeof NovoColaborador>;
 
 export const DivisaoDeCoautoria = z.object({
   contributions: z
@@ -107,3 +112,4 @@ export const DivisaoDeCoautoria = z.object({
     .max(50),
   confirm: z.boolean().default(false),
 });
+export type DivisaoDeCoautoria = z.input<typeof DivisaoDeCoautoria>;

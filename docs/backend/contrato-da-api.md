@@ -76,8 +76,19 @@ O perfil público nunca inclui coordenadas nem e-mail.
 | DELETE | `/songs/{id}/blocks/{block_id}` | `204`, posições recompactadas |
 
 `Block = { id, type: SECTION|LYRIC|CHORD|NOTE, label, content, position, author_id, created_at, updated_at }`.
-`author_id` é quem criou o bloco e não muda quando outra pessoa edita (a
-autoria fina por trecho vem com a edição em tempo real, Fase 2).
+`author_id` é quem criou o bloco e não muda quando outra pessoa edita;
+`null` se a conta de quem escreveu foi apagada.
+
+Desde a Fase 2a o conteúdo mora no documento Yjs da canção (ADR 0007), e estas
+rotas editam esse documento: quem estiver com a canção aberta vê a mudança na
+hora. `POST` aceita `id` (UUID v7) e devolve `409` se ele já existir.
+
+### Edição em tempo real
+
+`GET /collab` com upgrade para WebSocket, protocolo do Hocuspocus. Um documento
+por canção, com nome `song:{id}`; o formato está em `packages/documento`.
+Autenticação pelo access token, enviado pelo cliente ao conectar. Quem não é
+da canção é recusado; `VIEWER` e canção na lixeira entram só para leitura.
 
 ### Coautoria
 

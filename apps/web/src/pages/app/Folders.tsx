@@ -110,7 +110,6 @@ export default function Folders() {
   return (
     <Pagina>
       <Cabecalho
-        indice="03"
         secao="Escrita"
         titulo="Pastas"
         descricao="Organização opcional. Uma canção pode morar numa pasta, num projeto, nos dois ou em nenhum."

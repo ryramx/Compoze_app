@@ -87,14 +87,12 @@ interface CompozeState {
   createFolder: (name: string, parentId?: string) => Promise<string>;
 
   updateSong: (id: string, patch: Partial<Song>) => void;
-  updateBlock: (songId: string, blockId: string, patch: Partial<SongBlock>) => void;
-  addBlock: (songId: string, block: Omit<SongBlock, "id">) => void;
-  insertBlock: (
-    songId: string,
-    block: Omit<SongBlock, "id">,
-    options?: { afterId?: string; beforeId?: string },
-  ) => Promise<string>;
-  removeBlock: (songId: string, blockId: string) => void;
+  /**
+   * Atualiza os blocos de uma canção só na memória. Quem escreve é o
+   * documento Yjs do editor (ADR 0007); isto mantém Mesa, listas e busca em
+   * dia com ele sem esperar a próxima leitura da API.
+   */
+  definirBlocos: (songId: string, blocks: SongBlock[]) => void;
   inviteCollaborator: (songId: string, userId: string, percentage?: number) => void;
   removeCollaborator: (songId: string, userId: string) => void;
   setContribution: (songId: string, userId: string, percentage: number) => void;
@@ -314,64 +312,16 @@ export const useCompoze = create<CompozeState>((set, get) => ({
 
   // ------------------------------------------------------------------ blocos
 
-  updateBlock: (songId, blockId, patch) => {
+  definirBlocos: (songId, blocks) => {
     set({
-      songs: get().songs.map((s) =>
-        s.id === songId
-          ? { ...s, blocks: s.blocks.map((b) => (b.id === blockId ? { ...b, ...patch } : b)) }
-          : s,
-      ),
+      songs: get().songs.map((s) => {
+        if (s.id !== songId) return s;
+        // Abrir a canção também passa por aqui; só mudança de verdade conta
+        // como edição.
+        const mudou = JSON.stringify(s.blocks) !== JSON.stringify(blocks);
+        return mudou ? { ...s, blocks, updatedAt: new Date().toISOString() } : s;
+      }),
     });
-    agendarGravacao(`block:${blockId}`, () => songApi.updateBlock(songId, blockId, patch));
-  },
-
-  addBlock: (songId, block) => {
-    void (async () => {
-      await songApi.addBlock(songId, { type: block.type, text: block.text, label: block.label });
-      await get().loadSong(songId);
-    })();
-  },
-
-  insertBlock: async (songId, block, options) => {
-    const musica = get().getSong(songId);
-    // Converte "depois do bloco X" / "antes do bloco X" na posição numérica que
-    // a API espera (decisão D04: ordem é campo explícito, não ordem do array).
-    let position: number | undefined;
-    if (musica) {
-      if (options?.afterId) {
-        const i = musica.blocks.findIndex((b) => b.id === options.afterId);
-        if (i >= 0) position = i + 1;
-      } else if (options?.beforeId) {
-        const i = musica.blocks.findIndex((b) => b.id === options.beforeId);
-        if (i >= 0) position = i;
-      }
-    }
-
-    await songApi.addBlock(songId, {
-      type: block.type,
-      text: block.text,
-      label: block.label,
-      position,
-    });
-    await get().loadSong(songId);
-
-    const atualizada = get().getSong(songId);
-    const criado =
-      position === undefined
-        ? atualizada?.blocks[atualizada.blocks.length - 1]
-        : atualizada?.blocks[position];
-    return criado?.id ?? "";
-  },
-
-  removeBlock: (songId, blockId) => {
-    set({
-      songs: get().songs.map((s) =>
-        s.id === songId ? { ...s, blocks: s.blocks.filter((b) => b.id !== blockId) } : s,
-      ),
-    });
-    void songApi
-      .removeBlock(songId, blockId)
-      .catch(() => void get().loadSong(songId));
   },
 
   // ----------------------------------------------------------- colaboradores

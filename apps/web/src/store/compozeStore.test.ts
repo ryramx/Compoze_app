@@ -14,9 +14,6 @@ vi.mock("@/services/api/songService", () => ({
   softDelete: vi.fn(async () => undefined),
   restore: vi.fn(async () => musicaBase),
   permanentDelete: vi.fn(async () => undefined),
-  addBlock: vi.fn(async () => undefined),
-  updateBlock: vi.fn(async () => undefined),
-  removeBlock: vi.fn(async () => undefined),
   inviteCollaborator: vi.fn(async () => undefined),
   setContributions: vi.fn(async () => undefined),
 }));
@@ -145,6 +142,20 @@ describe("gravação adiada", () => {
     expect(songApi.update).toHaveBeenCalledTimes(1);
     expect(songApi.update).toHaveBeenCalledWith("s1", { title: "abc" });
     vi.useRealTimers();
+  });
+});
+
+describe("blocos vindos do documento", () => {
+  it("só conta como edição quando os blocos mudam de verdade", () => {
+    const antes = useCompoze.getState().getSong("s1")!;
+    useCompoze.getState().definirBlocos("s1", antes.blocks);
+    expect(useCompoze.getState().getSong("s1")!.updatedAt).toBe(antes.updatedAt);
+
+    const novos = [{ id: "b-novo", type: "lyric-line" as const, text: "verso", authorId: "u1" }];
+    useCompoze.getState().definirBlocos("s1", novos);
+    const depois = useCompoze.getState().getSong("s1")!;
+    expect(depois.blocks).toEqual(novos);
+    expect(depois.updatedAt).not.toBe(antes.updatedAt);
   });
 });
 

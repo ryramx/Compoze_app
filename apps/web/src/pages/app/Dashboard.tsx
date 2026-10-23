@@ -63,10 +63,7 @@ export default function Dashboard() {
   return (
     <Pagina>
       <header className="animate-[entrar_.35s_ease-out] border-b border-linha pb-8">
-        <div className="rotulo mb-4 flex items-center gap-2">
-          <span className="numeral text-lapis">01</span>
-          <span className="first-letter:uppercase">{hojePorExtenso()}</span>
-        </div>
+        <div className="rotulo mb-4 first-letter:uppercase">{hojePorExtenso()}</div>
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-3xl">
             <h1 className="titulo-pagina">

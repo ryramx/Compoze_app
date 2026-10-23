@@ -2,18 +2,15 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 /**
- * Cabeçalho de página: sobrescrito numerado, título em serifa, régua.
- * O número repete o índice da navegação, como num sumário de livro.
+ * Cabeçalho de página: sobrescrito com a seção, título em serifa, régua.
  */
 export function Cabecalho({
-  indice,
   secao,
   titulo,
   descricao,
   acoes,
   className,
 }: {
-  indice?: string;
   secao?: string;
   titulo: ReactNode;
   descricao?: ReactNode;
@@ -22,11 +19,8 @@ export function Cabecalho({
 }) {
   return (
     <header className={cn("animate-[entrar_.35s_ease-out] border-b border-linha pb-6", className)}>
-      {(indice || secao) && (
-        <div className="rotulo mb-4 flex items-center gap-2">
-          {indice && <span className="numeral text-lapis">{indice}</span>}
-          {secao && <span>{secao}</span>}
-        </div>
+      {secao && (
+        <div className="rotulo mb-4">{secao}</div>
       )}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
         <div className="min-w-0 max-w-3xl">

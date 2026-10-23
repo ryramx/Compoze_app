@@ -17,8 +17,10 @@ export const NovaPasta = z.object({
   name: z.string().trim().min(1).max(120),
   parent_id: Id.nullable().optional(),
 });
+export type NovaPasta = z.input<typeof NovaPasta>;
 
 export const AtualizarPasta = z.object({
   name: z.string().trim().min(1).max(120).optional(),
   parent_id: Id.nullable().optional(),
 });
+export type AtualizarPasta = z.input<typeof AtualizarPasta>;
