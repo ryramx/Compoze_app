@@ -54,7 +54,8 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: gradle
-      - uses: android-actions/setup-android@v3
+      # O SDK do Android já vem no ubuntu-latest (ANDROID_HOME), com as
+      # licenças aceitas; o Gradle baixa sozinho a plataforma que faltar.
 
       - name: Versão
         id: versao
