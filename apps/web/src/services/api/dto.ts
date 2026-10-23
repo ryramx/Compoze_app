@@ -20,6 +20,10 @@ import type {
   AtualizarProjeto,
   Bloco,
   Colaborador,
+  Convite,
+  ConviteCriado,
+  ConviteRecebido,
+  ConvitesDaCancao,
   DetalheDaCancao,
   DetalheDoProjeto,
   DivisaoDeCoautoria,
@@ -29,7 +33,7 @@ import type {
   NovaCancao,
   NovaPasta,
   NovoBloco,
-  NovoColaborador,
+  NovoConvite,
   NovoProjeto,
   PapelDeColaborador,
   ParDeTokens,
@@ -73,13 +77,17 @@ export type ApiProjectDetail = DetalheDoProjeto;
 export type ApiVersionSummary = ResumoDaVersao;
 export type ApiVersion = Versao;
 export type ApiSnapshot = RetratoDaCancao;
+export type ApiInvite = Convite;
+export type ApiInviteCreated = ConviteCriado;
+export type ApiSongInvites = ConvitesDaCancao;
+export type ApiReceivedInvite = ConviteRecebido;
 
 // Corpos de requisição
 export type ApiNewSong = NovaCancao;
 export type ApiSongPatch = AtualizarCancao;
 export type ApiNewBlock = NovoBloco;
 export type ApiBlockPatch = AtualizarBloco;
-export type ApiNewCollaborator = NovoColaborador;
+export type ApiNewInvite = NovoConvite;
 export type ApiContributions = DivisaoDeCoautoria;
 export type ApiMePatch = AtualizarEu;
 export type ApiNewFolder = NovaPasta;

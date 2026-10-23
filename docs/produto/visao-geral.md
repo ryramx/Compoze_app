@@ -25,7 +25,8 @@ quê e com qual percentual.
 | Canções: índice, fichas, busca por título/tag/verso, filtro por estágio | Pronto | `/songs` |
 | Editor em blocos com autoria por trecho, desfazer/refazer, ocultar cifras, alinhar cifra e letra | Pronto | `/songs/:id/edit` |
 | Ficha técnica: estágio, tom, compasso, andamento, pasta, visibilidade, tags | Pronto | editor |
-| Coautoria: convites, percentuais, fechar divisão (RN05) | Pronto | editor |
+| Coautoria: percentuais, fechar divisão (RN05) | Pronto | editor |
+| Convites pela conta (busca por nome ou @, aceitar ou recusar) e por link (ADR 0010) | Pronto; e-mail espera domínio | editor, Mesa, `/convite/:token` |
 | Pastas com subpastas | Pronto | `/folders` |
 | Projetos: faixas, fase, financiamento, custo, lançamento | Pronto | `/projects` |
 | Lixeira com retenção de 30 dias (RN07/RN08) | Pronto | `/trash` |

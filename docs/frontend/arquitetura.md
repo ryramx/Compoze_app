@@ -88,7 +88,19 @@ fila vira aviso e releitura (`AppLayout`). O pé do menu mostra se está sem
 internet e quantas mudanças ainda estão só no aparelho.
 
 Ficam desligados offline, com a explicação no botão: convidar e remover
-coautor, e fechar a divisão de coautoria.
+coautor, aceitar convite e fechar a divisão de coautoria.
+
+## Convites (ADR 0010)
+
+| Peça | Papel |
+| --- | --- |
+| `services/api/inviteService.ts` | Rotas de convite; `enderecoDoLink` monta `/convite/{token}` na origem do app |
+| `components/editor/Convidar.tsx` | Diálogo da dona: busca por nome ou @ (`GET /users?q=`), link para quem não tem conta, convites abertos |
+| `components/compoze/ConvitesRecebidos.tsx` | Convites pela conta no alto da Mesa, com Aceitar e Recusar. Relê ao abrir a Mesa |
+| `pages/app/Convite.tsx` | Página do link. Sem sessão, o `RequireAuth` manda ao login com `from`, e login e cadastro devolvem para cá |
+
+Aceitar põe a canção no caderno na hora (`receberMusica` no store), sem
+esperar a próxima leitura.
 
 ## PWA (Fase 2c)
 

@@ -13,7 +13,9 @@ import {
 } from "fastify-type-provider-zod";
 
 import type { Config } from "./config";
+import { criarCarteiro, remetenteResend, type Carteiro, type Remetente } from "./lib/correio";
 import { rotasDeAutenticacao } from "./modules/auth/rotas";
+import { rotasDeConvites } from "./modules/convites/rotas";
 import { anexarColaboracao, criarColaboracao, type Colaboracao } from "./modules/colab/servidor";
 import { rotasDePastas } from "./modules/folders/rotas";
 import { rotasDeSaude } from "./modules/health/rotas";
@@ -32,6 +34,8 @@ declare module "fastify" {
     config: Config;
     /** Hocuspocus: documentos Yjs das canções (ADR 0007). */
     colab: Colaboracao;
+    /** E-mail que sai do Compoze (convites por link). */
+    carteiro: Carteiro;
   }
 }
 
@@ -39,13 +43,15 @@ export interface Dependencias {
   config: Config;
   banco: Conexao;
   logger?: FastifyServerOptions["logger"];
+  /** Quem entrega os e-mails. Sem isto, vale o Resend, se houver chave. */
+  remetente?: Remetente | null;
 }
 
 /**
  * Monta a API sem abrir porta: o servidor chama `listen`, os testes usam
  * `inject`. Cada módulo de `modules/` registra suas rotas aqui.
  */
-export async function construirApp({ config, banco, logger }: Dependencias) {
+export async function construirApp({ config, banco, logger, remetente }: Dependencias) {
   const app = Fastify({
     logger: logger ?? { level: config.LOG_LEVEL },
     // Ids de requisição em UUID, para casar com os logs do front.
@@ -58,6 +64,9 @@ export async function construirApp({ config, banco, logger }: Dependencias) {
   app.decorate("config", config);
   app.decorate("colab", criarColaboracao({ db: banco.db, segredo: config.JWT_SECRET, log: app.log }));
   anexarColaboracao(app, app.colab);
+  const quemEntrega =
+    remetente !== undefined ? remetente : config.RESEND_API_KEY ? remetenteResend(config.RESEND_API_KEY, config.EMAIL_FROM) : null;
+  app.decorate("carteiro", criarCarteiro(quemEntrega, app.log));
 
   registrarErros(app);
 
@@ -104,6 +113,7 @@ export async function construirApp({ config, banco, logger }: Dependencias) {
   await app.register(rotasDePessoas);
   await app.register(rotasDeCancoes);
   await app.register(rotasDeVersoes);
+  await app.register(rotasDeConvites);
   await app.register(rotasDePastas);
   await app.register(rotasDeProjetos);
 

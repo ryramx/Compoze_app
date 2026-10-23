@@ -20,6 +20,7 @@ export default function Login() {
   // Para onde a pessoa ia antes de ser mandada ao login. Devolvê-la ao destino
   // original evita que um link compartilhado sempre termine na Mesa.
   const destino = (location.state as { from?: string } | null)?.from ?? "/";
+  const deConvite = destino.startsWith("/convite/");
 
   async function autenticar(e: string, s: string) {
     setErro(null);
@@ -46,11 +47,15 @@ export default function Login() {
   return (
     <AuthLayout
       titulo="Bom te ver."
-      subtitulo="Suas composições estão do jeito que você deixou."
+      subtitulo={
+        deConvite
+          ? "Entre para aceitar o convite. Se ainda não tem conta, crie uma: leva um minuto."
+          : "Suas composições estão do jeito que você deixou."
+      }
       rodape={
         <>
           Ainda não tem conta?{" "}
-          <Link to="/cadastro" className="link-sublinhado text-tinta">
+          <Link to="/cadastro" state={location.state} className="link-sublinhado text-tinta">
             Criar conta
           </Link>
         </>

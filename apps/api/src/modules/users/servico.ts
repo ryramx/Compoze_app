@@ -1,6 +1,6 @@
 import type { AtualizarEu, UsuarioEu, UsuarioPublico } from "@compoze/contracts";
 import { users, type Banco } from "@compoze/db";
-import { and, eq, getTableColumns, inArray, isNotNull, sql } from "drizzle-orm";
+import { and, asc, eq, getTableColumns, inArray, isNotNull, ne, or, sql } from "drizzle-orm";
 
 import { usuarioEu, usuarioPublico } from "../../lib/mapear";
 import { ErroDaApi } from "../../plugins/erros";
@@ -60,6 +60,31 @@ export async function porUsername(db: Banco, username: string): Promise<UsuarioP
   const [u] = await db.select(colunasPublicas).from(users).where(eq(users.username, username));
   if (!u) throw new ErroDaApi(404, "Pessoa não encontrada.");
   return usuarioPublico(u);
+}
+
+/**
+ * Busca para convidar: começo do @ ou qualquer parte do nome, sem acento e
+ * sem caixa. Quem busca não aparece; @ exato vem primeiro. No máximo 10.
+ */
+export async function buscar(db: Banco, termo: string, usuarioId: string): Promise<UsuarioPublico[]> {
+  const t = termo.replace(/^@/, "").trim();
+  if (!t) return [];
+  const literal = t.replace(/[\\%_]/g, (c) => `\\${c}`);
+  const linhas = await db
+    .select(colunasPublicas)
+    .from(users)
+    .where(
+      and(
+        ne(users.id, usuarioId),
+        or(
+          sql`${users.username}::text ILIKE ${`${literal}%`}`,
+          sql`compoze_normalizar(${users.name}) LIKE compoze_normalizar(${`%${literal}%`})`,
+        ),
+      ),
+    )
+    .orderBy(sql`${users.username} = ${t} DESC`, asc(users.username))
+    .limit(10);
+  return linhas.map(usuarioPublico);
 }
 
 /** RN11: só quem ligou `show_on_map` e informou posição. Sem e-mail. */

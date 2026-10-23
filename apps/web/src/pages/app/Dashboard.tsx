@@ -1,6 +1,7 @@
 import { ArrowRight, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { Capa } from "@/components/compoze/Capa";
+import { ConvitesRecebidos } from "@/components/compoze/ConvitesRecebidos";
 import { TituloDeSecao, Vazio } from "@/components/compoze/Cabecalho";
 import { Estagio } from "@/components/compoze/Estagio";
 import { Monograma, PilhaDeMonogramas } from "@/components/compoze/Monograma";
@@ -76,6 +77,8 @@ export default function Dashboard() {
           </Botao>
         </div>
       </header>
+
+      <ConvitesRecebidos />
 
       {!ultima ? (
         <div className="mt-10">

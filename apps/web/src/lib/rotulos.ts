@@ -41,3 +41,13 @@ export const COMPASSOS = ["2/4", "3/4", "4/4", "5/4", "6/8", "7/8", "9/8", "12/8
 
 export const reais = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+
+/** O que a pessoa faz na canção (papel de coautoria), sem a dona. */
+export const PAPEIS: { valor: "COMPOSER" | "LYRICIST" | "MUSICIAN" | "PRODUCER" | "VIEWER"; rotulo: string }[] = [
+  { valor: "COMPOSER", rotulo: "Composição" },
+  { valor: "LYRICIST", rotulo: "Letra" },
+  { valor: "MUSICIAN", rotulo: "Arranjo e instrumentos" },
+  { valor: "PRODUCER", rotulo: "Produção" },
+  { valor: "VIEWER", rotulo: "Só leitura" },
+];
+export const rotuloDoPapel = (p: string) => PAPEIS.find((x) => x.valor === p)?.rotulo ?? "Dona";

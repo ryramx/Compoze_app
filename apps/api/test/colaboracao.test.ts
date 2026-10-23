@@ -4,7 +4,7 @@ import { HocuspocusProvider } from "@hocuspocus/provider";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
-import { como, novaPessoa, usarApp } from "./ajuda";
+import { como, convidarEAceitar, novaPessoa, usarApp } from "./ajuda";
 
 const ctx = usarApp();
 let url = "";
@@ -49,7 +49,7 @@ async function cancaoComCoautora(papel = "COMPOSER") {
   const dona = await novaPessoa(ctx.app, "Dona");
   const coautora = await novaPessoa(ctx.app, "Coautora");
   const cancao = (await como(ctx.app, dona.token).post("/songs", { title: "Maré" })).json();
-  await como(ctx.app, dona.token).post(`/songs/${cancao.id}/collaborators`, { user_id: coautora.id, role: papel });
+  await convidarEAceitar(ctx.app, como(ctx.app, dona.token), cancao.id, coautora, papel);
   return { dona, coautora, cancao };
 }
 

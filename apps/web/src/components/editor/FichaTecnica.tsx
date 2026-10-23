@@ -5,6 +5,7 @@ import { Monograma } from "@/components/compoze/Monograma";
 import { Botao } from "@/components/ui/Botao";
 import { Seletor } from "@/components/ui/Campo";
 import { Dialogo } from "@/components/ui/Dialogo";
+import { Convidar } from "./Convidar";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { PRECISA_DE_REDE, useOnline } from "@/lib/rede";
@@ -239,9 +240,11 @@ export function FichaTecnica({ musica }: { musica: Song }) {
           ))}
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Botao tamanho="sm" variante="contorno" onClick={() => setConvidando(true)} disabled={!online} title={online ? undefined : PRECISA_DE_REDE}>
-            <Plus /> Convidar
-          </Botao>
+          {souDono && (
+            <Botao tamanho="sm" variante="contorno" onClick={() => setConvidando(true)} disabled={!online} title={online ? undefined : PRECISA_DE_REDE}>
+              <Plus /> Convidar
+            </Botao>
+          )}
           {musica.contributionsConfirmed && total === 100 ? (
             <span className="inline-flex items-center gap-1 text-[13px] text-ok">
               <Check className="size-3.5" /> Divisão fechada
@@ -259,65 +262,9 @@ export function FichaTecnica({ musica }: { musica: Song }) {
         )}
       </section>
 
-      <ConvidarColaborador musica={musica} aberto={convidando} aoMudar={setConvidando} />
+      <Convidar musica={musica} aberto={convidando} aoMudar={setConvidando} />
       <RegistrarObra musica={musica} aberto={registrando} aoMudar={setRegistrando} souDono={souDono} online={online} total={total} />
     </div>
-  );
-}
-
-function ConvidarColaborador({ musica, aberto, aoMudar }: { musica: Song; aberto: boolean; aoMudar: (v: boolean) => void }) {
-  const pessoas = useCompoze((s) => s.users);
-  const convidar = useCompoze((s) => s.inviteCollaborator);
-  const [termo, setTermo] = useState("");
-  const jaEstao = new Set(musica.collaborators.map((c) => c.userId));
-  const t = termo.trim().toLowerCase();
-  const candidatos = pessoas
-    .filter((u) => !jaEstao.has(u.id))
-    .filter((u) => !t || u.name.toLowerCase().includes(t) || u.username.includes(t));
-
-  return (
-    <Dialogo
-      aberto={aberto}
-      aoMudar={aoMudar}
-      titulo="Convidar para escrever"
-      descricao={`Quem entrar passa a editar “${musica.title}” e aparece na divisão com 0% até vocês acertarem.`}
-    >
-      <input
-        autoFocus
-        value={termo}
-        onChange={(e) => setTermo(e.target.value)}
-        placeholder="Nome ou @usuário"
-        className="mb-3 w-full border-b border-linha-forte bg-transparent py-2 focus:border-tinta focus:outline-none"
-      />
-      {candidatos.length === 0 ? (
-        <p className="py-6 font-serif text-tinta-2 italic">Ninguém com esse nome por aqui.</p>
-      ) : (
-        <ul className="divide-y divide-linha">
-          {candidatos.map((u) => (
-            <li key={u.id} className="flex items-center gap-3 py-3">
-              <Monograma usuario={u} />
-              <div className="min-w-0 flex-1">
-                <div className="truncate">{u.name}</div>
-                <div className="truncate text-[12.5px] text-tinta-3">
-                  @{u.username}
-                  {u.location.city && ` · ${u.location.city}`}
-                </div>
-              </div>
-              <Botao
-                tamanho="sm"
-                onClick={() => {
-                  convidar(musica.id, u.id);
-                  toast(`${u.name.split(" ")[0]} agora escreve com você.`);
-                  aoMudar(false);
-                }}
-              >
-                Convidar
-              </Botao>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Dialogo>
   );
 }
 

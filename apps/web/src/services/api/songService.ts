@@ -6,7 +6,6 @@ import {
 } from "@/services/api/adapters";
 import type {
   ApiContributions,
-  ApiNewCollaborator,
   ApiNewSong,
   ApiSongDetail,
   ApiSongSummary,
@@ -74,13 +73,6 @@ export async function permanentDelete(id: string): Promise<void> {
 }
 
 // --------------------------------------------------------- colaboradores
-
-export async function inviteCollaborator(songId: string, userId: string): Promise<void> {
-  // Papel padrão COMPOSER: a interface ainda não tem seletor de função, e
-  // COMPOSER é o papel com escrita mais próximo de "colaborador" genérico.
-  const corpo: ApiNewCollaborator = { user_id: userId, role: "COMPOSER" };
-  await api.post(`/songs/${songId}/collaborators`, corpo);
-}
 
 export async function removeCollaborator(songId: string, userId: string): Promise<void> {
   await api.delete(`/songs/${songId}/collaborators/${userId}`);

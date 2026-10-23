@@ -1,8 +1,8 @@
-import { AtualizarEu, Id, UsuarioEu, UsuarioNoMapa, UsuarioPublico } from "@compoze/contracts";
+import { AtualizarEu, BuscaDePessoas, Id, UsuarioEu, UsuarioNoMapa, UsuarioPublico } from "@compoze/contracts";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
-import { atualizarEu, eu, noMapa, porIds, porUsername } from "./servico";
+import { atualizarEu, buscar, eu, noMapa, porIds, porUsername } from "./servico";
 
 export const rotasDePessoas: FastifyPluginAsyncZod = async (app) => {
   app.addHook("onRequest", app.autenticar);
@@ -22,17 +22,22 @@ export const rotasDePessoas: FastifyPluginAsyncZod = async (app) => {
     {
       schema: {
         tags,
-        querystring: z.object({
-          ids: z
-            .string()
-            // Ids desconhecidos ou malformados são omitidos, como diz o contrato.
-            .transform((s) => [...new Set(s.split(",").map((x) => x.trim()))].filter((x) => Id.safeParse(x).success))
-            .pipe(z.array(Id).max(100, "No máximo 100 ids por consulta.")),
-        }),
+        summary: "Pessoas por ids (?ids=a,b) ou busca por nome ou @ (?q=)",
+        querystring: z
+          .object({
+            ids: z
+              .string()
+              // Ids desconhecidos ou malformados são omitidos, como diz o contrato.
+              .transform((s) => [...new Set(s.split(",").map((x) => x.trim()))].filter((x) => Id.safeParse(x).success))
+              .pipe(z.array(Id).max(100, "No máximo 100 ids por consulta."))
+              .optional(),
+            q: BuscaDePessoas.optional(),
+          })
+          .refine((q) => q.ids !== undefined || q.q !== undefined, "Informe ids ou q."),
         response: { 200: z.array(UsuarioPublico) },
       },
     },
-    async (req) => porIds(db, req.query.ids),
+    async (req) => (req.query.q !== undefined ? buscar(db, req.query.q, req.usuarioId) : porIds(db, req.query.ids ?? [])),
   );
 
   app.get(

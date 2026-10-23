@@ -57,3 +57,19 @@ export function como(app: App, token: string) {
     app.inject({ method, url, headers: { authorization: `Bearer ${token}` }, ...(payload === undefined ? {} : { payload: payload as object }) });
   return { get: chamar("GET"), post: chamar("POST"), put: chamar("PUT"), patch: chamar("PATCH"), delete: chamar("DELETE") };
 }
+
+/**
+ * Põe a pessoa na canção do jeito do app (ADR 0010): a dona convida pela
+ * conta e a pessoa aceita. Devolve a resposta do aceite (a canção).
+ */
+export async function convidarEAceitar(
+  app: App,
+  dona: ReturnType<typeof como>,
+  songId: string,
+  pessoa: { id: string; token: string },
+  role = "COMPOSER",
+) {
+  const r = await dona.post(`/songs/${songId}/invites`, { user_id: pessoa.id, role });
+  if (r.statusCode !== 201) throw new Error(`convite falhou: ${r.body}`);
+  return como(app, pessoa.token).post(`/invites/${r.json().id}/accept`);
+}

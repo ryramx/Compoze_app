@@ -11,6 +11,7 @@ import * as mock from "@/data/mockData";
 import { statusParaApi, tipoDeBlocoParaApi } from "@/services/api/adapters";
 import type {
   ApiFolder,
+  ApiInvite,
   ApiProject,
   ApiSongDetail,
   ApiUserMe,
@@ -26,6 +27,8 @@ export interface BancoDemo {
   faixas: { project_id: string; song_id: string; track_number: number | null }[];
   /** Versões das canções (ADR 0009). Opcional: dados salvos antes delas não têm. */
   versoes?: ApiVersion[];
+  /** Convites (ADR 0010). O token fica guardado em claro: é só demonstração. */
+  convites?: ConviteDemo[];
 }
 
 export const SENHA_DEMO = "compoze";
@@ -170,3 +173,10 @@ export function semear(): BancoDemo {
 
   return { usuarios, senhas, musicas, pastas, projetos, faixas };
 }
+
+export type ConviteDemo = ApiInvite & {
+  token: string | null;
+  accepted_at: string | null;
+  declined_at: string | null;
+  revoked_at: string | null;
+};

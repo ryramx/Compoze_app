@@ -51,7 +51,10 @@ Validadas na subida por `src/config.ts`; faltando algo, a API não sobe e diz o 
 | `JWT_SECRET` | — (obrigatória, ≥ 32 caracteres) | Assina os access tokens |
 | `ACCESS_TOKEN_MINUTOS` / `REFRESH_TOKEN_DIAS` | `30` / `30` | Validade dos tokens |
 | `LIMITE_AUTH_POR_MINUTO` | `10` | Tentativas por IP em `/auth/*` |
-| `JOBS` | `on` | Agenda o expurgo diário da lixeira (pg-boss); `off` nos testes |
+| `JOBS` | `on` | Agenda o expurgo diário da lixeira e a fila de e-mail (pg-boss); `off` nos testes |
+| `RESEND_API_KEY` | (vazio) | Liga o e-mail dos convites (ADR 0010). Vazio: convites só por link |
+| `EMAIL_FROM` | `Compoze <onboarding@resend.dev>` | Remetente. Sem domínio verificado, o Resend só entrega para o e-mail da conta |
+| `WEB_URL` | 1ª origem de `CORS_ORIGINS` | Endereço do front, para os links dos e-mails |
 | `LOG_LEVEL` | `info` | Nível do pino |
 | `NODE_ENV` | `development` | Em `development` os logs saem formatados |
 
