@@ -7,3 +7,6 @@ e linguagem visual em [`docs/frontend/design-system.md`](../../docs/frontend/des
 cp .env.example .env    # VITE_API_URL=demo roda sem backend
 pnpm dev
 ```
+
+App Android (Capacitor) em `android/`: ver
+[`docs/mobile/android.md`](../../docs/mobile/android.md).

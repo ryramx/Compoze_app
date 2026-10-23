@@ -5,6 +5,7 @@
 | [produto/visao-geral.md](produto/visao-geral.md) | O que é o Compoze, para quem, funcionalidades e regras de negócio |
 | [frontend/arquitetura.md](frontend/arquitetura.md) | Como o frontend está organizado: camadas, estado, rotas, modo demo |
 | [frontend/design-system.md](frontend/design-system.md) | Linguagem visual "Caderno": tipografia, cores, componentes e o porquê |
+| [mobile/android.md](mobile/android.md) | App Android: como gerar, assinar e publicar o APK |
 | [backend/plano.md](backend/plano.md) | Stack recomendada, arquitetura, modelo de dados e fases do backend |
 | [backend/desenvolvimento.md](backend/desenvolvimento.md) | Rodar, testar e mudar o backend e o banco no dia a dia |
 | [backend/deploy.md](backend/deploy.md) | Staging no Render: o que o Blueprint cria e como publicar |

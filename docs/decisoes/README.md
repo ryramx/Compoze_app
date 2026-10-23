@@ -16,3 +16,4 @@ duas apontam uma para a outra.
 | [0008](0008-fila-offline-sobre-o-rest.md) | Escritas offline: fila no aparelho sobre as rotas REST | Aceita |
 | [0009](0009-versoes-e-registro.md) | Versões da canção e registro com hash | Aceita |
 | [0010](0010-convites.md) | Convites pela conta, por link e (com domínio) por e-mail | Aceita |
+| [0011](0011-app-android-fora-da-loja.md) | App Android pelo Capacitor, distribuído fora da loja | Aceita |

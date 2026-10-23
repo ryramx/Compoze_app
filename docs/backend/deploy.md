@@ -46,7 +46,8 @@ para acordar, o que serve para staging.
    deve responder `"status": "ok"` com a versão 18 do banco.
 
 Se o nome `compoze-web-staging` já estiver em uso no Render, o front ganha outra
-URL: ajuste `CORS_ORIGINS` da API para ela.
+URL: ajuste `CORS_ORIGINS` da API para ela, mantendo `https://localhost`, que é
+o app Android (ADR 0011).
 
 ## Deploys seguintes
 

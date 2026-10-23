@@ -42,9 +42,11 @@ services:
       # Gerado pelo Render na criação; nunca fica no repositório (ADR 0006).
       - key: JWT_SECRET
         generateValue: true
-      # URL pública do front de staging (abaixo).
+      # URL pública do front de staging (abaixo) e o app Android, que roda em
+      # https://localhost dentro do Capacitor (ADR 0011). A primeira continua
+      # sendo a base dos links dos e-mails.
       - key: CORS_ORIGINS
-        value: https://compoze-web-staging.onrender.com
+        value: https://compoze-web-staging.onrender.com,https://localhost
       # E-mail dos convites (ADR 0010). Desligado enquanto não houver domínio
       # verificado no Resend. A chave entra só pelo painel do Render, nunca
       # aqui. Os links dos e-mails usam a primeira origem de CORS_ORIGINS.

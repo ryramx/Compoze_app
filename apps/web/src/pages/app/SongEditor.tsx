@@ -16,6 +16,7 @@ import { ORIGEM_LOCAL, useDocumentoDaCancao, type EstadoDoDocumento } from "@/ho
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { quando } from "@/lib/datas";
+import { ENDERECO_PUBLICO } from "@/lib/nativo";
 import { uuidv7 } from "@/lib/uuidv7";
 import { tipoDeBlocoParaApi } from "@/services/api/adapters";
 import { useCompoze } from "@/store/compozeStore";
@@ -219,7 +220,7 @@ export default function SongEditor() {
   }
 
   function copiarLink() {
-    void navigator.clipboard?.writeText(`${window.location.origin}/songs/${musica!.id}/edit`);
+    void navigator.clipboard?.writeText(`${ENDERECO_PUBLICO}/songs/${musica!.id}/edit`);
     toast("Link copiado. Só quem é coautor consegue abrir.");
   }
 
