@@ -5,6 +5,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Adicionado
+- Fase 2c, PWA: o Compoze instala na tela inicial (celular e computador) e
+  abre sem internet, inclusive recarregando a página. Quando sai versão nova,
+  o app avisa e a pessoa escolhe a hora de atualizar. Depois do login, ele
+  pede ao navegador para não apagar os dados do aparelho.
 - Fase 2b, offline (ADR 0008): criar e editar canções, pastas, projetos e o
   perfil sem internet.
   - As escritas vão para uma fila no aparelho e sobem em ordem quando a rede
@@ -77,6 +81,8 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   `01`–`09`; os cabeçalhos de página também perderam o número.
 
 ### Corrigido
+- Staging: o front agora é publicado de novo quando muda algo em `packages/`
+  (ele usa os tipos do contrato e o formato do documento).
 - Mudar dois campos da ficha em seguida (título e tom, por exemplo) gravava só
   o último: as mudanças adiadas agora se acumulam.
 - Sem rede, a renovação do token não desloga mais a pessoa.

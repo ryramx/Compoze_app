@@ -9,6 +9,7 @@ import { ESCRITA, GENTE, RODAPE, type ItemDeNavegacao } from "@/components/layou
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { quandoRecusar, usePendentes } from "@/lib/fila";
+import { pedirArmazenamentoPersistente } from "@/lib/pwa";
 import { useOnline } from "@/lib/rede";
 import { definirTema, useTema } from "@/lib/tema";
 import { useCompoze } from "@/store/compozeStore";
@@ -166,6 +167,9 @@ export default function AppLayout() {
   }, []);
 
   useEffect(() => setGavetaAberta(false), [local.pathname]);
+
+  // Logada, a pessoa tem o que perder no aparelho: pede para não ser apagado.
+  useEffect(pedirArmazenamentoPersistente, []);
 
   // O servidor recusou algo feito offline (permissão mudou, canção apagada por
   // outra pessoa…): avisa e relê, para a tela voltar ao que vale.

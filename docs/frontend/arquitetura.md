@@ -90,6 +90,32 @@ internet e quantas mudanças ainda estão só no aparelho.
 Ficam desligados offline, com a explicação no botão: convidar e remover
 coautor, e fechar a divisão de coautoria.
 
+## PWA (Fase 2c)
+
+`vite-plugin-pwa` (Workbox, `generateSW`) gera o `sw.js` e o manifesto no
+build; a configuração está em `vite.config.ts`.
+
+- O service worker guarda o app inteiro: JS, CSS, ícones e as fontes latinas.
+  Toda rota abre o `index.html` guardado. Os dados não passam por ele: ficam
+  no IndexedDB e na fila (ADR 0008), e a API é outra origem.
+- Versão nova não entra sozinha. `lib/pwa.ts` mostra "Há uma versão nova do
+  Compoze" com o botão Atualizar, que fica até a pessoa escolher.
+- Na primeira instalação aparece "Pronto: o Compoze agora abre mesmo sem
+  internet".
+- Depois do login, o app pede armazenamento persistente
+  (`navigator.storage.persist()`), para o navegador não apagar o caderno
+  quando faltar espaço.
+- Ícones em `public/`: `pwa-192.png`, `pwa-512.png`, `pwa-maskable-512.png`
+  (com margem para os recortes do Android) e `apple-touch-icon.png`. Eles
+  foram gerados a partir do `favicon.svg`.
+- No `pnpm dev` não há service worker. Para testar a PWA, use
+  `pnpm build && pnpm preview`.
+
+Instalar: no Chrome e no Edge, o ícone de instalar na barra de endereço (no
+Android, "Adicionar à tela inicial"). No iPhone, Safari → Compartilhar →
+"Adicionar à Tela de Início". No iOS, só o app instalado fica livre da regra
+que apaga dados de sites sem uso há 7 dias.
+
 ## Editor
 
 - Cada bloco é um `textarea` que cresce com o conteúdo. Enter cria um verso

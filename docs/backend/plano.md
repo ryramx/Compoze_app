@@ -232,5 +232,6 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
    aparelho.~~ Feito (ADR 0007).
 6. ~~Fase 2b: fila de envio e cópia do caderno no front, `Idempotency-Key`
    na API (título, ficha, pastas e projetos offline).~~ Feito (ADR 0008).
-7. Fase 2c: PWA instalável (o app abre sem rede).
+7. ~~Fase 2c: PWA instalável (o app abre sem rede).~~ Feito: o app instala na
+   tela inicial, abre e edita em modo avião, inclusive recarregando.
 8. Fase 2d: convites por e-mail, histórico de versões e registro com hash.
