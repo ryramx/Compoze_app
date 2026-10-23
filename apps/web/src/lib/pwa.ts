@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { registerSW } from "virtual:pwa-register";
+import { NATIVO } from "./nativo";
 
 /**
  * Service worker da PWA (Fase 2c). Guarda o app no aparelho para abrir sem
@@ -10,7 +11,9 @@ import { registerSW } from "virtual:pwa-register";
  * pessoa escolher.
  */
 export function registrarServiceWorker(): void {
-  if (!("serviceWorker" in navigator)) return;
+  // No app Android o código já está no aparelho, e a versão nova chega por
+  // APK novo (ADR 0011). Um service worker ali só duplicaria o cache.
+  if (NATIVO || !("serviceWorker" in navigator)) return;
   const atualizar = registerSW({
     onNeedRefresh() {
       toast("Há uma versão nova do Compoze.", {

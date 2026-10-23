@@ -130,6 +130,9 @@ build; a configuração está em `vite.config.ts`.
 - No `pnpm dev` não há service worker. Para testar a PWA, use
   `pnpm build && pnpm preview`.
 
+No app Android (Capacitor, ADR 0011) não há service worker: o app já está no
+APK. Ver [`docs/mobile/android.md`](../mobile/android.md).
+
 Instalar: no Chrome e no Edge, o ícone de instalar na barra de endereço (no
 Android, "Adicionar à tela inicial"). No iPhone, Safari → Compartilhar →
 "Adicionar à Tela de Início". No iOS, só o app instalado fica livre da regra

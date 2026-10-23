@@ -9,6 +9,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- App Android (Fase 3, ADR 0011): o Compoze vira um APK, publicado nos
+  Releases do GitHub, sem passar pela loja. Link fixo para a versão mais nova:
+  `releases/latest/download/Compoze.apk`.
+  - O botão voltar do Android volta uma tela; na primeira, o app vai para o
+    fundo.
+  - Ícone e tela de abertura no estilo do Caderno, clara e escura.
+  - Links de convite e de canção copiados no app apontam para o site.
+  - CI: o workflow "Android" gera o APK em cada PR e, ao rodar com uma versão,
+    assina, cria a tag e publica o Release.
+  - API de staging: `https://localhost` (o app) entra no `CORS_ORIGINS`.
 - O app abre na hora para quem já entrou no aparelho, sem esperar a API
   acordar (no Render grátis, até um minuto). Enquanto isso ele funciona como
   offline e avisa "Conectando ao servidor".

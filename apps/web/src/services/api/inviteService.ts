@@ -1,4 +1,5 @@
 import { api } from "@/lib/api";
+import { ENDERECO_PUBLICO } from "@/lib/nativo";
 import { musicaDaApi } from "@/services/api/adapters";
 import type {
   ApiCollaboratorRole,
@@ -33,7 +34,7 @@ export const criarLink = (songId: string, opcoes: { role?: Papel; email?: string
 export const cancelar = (songId: string, inviteId: string) => api.delete(`/songs/${songId}/invites/${inviteId}`);
 
 /** O endereço que a pessoa abre: a página do convite neste mesmo app. */
-export const enderecoDoLink = (token: string) => `${window.location.origin}/convite/${token}`;
+export const enderecoDoLink = (token: string) => `${ENDERECO_PUBLICO}/convite/${token}`;
 
 export const recebidos = () => api.get<ApiReceivedInvite[]>("/invites");
 

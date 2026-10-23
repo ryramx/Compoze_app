@@ -1,0 +1,150 @@
+# App Android (Fase 3, ADR 0011): gera o APK assinado e publica nos Releases.
+#
+# - Pull request: gera o APK para conferir que o build não quebrou e deixa o
+#   arquivo nos artefatos da execução, para testar no celular.
+# - Actions → Android → Run workflow, com a versão (ex.: 0.2.0): gera, assina,
+#   cria a tag v0.2.0 e o Release com o APK.
+# - Push de tag v0.2.0: o mesmo, para quem preferir criar a tag na mão.
+#
+# A chave de assinatura vem dos secrets COMPOZE_KEYSTORE_*; o passo a passo
+# para criá-la está em docs/mobile/android.md. Ela é sempre a mesma: APK
+# assinado com outra chave não instala por cima do anterior.
+name: Android
+
+on:
+  pull_request:
+    paths:
+      - apps/web/**
+      - packages/**
+      - pnpm-lock.yaml
+      - .github/workflows/android.yml
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: "Versão a publicar, sem o v (ex.: 0.2.0)"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      # O APK fala com o staging. Links de convite apontam para o site.
+      VITE_API_URL: https://compoze-api-staging.onrender.com
+      VITE_WEB_URL: https://compoze-web-staging.onrender.com
+      PUBLICAR: ${{ github.event_name != 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      # Capacitor 8 pede Java 21 e o SDK 36 do Android.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - uses: android-actions/setup-android@v3
+
+      - name: Versão
+        id: versao
+        env:
+          ENTRADA: ${{ inputs.versao }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then v="${ENTRADA#v}"
+          elif [ "$GITHUB_EVENT_NAME" = push ]; then v="${GITHUB_REF_NAME#v}"
+          else v="0.0.1"  # PR: só confere o build
+          fi
+          if ! [[ "$v" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "::error::Versão '$v' inválida. Use três números, como 0.2.0."
+            exit 1
+          fi
+          ma=${BASH_REMATCH[1]}; mi=${BASH_REMATCH[2]}; pa=${BASH_REMATCH[3]}
+          if [ "$mi" -gt 99 ] || [ "$pa" -gt 99 ]; then
+            echo "::error::Cada parte depois do primeiro número vai até 99."
+            exit 1
+          fi
+          # 1.2.3 → 10203. Tem que crescer a cada versão, senão o Android
+          # recusa a atualização.
+          codigo=$(( ma * 10000 + mi * 100 + pa ))
+          [ "$codigo" -gt 0 ] || codigo=1
+          echo "nome=$v" >> "$GITHUB_OUTPUT"
+          echo "codigo=$codigo" >> "$GITHUB_OUTPUT"
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @compoze/web build
+      - run: pnpm --filter @compoze/web exec cap sync android
+
+      - name: Chave de assinatura
+        env:
+          KEYSTORE_BASE64: ${{ secrets.COMPOZE_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            if [ "$PUBLICAR" = true ]; then
+              echo "::error::Faltam os secrets COMPOZE_KEYSTORE_*. Veja docs/mobile/android.md."
+              exit 1
+            fi
+            echo "::notice::Sem a chave: o APK do PR sai assinado com a chave de debug."
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/compoze.jks"
+          echo "COMPOZE_KEYSTORE_PATH=$RUNNER_TEMP/compoze.jks" >> "$GITHUB_ENV"
+
+      - name: Gerar o APK
+        working-directory: apps/web/android
+        env:
+          COMPOZE_KEYSTORE_PASSWORD: ${{ secrets.COMPOZE_KEYSTORE_PASSWORD }}
+          COMPOZE_KEY_ALIAS: ${{ secrets.COMPOZE_KEY_ALIAS }}
+          COMPOZE_KEY_PASSWORD: ${{ secrets.COMPOZE_KEY_PASSWORD }}
+        run: |
+          if [ -n "${COMPOZE_KEYSTORE_PATH:-}" ]; then tarefa=assembleRelease; saida=release/app-release.apk
+          else tarefa=assembleDebug; saida=debug/app-debug.apk
+          fi
+          ./gradlew "$tarefa" --no-daemon \
+            -PcompozeVersao="${{ steps.versao.outputs.nome }}" \
+            -PcompozeVersaoCodigo="${{ steps.versao.outputs.codigo }}"
+          mkdir -p "$RUNNER_TEMP/saida"
+          cp "app/build/outputs/apk/$saida" "$RUNNER_TEMP/saida/Compoze-${{ steps.versao.outputs.nome }}.apk"
+          cp "app/build/outputs/apk/$saida" "$RUNNER_TEMP/saida/Compoze.apk"
+
+      # A impressão digital do certificado aparece no log. Se um dia mudar, a
+      # chave mudou e quem já tem o app não consegue atualizar.
+      - name: Conferir a assinatura
+        run: |
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)/apksigner"
+          "$apksigner" verify --print-certs "$RUNNER_TEMP/saida/Compoze.apk" | grep -i "sha-256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Compoze-${{ steps.versao.outputs.nome }}
+          path: ${{ runner.temp }}/saida/Compoze-${{ steps.versao.outputs.nome }}.apk
+
+      # "Compoze.apk" tem sempre o mesmo nome, para o link fixo
+      # .../releases/latest/download/Compoze.apk funcionar em toda versão.
+      - name: Publicar o Release
+        if: env.PUBLICAR == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSAO: ${{ steps.versao.outputs.nome }}
+        run: |
+          gh release create "v$VERSAO" \
+            "$RUNNER_TEMP/saida/Compoze-$VERSAO.apk" \
+            "$RUNNER_TEMP/saida/Compoze.apk" \
+            --target "$GITHUB_SHA" \
+            --title "Compoze $VERSAO" \
+            --generate-notes \
+            --latest
+
+      - name: Apagar a chave
+        if: always()
+        run: rm -f "$RUNNER_TEMP/compoze.jks"
