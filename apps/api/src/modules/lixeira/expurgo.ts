@@ -3,6 +3,7 @@ import { and, isNotNull, lt, sql } from "drizzle-orm";
 import { PgBoss } from "pg-boss";
 import type { FastifyBaseLogger } from "fastify";
 
+import { expurgarIdempotencia } from "../../plugins/idempotencia";
 import { RETENCAO_DIAS } from "../songs/servico";
 
 /**
@@ -38,6 +39,7 @@ export async function agendarExpurgo(url: string, db: Banco, log: FastifyBaseLog
   await boss.work(FILA, async () => {
     const r = await expurgarLixeira(db);
     log.info(r, "lixeira expurgada (RN08)");
+    log.info({ chaves: await expurgarIdempotencia(db) }, "chaves de idempotência vencidas apagadas");
   });
   return boss;
 }

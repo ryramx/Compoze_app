@@ -22,7 +22,8 @@ export async function getByUsername(username: string): Promise<User> {
   return usuarioDaApi(await api.get<ApiUserPublic>(`/users/${username}`));
 }
 
-export async function updateMe(patch: Partial<User>): Promise<User> {
+/** Corpo de `PATCH /users/me`: só os campos que mudaram. */
+export function patchDeEu(patch: Partial<User>): ApiMePatch {
   const corpo: ApiMePatch = {};
   if ("name" in patch) corpo.name = patch.name;
   if ("bio" in patch) corpo.bio = patch.bio ?? null;
@@ -33,7 +34,11 @@ export async function updateMe(patch: Partial<User>): Promise<User> {
     corpo.latitude = patch.location.lat || null;
     corpo.longitude = patch.location.lng || null;
   }
-  return usuarioDaApi(await api.patch<ApiUserMe>("/users/me", corpo));
+  return corpo;
+}
+
+export async function updateMe(patch: Partial<User>): Promise<User> {
+  return usuarioDaApi(await api.patch<ApiUserMe>("/users/me", patchDeEu(patch)));
 }
 
 /**

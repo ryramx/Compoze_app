@@ -42,19 +42,21 @@ export interface EntradaProjeto {
   fundingGoal?: number;
 }
 
-export async function create(input: EntradaProjeto): Promise<Project> {
+/** Corpo de `POST /projects`. Com `id`, o projeto nasce no aparelho (ADR 0005). */
+export function corpoDeNovoProjeto(input: EntradaProjeto, id?: string): ApiNewProject {
   const corpo: ApiNewProject = { name: input.name };
+  if (id) corpo.id = id;
   if (input.type) corpo.type = TIPO_PARA_API[input.type];
   if (input.style) corpo.style = ESTILO_PARA_API[input.style];
   if (input.description) corpo.description = input.description;
   if (input.releaseDate) corpo.release_date = input.releaseDate;
   if (input.estimatedCost !== undefined) corpo.estimated_cost = input.estimatedCost;
   if (input.fundingGoal !== undefined) corpo.funding_target = input.fundingGoal;
-
-  return projetoDaApi(await api.post<ApiProjectDetail>("/projects", corpo));
+  return corpo;
 }
 
-export async function update(id: string, patch: Partial<Project>): Promise<Project> {
+/** Corpo de `PATCH /projects/{id}`: só os campos que mudaram. */
+export function patchDeProjeto(patch: Partial<Project>): ApiProjectPatch {
   const corpo: ApiProjectPatch = {};
   if (patch.name) corpo.name = patch.name;
   if (patch.description !== undefined) corpo.description = patch.description;
@@ -64,8 +66,15 @@ export async function update(id: string, patch: Partial<Project>): Promise<Proje
   if (patch.releaseDate !== undefined) corpo.release_date = patch.releaseDate || null;
   if (patch.estimatedCost !== undefined) corpo.estimated_cost = patch.estimatedCost;
   if (patch.fundingGoal !== undefined) corpo.funding_target = patch.fundingGoal;
+  return corpo;
+}
 
-  return projetoDaApi(await api.patch<ApiProjectDetail>(`/projects/${id}`, corpo));
+export async function create(input: EntradaProjeto): Promise<Project> {
+  return projetoDaApi(await api.post<ApiProjectDetail>("/projects", corpoDeNovoProjeto(input)));
+}
+
+export async function update(id: string, patch: Partial<Project>): Promise<Project> {
+  return projetoDaApi(await api.patch<ApiProjectDetail>(`/projects/${id}`, patchDeProjeto(patch)));
 }
 
 export async function remove(id: string): Promise<void> {

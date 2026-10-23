@@ -29,6 +29,13 @@ describe("canções", () => {
     expect((await como(ctx.app, p.token).post("/songs", { id, title: "De novo" })).statusCode).toBe(409);
   });
 
+  it("folha_pautada: false cria sem blocos (o app monta a folha no documento)", async () => {
+    const p = await novaPessoa(ctx.app);
+    const r = await como(ctx.app, p.token).post("/songs", { title: "Em branco", folha_pautada: false });
+    expect(r.statusCode).toBe(201);
+    expect(r.json().blocks).toEqual([]);
+  });
+
   it("quem não é coautora recebe 404, não 403", async () => {
     const { cancao } = await cancaoDe();
     const estranha = await novaPessoa(ctx.app);

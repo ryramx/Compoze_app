@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+import { apagarCopia } from "@/lib/copiaLocal";
+import { descartarFila } from "@/lib/fila";
 import * as authService from "@/services/api/authService";
 import type { DadosCadastro } from "@/services/api/authService";
 import { useCompoze } from "@/store/compozeStore";
@@ -44,7 +46,12 @@ export const useAuth = create<Estado & Acoes>((set) => ({
   },
 
   logout: () => {
+    const eu = useCompoze.getState().currentUserId;
     authService.logout();
+    // O que não subiu fica perdido de propósito: o próximo a usar o aparelho
+    // pode ser outra pessoa. A cópia do caderno vai junto.
+    descartarFila();
+    if (eu) void apagarCopia(eu);
     // Limpa também os dados carregados: sem isto, entrar com outra conta em
     // seguida mostraria as músicas da anterior até a nova carga terminar.
     useCompoze.getState().limpar();

@@ -121,7 +121,7 @@ async function expandir(db: Banco, lista: (typeof songs.$inferSelect)[], campos:
 export async function criar(
   db: Banco,
   usuarioId: string,
-  dados: { id?: string; title: string; folder_id?: string | null },
+  dados: { id?: string; title: string; folder_id?: string | null; folha_pautada?: boolean },
 ): Promise<DetalheDaCancao> {
   if (dados.folder_id) await exigirPastaDa(db, dados.folder_id, usuarioId);
   return db.transaction(async (tx) => {
@@ -137,11 +137,14 @@ export async function criar(
       .returning();
     // A dona entra como coautora a 100%: a divisão começa resolvida.
     await tx.insert(songCollaborators).values({ songId: c!.id, userId: usuarioId, role: "OWNER", contributionPercent: 100 });
-    // Folha pautada: um verso pronto para escrever, como no protótipo.
-    await tx.insert(songBlocks).values([
-      { songId: c!.id, type: "SECTION", label: "Verso 1", content: "", position: 0, authorId: usuarioId },
-      { songId: c!.id, type: "LYRIC", label: null, content: "", position: 1, authorId: usuarioId },
-    ]);
+    // Folha pautada: um verso pronto para escrever, como no protótipo. O app
+    // pede sem, porque monta a folha no documento Yjs (ADR 0008).
+    if (dados.folha_pautada !== false) {
+      await tx.insert(songBlocks).values([
+        { songId: c!.id, type: "SECTION", label: "Verso 1", content: "", position: 0, authorId: usuarioId },
+        { songId: c!.id, type: "LYRIC", label: null, content: "", position: 1, authorId: usuarioId },
+      ]);
+    }
     return detalhe(tx, c!);
   });
 }

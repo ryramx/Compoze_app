@@ -5,6 +5,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Adicionado
+- Fase 2b, offline (ADR 0008): criar e editar canções, pastas, projetos e o
+  perfil sem internet.
+  - As escritas vão para uma fila no aparelho e sobem em ordem quando a rede
+    volta. Criar canção offline já abre a folha pautada.
+  - O caderno fica copiado no aparelho e abre na hora, com ou sem rede.
+  - O menu mostra "Sem internet" e quantas mudanças ainda não subiram.
+  - Convidar, remover coautor e fechar a divisão ficam desligados offline, com
+    o motivo.
+  - API: cabeçalho `Idempotency-Key` em toda escrita autenticada (reenviar não
+    repete), e `folha_pautada` em `POST /songs`.
 - Fase 2a, escrita junto (ADR 0007): cada canção é um documento Yjs.
   - Duas pessoas editam o mesmo verso ao mesmo tempo, ou uma delas offline,
     sem perder texto.
@@ -67,6 +77,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   `01`–`09`; os cabeçalhos de página também perderam o número.
 
 ### Corrigido
+- Mudar dois campos da ficha em seguida (título e tom, por exemplo) gravava só
+  o último: as mudanças adiadas agora se acumulam.
+- Sem rede, a renovação do token não desloga mais a pessoa.
 - Build no Render: `corepack enable` falha lá (diretório global só leitura);
   o pnpm passa a vir pelo `npx`, na versão fixada.
 - Abrir o app em duas abas (ou no StrictMode) não derruba mais a sessão: a

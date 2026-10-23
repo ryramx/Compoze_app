@@ -67,8 +67,28 @@ projetos já com as faixas, numa ida cada.
 | `/trash`, `/settings` | Lixeira, Ajustes |
 
 `RequireAuth` restaura a sessão pelo refresh token e espera a carga inicial
-antes de renderizar qualquer tela protegida. As telas, exceto a Mesa, são
-carregadas sob demanda (`React.lazy`).
+antes de renderizar qualquer tela protegida. Sem rede, restaura com a última
+pessoa conhecida. As telas, exceto a Mesa, são carregadas sob demanda
+(`React.lazy`) e baixadas em segundo plano logo depois de abrir, para que
+continuem abrindo se a rede cair.
+
+## Offline (ADR 0008)
+
+| Peça | O que faz |
+| --- | --- |
+| `lib/fila.ts` | Fila de escritas no `localStorage`, por pessoa. O store põe ali toda escrita de canção (registro), pasta, projeto e perfil, e a tela muda antes. Envia em ordem, com `Idempotency-Key`, e tenta de novo sem rede |
+| `lib/copiaLocal.ts` | Cópia do caderno no IndexedDB. Abre o app na hora, com ou sem rede |
+| `lib/folhaInicial.ts` | Semeia "Verso 1" no documento local de uma canção nova (`folha_pautada: false` no `POST /songs`) |
+| `lib/rede.ts` | `useOnline()` e o texto padrão de ação que precisa de rede |
+
+Na carga (`hydrate`): primeiro a cópia, depois esvazia a fila e só então relê o
+servidor. Se a fila não esvazia, a tela fica com a cópia (`semRede`) e relê
+quando o navegador avisa que a rede voltou. Recusa definitiva de um item da
+fila vira aviso e releitura (`AppLayout`). O pé do menu mostra se está sem
+internet e quantas mudanças ainda estão só no aparelho.
+
+Ficam desligados offline, com a explicação no botão: convidar e remover
+coautor, e fechar a divisão de coautoria.
 
 ## Editor
 
@@ -97,6 +117,6 @@ carregadas sob demanda (`React.lazy`).
 ## Testes
 
 Vitest + Testing Library (`pnpm test`). Cobrem adapters, transporte, store,
-guarda de rota e o servidor de demonstração. A fusão de edições do documento é
+fila offline, guarda de rota e o servidor de demonstração. A fusão de edições do documento é
 testada em `packages/documento`, e a edição em tempo real com dois editores,
 em `apps/api/test/colaboracao.test.ts`.

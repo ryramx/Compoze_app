@@ -1,12 +1,15 @@
-import { Menu as IconeMenu, Moon, Search, Sun, X } from "lucide-react";
+import { CloudOff, Menu as IconeMenu, Moon, RefreshCw, Search, Sun, X } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
+import { toast } from "sonner";
 import { BuscaGlobal } from "@/components/compoze/BuscaGlobal";
 import { Marca } from "@/components/compoze/Marca";
 import { Monograma } from "@/components/compoze/Monograma";
 import { ESCRITA, GENTE, RODAPE, type ItemDeNavegacao } from "@/components/layout/navegacao";
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { quandoRecusar, usePendentes } from "@/lib/fila";
+import { useOnline } from "@/lib/rede";
 import { definirTema, useTema } from "@/lib/tema";
 import { useCompoze } from "@/store/compozeStore";
 
@@ -36,6 +39,34 @@ function ItemDoTrilho({ item, aoClicar }: { item: ItemDeNavegacao; aoClicar?: ()
         </>
       )}
     </NavLink>
+  );
+}
+
+/**
+ * Estado da sincronização, no pé do trilho: some quando está tudo no servidor.
+ * Offline não é erro — o caderno segue funcionando —, então é discreto.
+ */
+function EstadoDaRede() {
+  const online = useOnline();
+  const pendentes = usePendentes();
+  if (online && pendentes === 0) return null;
+  const mudancas = pendentes === 1 ? "1 mudança" : `${pendentes} mudanças`;
+  return (
+    <p className="mb-3 flex items-start gap-2 text-[11.5px] leading-snug text-tinta-3" role="status">
+      {online ? (
+        <>
+          <RefreshCw className="mt-px size-3 shrink-0 animate-spin [animation-duration:2s]" aria-hidden />
+          Enviando {mudancas}…
+        </>
+      ) : (
+        <>
+          <CloudOff className="mt-px size-3 shrink-0" aria-hidden />
+          <span>
+            Sem internet. {pendentes > 0 ? `${mudancas} neste aparelho; sobem` : "O que você escrever sobe"} quando a rede voltar.
+          </span>
+        </>
+      )}
+    </p>
   );
 }
 
@@ -81,6 +112,7 @@ function Trilho({ aoNavegar, aoBuscar }: { aoNavegar?: () => void; aoBuscar: () 
       </nav>
 
       <div className="border-t border-linha px-5 py-4">
+        <EstadoDaRede />
         {MODO_DEMO && (
           <p className="mb-3 text-[11.5px] leading-snug text-tinta-3">
             <span className="text-lapis">●</span> Modo demonstração. Os dados ficam só neste navegador.
@@ -134,6 +166,18 @@ export default function AppLayout() {
   }, []);
 
   useEffect(() => setGavetaAberta(false), [local.pathname]);
+
+  // O servidor recusou algo feito offline (permissão mudou, canção apagada por
+  // outra pessoa…): avisa e relê, para a tela voltar ao que vale.
+  useEffect(
+    () =>
+      quandoRecusar((pedido, erro) => {
+        toast.error(`Não deu para salvar ${pedido.rotulo}: ${erro.message}`);
+        const { currentUserId, hydrate } = useCompoze.getState();
+        if (currentUserId) void hydrate(currentUserId);
+      }),
+    [],
+  );
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[232px_minmax(0,1fr)]">

@@ -22,6 +22,7 @@ import { rotasDeCancoes } from "./modules/songs/rotas";
 import { rotasDePessoas } from "./modules/users/rotas";
 import { autenticacao } from "./plugins/autenticacao";
 import { registrarErros } from "./plugins/erros";
+import { idempotencia } from "./plugins/idempotencia";
 import { VERSAO } from "./versao";
 
 declare module "fastify" {
@@ -67,6 +68,9 @@ export async function construirApp({ config, banco, logger }: Dependencias) {
     origin: config.CORS_ORIGINS,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    // A fila de escritas do aparelho manda a chave em cada reenvio (ADR 0008).
+    allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key"],
+    exposedHeaders: ["Idempotent-Replayed"],
   });
   // Limite só onde é ativado por rota (login, cadastro, refresh): contra
   // tentativa de senha em massa, sem atrapalhar quem usa o app.
@@ -78,6 +82,7 @@ export async function construirApp({ config, banco, logger }: Dependencias) {
       }),
   });
   await app.register(autenticacao);
+  await app.register(idempotencia);
 
   await app.register(swagger, {
     openapi: {

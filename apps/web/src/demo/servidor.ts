@@ -274,7 +274,8 @@ const rotasPrivadas: Rota[] = [
 
     if (partes.length === 1 && metodo === "POST") {
       const s: ApiSongDetail = {
-        id: novoId("s"),
+        // Como na API: o id pode nascer no aparelho (ADR 0005).
+        id: (corpo.id as string | undefined) ?? novoId("s"),
         title: String(corpo.title ?? "Sem título"),
         status: "IDEIA",
         visibility: "PRIVATE",
@@ -289,10 +290,11 @@ const rotasPrivadas: Rota[] = [
         created_at: agora(),
         updated_at: agora(),
         description: null,
-        blocks: [
-          bloco(uid, "SECTION", "Verso 1", "", 0),
-          bloco(uid, "LYRIC", null, "", 1),
-        ],
+        // folha_pautada: false = o aparelho já semeou a folha no documento.
+        blocks:
+          corpo.folha_pautada === false
+            ? []
+            : [bloco(uid, "SECTION", "Verso 1", "", 0), bloco(uid, "LYRIC", null, "", 1)],
         collaborators: [
           { id: novoId("c"), user_id: uid, role: "OWNER", contribution_percent: 100 },
         ],
@@ -421,7 +423,7 @@ const rotasPrivadas: Rota[] = [
     }
     if (partes.length === 1 && metodo === "POST") {
       const f: ApiFolder = {
-        id: novoId("f"),
+        id: (corpo.id as string | undefined) ?? novoId("f"),
         name: String(corpo.name ?? "Nova pasta"),
         parent_id: (corpo.parent_id as string | undefined) ?? null,
         owner_id: userId!,
@@ -459,7 +461,7 @@ const rotasPrivadas: Rota[] = [
     }
     if (partes.length === 1 && metodo === "POST") {
       const p: ApiProject = {
-        id: novoId("p"),
+        id: (corpo.id as string | undefined) ?? novoId("p"),
         name: String(corpo.name ?? "Novo projeto"),
         description: (corpo.description as string | undefined) ?? null,
         type: (corpo.type as ApiProject["type"]) ?? "SINGLE",

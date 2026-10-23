@@ -48,7 +48,8 @@ duas voltam, as edições se fundem sem conflito e sem perda. A autoria por
 trecho vem junto, porque cada inserção no Yjs sabe quem a fez.
 
 **Dados estruturados (canção como registro, pastas, projetos, perfil) →
-banco local + fila de envio.**
+banco local + fila de envio.** (Como foi feito na Fase 2b, mais simples que o
+abaixo: [ADR 0008](0008-fila-offline-sobre-o-rest.md).)
 - Leitura: um banco local no aparelho (IndexedDB via Dexie; SQLite nativo no
   Capacitor) espelha o conjunto de trabalho da pessoa. Ele é preenchido e
   atualizado por `GET /sync/changes?since=<cursor>`, que devolve só o que mudou

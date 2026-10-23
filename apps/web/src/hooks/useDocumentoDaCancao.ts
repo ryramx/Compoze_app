@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { MODO_DEMO } from "@/lib/api";
 import { nomeLocal, URL_COLAB } from "@/lib/colaboracao";
+import { quandoSair } from "@/lib/fila";
 import { blocoDoDocumento, tipoDeBlocoParaApi } from "@/services/api/adapters";
 import { tokenValido } from "@/services/api/authService";
 import type { SongBlock } from "@/types";
@@ -110,7 +111,8 @@ export function useDocumentoDaCancao(
 
     let provider: HocuspocusProvider | null = null;
     let pararDeOuvirRede = () => {};
-    if (URL_COLAB) {
+    let cancelarEspera = () => {};
+    const conectar = (url: string) => {
       let conexao: "connecting" | "connected" | "disconnected" = "connecting";
       let jaConectou = false;
       const atualizarEstado = () => {
@@ -125,7 +127,7 @@ export function useDocumentoDaCancao(
         else setEstado("sincronizado");
       };
       provider = new HocuspocusProvider({
-        url: URL_COLAB,
+        url,
         name: nomeDoDocumento(songId),
         document: doc,
         token: tokenValido,
@@ -158,6 +160,26 @@ export function useDocumentoDaCancao(
         window.removeEventListener("online", atualizarEstado);
         window.removeEventListener("offline", atualizarEstado);
       };
+      const criado = provider;
+      setSessao((s) => (s?.doc === doc ? { ...s, provider: criado } : s));
+    };
+
+    if (URL_COLAB) {
+      // Canção criada neste aparelho e ainda na fila: o servidor recusaria o
+      // documento de uma canção que não conhece. Espera o POST subir.
+      const url = URL_COLAB;
+      const espera = quandoSair(
+        (p) => p.metodo === "POST" && p.caminho === "/songs" && (p.corpo as { id?: string } | undefined)?.id === songId,
+      );
+      let fechado = false;
+      cancelarEspera = () => {
+        fechado = true;
+        espera.cancelar();
+      };
+      setEstado(navigator.onLine ? "sincronizando" : "offline");
+      void espera.pronto.then(() => {
+        if (!fechado) conectar(url);
+      });
     } else {
       setEstado("aparelho");
     }
@@ -172,6 +194,7 @@ export function useDocumentoDaCancao(
         aoMudarRef.current(crus.map(blocoDoDocumento), crus);
       }
       blocosDe(doc).unobserveDeep(ler);
+      cancelarEspera();
       pararDeOuvirRede();
       desfazer.destroy();
       provider?.destroy();

@@ -2,9 +2,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Song } from "@/types";
 
-// Os serviços de API são mockados: estes testes verificam o comportamento do
-// store — o que ele mostra na tela e o que manda gravar —, não o backend, que
-// tem a própria suíte contra o PostgreSQL real.
+// Os serviços de API e a fila são mockados: estes testes verificam o
+// comportamento do store — o que ele mostra na tela e o que põe na fila —, não
+// o backend, que tem a própria suíte contra o PostgreSQL real.
+vi.mock("@/lib/fila", () => ({
+  abrirFila: vi.fn(),
+  enfileirar: vi.fn(async () => undefined),
+  esvaziar: vi.fn(async () => true),
+}));
+
+vi.mock("@/lib/copiaLocal", () => ({
+  lerCopia: vi.fn(async () => undefined),
+  salvarCopia: vi.fn(async () => undefined),
+}));
+
+vi.mock("@/lib/folhaInicial", () => ({
+  semearFolhaInicial: vi.fn(async () => undefined),
+}));
+
 vi.mock("@/services/api/songService", () => ({
   list: vi.fn(async () => []),
   listTrash: vi.fn(async () => []),
@@ -66,6 +81,14 @@ const projetoBase = {
 
 const { useCompoze } = await import("./compozeStore");
 const songApi = await import("@/services/api/songService");
+const fila = await import("@/lib/fila");
+const copiaLocal = await import("@/lib/copiaLocal");
+const { semearFolhaInicial } = await import("@/lib/folhaInicial");
+const { ApiError } = await import("@/lib/api");
+
+/** Os pedidos postos na fila, sem o rótulo (que é texto de aviso). */
+const naFila = () =>
+  vi.mocked(fila.enfileirar).mock.calls.map(([p]) => ({ metodo: p.metodo, caminho: p.caminho, corpo: p.corpo }));
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -78,18 +101,35 @@ beforeEach(() => {
     hidratado: true,
     carregando: false,
     erro: null,
+    semRede: false,
   });
 });
 
 describe("criação", () => {
-  it("createSong adiciona a música devolvida pela API", async () => {
-    const id = await useCompoze.getState().createSong({ title: "Minha nova ideia" });
-    expect(id).toBe("novo");
-    expect(useCompoze.getState().getSong("novo")?.title).toBe("Minha nova ideia");
+  it("createSong cria no aparelho, com id local, e põe o pedido na fila", async () => {
+    const id = await useCompoze.getState().createSong({ title: "Minha nova ideia", folderId: "f1" });
+
+    expect(id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(useCompoze.getState().getSong(id)?.title).toBe("Minha nova ideia");
+    // A folha pautada nasce no documento do aparelho; o servidor não semeia outra.
+    expect(semearFolhaInicial).toHaveBeenCalledWith(id, "u1");
+    expect(naFila()).toEqual([
+      { metodo: "POST", caminho: "/songs", corpo: { id, title: "Minha nova ideia", folder_id: "f1", folha_pautada: false } },
+    ]);
   });
 
-  it("createFolder devolve o id da pasta criada", async () => {
-    expect(await useCompoze.getState().createFolder("Ideias")).toBe("f-novo");
+  it("createSong dentro de um projeto já mostra a faixa", async () => {
+    useCompoze.setState({ projects: [structuredClone(projetoBase)] });
+    const id = await useCompoze.getState().createSong({ title: "Faixa", projectId: "p1" });
+
+    expect(useCompoze.getState().getProject("p1")!.songIds).toEqual([id]);
+    expect(naFila()[1]).toEqual({ metodo: "POST", caminho: "/projects/p1/songs", corpo: { song_id: id } });
+  });
+
+  it("createFolder devolve o id local e a pasta aparece na hora", async () => {
+    const id = await useCompoze.getState().createFolder("Ideias");
+    expect(useCompoze.getState().folders.map((f) => f.id)).toEqual([id]);
+    expect(naFila()).toEqual([{ metodo: "POST", caminho: "/folders", corpo: { id, name: "Ideias", parent_id: null } }]);
   });
 });
 
@@ -99,7 +139,7 @@ describe("lixeira", () => {
     const musica = useCompoze.getState().getSong("s1");
     expect(musica).toBeDefined();
     expect(musica!.deletedAt).toBeTruthy();
-    expect(songApi.softDelete).toHaveBeenCalledWith("s1");
+    expect(naFila()).toEqual([{ metodo: "DELETE", caminho: "/songs/s1", corpo: undefined }]);
   });
 
   it("restoreSong limpa deletedAt e preserva a pasta original", () => {
@@ -110,12 +150,13 @@ describe("lixeira", () => {
     const depois = useCompoze.getState().getSong("s1")!;
     expect(depois.deletedAt).toBeUndefined();
     expect(depois.folderId).toBe(antes.folderId);
+    expect(naFila().map((p) => p.caminho)).toEqual(["/songs/s1", "/songs/s1/restore"]);
   });
 
   it("permanentlyDeleteSong remove da lista", () => {
     useCompoze.getState().permanentlyDeleteSong("s1");
     expect(useCompoze.getState().getSong("s1")).toBeUndefined();
-    expect(songApi.permanentDelete).toHaveBeenCalledWith("s1");
+    expect(naFila()).toEqual([{ metodo: "DELETE", caminho: "/songs/s1/permanent", corpo: undefined }]);
   });
 
   it("purgeExpiredTrash não apaga nada sozinho — quem expurga é o servidor", () => {
@@ -131,16 +172,26 @@ describe("gravação adiada", () => {
     expect(useCompoze.getState().getSong("s1")!.title).toBe("Novo título");
   });
 
-  it("digitar várias vezes gera uma gravação só", async () => {
+  it("digitar várias vezes gera um pedido só", async () => {
     vi.useFakeTimers();
     for (const t of ["a", "ab", "abc"]) {
       useCompoze.getState().updateSong("s1", { title: t });
     }
-    expect(songApi.update).not.toHaveBeenCalled();
+    expect(fila.enfileirar).not.toHaveBeenCalled();
 
     await vi.advanceTimersByTimeAsync(1000);
-    expect(songApi.update).toHaveBeenCalledTimes(1);
-    expect(songApi.update).toHaveBeenCalledWith("s1", { title: "abc" });
+    expect(naFila()).toEqual([{ metodo: "PATCH", caminho: "/songs/s1", corpo: { title: "abc" } }]);
+    vi.useRealTimers();
+  });
+
+  it("campos diferentes mudados em seguida vão juntos, sem perder nenhum", async () => {
+    vi.useFakeTimers();
+    useCompoze.getState().updateSong("s1", { title: "Outro" });
+    useCompoze.getState().updateSong("s1", { bpm: 90 });
+
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(naFila()).toHaveLength(1);
+    expect(naFila()[0]!.corpo).toMatchObject({ title: "Outro", bpm: 90 });
     vi.useRealTimers();
   });
 });
@@ -172,12 +223,20 @@ describe("coautoria", () => {
     await vi.advanceTimersByTimeAsync(1000);
 
     // RN05 é condicional: ajustar em rascunho não pode exigir soma 100.
-    expect(songApi.setContributions).toHaveBeenCalledWith(
-      "s1",
-      [{ userId: "u2", percentage: 75 }],
-      false,
-    );
+    expect(naFila()).toEqual([
+      {
+        metodo: "PUT",
+        caminho: "/songs/s1/contributions",
+        corpo: { contributions: [{ user_id: "u2", percentage: 75 }], confirm: false },
+      },
+    ]);
     vi.useRealTimers();
+  });
+
+  it("confirmar sem rede recusa, em vez de fingir que confirmou", async () => {
+    vi.mocked(fila.esvaziar).mockResolvedValueOnce(false);
+    await expect(useCompoze.getState().confirmContributions("s1")).rejects.toThrow(/internet/);
+    expect(songApi.setContributions).not.toHaveBeenCalled();
   });
 });
 
@@ -190,12 +249,35 @@ describe("visibilidade", () => {
 });
 
 describe("hidratação", () => {
-  it("erro de rede não deixa a tela em carregamento eterno", async () => {
-    vi.mocked(songApi.list).mockRejectedValueOnce(new Error("sem rede"));
+  it("erro de rede sem cópia no aparelho não deixa a tela em carregamento eterno", async () => {
+    useCompoze.setState({ hidratado: false, currentUserId: "" });
+    vi.mocked(songApi.list).mockRejectedValueOnce(new ApiError(0, "sem rede"));
 
     await useCompoze.getState().hydrate("u1");
 
     expect(useCompoze.getState().carregando).toBe(false);
     expect(useCompoze.getState().erro).toBeTruthy();
+  });
+
+  it("sem rede, abre com a cópia do aparelho", async () => {
+    useCompoze.setState({ hidratado: false, currentUserId: "", songs: [] });
+    vi.mocked(copiaLocal.lerCopia).mockResolvedValueOnce({
+      songs: [{ ...musicaBase, title: "Guardada" }],
+      folders: [],
+      projects: [],
+      users: [],
+      salvaEm: "2026-01-01",
+    });
+    vi.mocked(fila.esvaziar).mockResolvedValueOnce(false);
+
+    await useCompoze.getState().hydrate("u1");
+
+    const estado = useCompoze.getState();
+    expect(estado.erro).toBeNull();
+    expect(estado.semRede).toBe(true);
+    expect(estado.getSong("s1")?.title).toBe("Guardada");
+    expect(fila.abrirFila).toHaveBeenCalledWith("u1");
+    // Sem a fila vazia, não lê do servidor (a leitura desfaria o que foi feito offline).
+    expect(songApi.list).not.toHaveBeenCalled();
   });
 });

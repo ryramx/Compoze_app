@@ -13,17 +13,43 @@ import Register from "@/pages/auth/Register";
 import NotFound from "@/pages/NotFound";
 
 // A Mesa vem no pacote principal; o resto carrega quando a pessoa abre.
-const Songs = lazy(() => import("@/pages/app/Songs"));
-const SongEditor = lazy(() => import("@/pages/app/SongEditor"));
-const Folders = lazy(() => import("@/pages/app/Folders"));
-const Projects = lazy(() => import("@/pages/app/Projects"));
-const ProjectDetail = lazy(() => import("@/pages/app/ProjectDetail"));
-const Feed = lazy(() => import("@/pages/app/Feed"));
-const Messages = lazy(() => import("@/pages/app/Messages"));
-const MapPage = lazy(() => import("@/pages/app/Map"));
-const Profile = lazy(() => import("@/pages/app/Profile"));
-const Trash = lazy(() => import("@/pages/app/Trash"));
-const Settings = lazy(() => import("@/pages/app/Settings"));
+const paginas = {
+  Songs: () => import("@/pages/app/Songs"),
+  SongEditor: () => import("@/pages/app/SongEditor"),
+  Folders: () => import("@/pages/app/Folders"),
+  Projects: () => import("@/pages/app/Projects"),
+  ProjectDetail: () => import("@/pages/app/ProjectDetail"),
+  Feed: () => import("@/pages/app/Feed"),
+  Messages: () => import("@/pages/app/Messages"),
+  Map: () => import("@/pages/app/Map"),
+  Profile: () => import("@/pages/app/Profile"),
+  Trash: () => import("@/pages/app/Trash"),
+  Settings: () => import("@/pages/app/Settings"),
+  // Não é página, mas criar canção offline precisa dele (ADR 0008).
+  folhaInicial: () => import("@/lib/folhaInicial"),
+};
+const Songs = lazy(paginas.Songs);
+const SongEditor = lazy(paginas.SongEditor);
+const Folders = lazy(paginas.Folders);
+const Projects = lazy(paginas.Projects);
+const ProjectDetail = lazy(paginas.ProjectDetail);
+const Feed = lazy(paginas.Feed);
+const Messages = lazy(paginas.Messages);
+const MapPage = lazy(paginas.Map);
+const Profile = lazy(paginas.Profile);
+const Trash = lazy(paginas.Trash);
+const Settings = lazy(paginas.Settings);
+
+// Com rede, baixa o resto do app logo depois de abrir: se a rede cair depois,
+// as telas ainda não visitadas continuam abrindo. (Recarregar a página offline
+// é com o service worker da Fase 2c.)
+if (typeof window !== "undefined") {
+  const baixar = () => {
+    if (navigator.onLine) for (const f of Object.values(paginas)) void f().catch(() => undefined);
+  };
+  if ("requestIdleCallback" in window) window.requestIdleCallback(baixar, { timeout: 5000 });
+  else setTimeout(baixar, 3000);
+}
 
 function Avisos() {
   const [, escuro] = useTema();

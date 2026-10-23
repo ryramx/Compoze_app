@@ -43,6 +43,13 @@
       "when": 1792707846561,
       "tag": "0005_busca_indices",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792712328619,
+      "tag": "0006_idempotencia",
+      "breakpoints": true
     }
   ]
 }
