@@ -1,4 +1,4 @@
-import { api, definirRenovador, getAccessToken, setAccessToken } from "@/lib/api";
+import { api, ApiError, definirRenovador, getAccessToken, setAccessToken } from "@/lib/api";
 import { apagarDocumentosLocais } from "@/lib/colaboracao";
 import { usuarioDaApi } from "@/services/api/adapters";
 import type { ApiTokenPair, ApiUserMe } from "@/services/api/dto";
@@ -45,18 +45,44 @@ export async function login(email: string, password: string): Promise<User> {
   return me();
 }
 
+const EU_KEY = "compoze.eu";
+
+/** Quem está logada, guardada para abrir o app offline (ADR 0005, sessão offline). */
+function lembrarEu(u: User | null): void {
+  try {
+    if (u) localStorage.setItem(EU_KEY, JSON.stringify(u));
+    else localStorage.removeItem(EU_KEY);
+  } catch {
+    // Sem storage o app só não abre offline.
+  }
+}
+
+function euLembrada(): User | null {
+  try {
+    return JSON.parse(localStorage.getItem(EU_KEY) ?? "null") as User | null;
+  } catch {
+    return null;
+  }
+}
+
 export async function me(): Promise<User> {
-  return usuarioDaApi(await api.get<ApiUserMe>("/users/me"));
+  const u = usuarioDaApi(await api.get<ApiUserMe>("/users/me"));
+  lembrarEu(u);
+  return u;
 }
 
 export function logout(): void {
   setAccessToken(null);
   guardarRefresh(null);
+  lembrarEu(null);
   // Quem usar o aparelho depois não vê as letras de quem saiu.
   void apagarDocumentosLocais();
 }
 
-let renovacaoEmAndamento: Promise<boolean> | null = null;
+/** `sem-rede`: não deu para falar com o servidor; a sessão continua guardada. */
+type Renovacao = "ok" | "recusada" | "sem-rede";
+
+let renovacaoEmAndamento: Promise<Renovacao> | null = null;
 
 /**
  * Troca o refresh token guardado por um par novo.
@@ -66,29 +92,31 @@ let renovacaoEmAndamento: Promise<boolean> | null = null;
  * requisição. O refresh é de uso único: enviá-lo duas vezes faria o servidor
  * ver o segundo envio como reuso e encerrar a sessão.
  */
-export function renovarTokens(): Promise<boolean> {
+export function renovarTokens(): Promise<Renovacao> {
   renovacaoEmAndamento ??= renovar().finally(() => {
     renovacaoEmAndamento = null;
   });
   return renovacaoEmAndamento;
 }
 
-async function renovar(): Promise<boolean> {
+async function renovar(): Promise<Renovacao> {
   const refresh = lerRefresh();
-  if (!refresh) return false;
+  if (!refresh) return "recusada";
   try {
     guardarPar(await api.post<ApiTokenPair>("/auth/refresh", { refresh_token: refresh }));
-    return true;
-  } catch {
+    return "ok";
+  } catch (e) {
+    // Sem rede não é motivo para sair: a sessão volta quando a rede voltar.
+    if (e instanceof ApiError && (e.status === 0 || e.status >= 500)) return "sem-rede";
     // Refresh expirado ou revogado: limpa tudo em vez de deixar credencial
     // morta no navegador.
     logout();
-    return false;
+    return "recusada";
   }
 }
 
 // Requisição que volta 401 tenta renovar uma vez e repete (ver lib/api.ts).
-definirRenovador(renovarTokens);
+definirRenovador(async () => (await renovarTokens()) === "ok");
 
 /** Segundos até o access token vencer, lidos do próprio JWT. */
 function segundosRestantes(token: string): number {
@@ -119,10 +147,14 @@ export async function tokenValido(): Promise<string> {
  * precisar digitar a senha de novo.
  */
 export async function restaurarSessao(): Promise<User | null> {
-  if (!(await renovarTokens())) return null;
+  const r = await renovarTokens();
+  // Offline: abre com a última sessão conhecida. Escritas esperam na fila até
+  // a rede (e a renovação do token) voltar.
+  if (r === "sem-rede") return euLembrada();
+  if (r === "recusada") return null;
   try {
     return await me();
   } catch {
-    return null;
+    return euLembrada();
   }
 }

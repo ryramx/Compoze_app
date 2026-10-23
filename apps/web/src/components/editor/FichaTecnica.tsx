@@ -7,6 +7,7 @@ import { Seletor } from "@/components/ui/Campo";
 import { Dialogo } from "@/components/ui/Dialogo";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { PRECISA_DE_REDE, useOnline } from "@/lib/rede";
 import { COMPASSOS, ESTAGIOS, posicaoDoEstagio, TONS } from "@/lib/rotulos";
 import { useCompoze } from "@/store/compozeStore";
 import type { Song } from "@/types";
@@ -35,6 +36,9 @@ export function FichaTecnica({ musica }: { musica: Song }) {
   const [novaTag, setNovaTag] = useState("");
   const [convidando, setConvidando] = useState(false);
   const [fechando, setFechando] = useState(false);
+  // Convidar, remover e fechar a divisão mexem em quem pode o quê: o servidor
+  // decide na hora, então pedem rede (ADR 0005). O resto da ficha vai pela fila.
+  const online = useOnline();
 
   const patch = (p: Partial<Song>) => atualizar(musica.id, p);
   const tags = musica.tags ?? [];
@@ -211,7 +215,7 @@ export function FichaTecnica({ musica }: { musica: Song }) {
                   <span className="numeral text-[12px] text-tinta-3">%</span>
                 </span>
                 {souDono && c.userId !== musica.creatorId ? (
-                  <button onClick={() => removerColaborador(musica.id, c.userId)} className="text-tinta-3 opacity-0 group-hover:opacity-100 hover:text-lapis focus:opacity-100" aria-label={`Remover ${u?.name}`}>
+                  <button onClick={() => removerColaborador(musica.id, c.userId)} disabled={!online} title={online ? undefined : PRECISA_DE_REDE} className="text-tinta-3 opacity-0 group-hover:opacity-100 hover:text-lapis focus:opacity-100 disabled:cursor-not-allowed disabled:hover:text-tinta-3" aria-label={`Remover ${u?.name}`}>
                     <X className="size-3.5" />
                   </button>
                 ) : (
@@ -228,7 +232,7 @@ export function FichaTecnica({ musica }: { musica: Song }) {
           ))}
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Botao tamanho="sm" variante="contorno" onClick={() => setConvidando(true)}>
+          <Botao tamanho="sm" variante="contorno" onClick={() => setConvidando(true)} disabled={!online} title={online ? undefined : PRECISA_DE_REDE}>
             <Plus /> Convidar
           </Botao>
           {musica.contributionsConfirmed && total === 100 ? (
@@ -236,7 +240,7 @@ export function FichaTecnica({ musica }: { musica: Song }) {
               <Check className="size-3.5" /> Divisão fechada
             </span>
           ) : (
-            <Botao tamanho="sm" variante="texto" disabled={total !== 100 || fechando} onClick={() => void fechar()} title={total !== 100 ? "A divisão precisa somar 100%" : undefined}>
+            <Botao tamanho="sm" variante="texto" disabled={total !== 100 || fechando || !online} onClick={() => void fechar()} title={!online ? PRECISA_DE_REDE : total !== 100 ? "A divisão precisa somar 100%" : undefined}>
               Fechar divisão
             </Botao>
           )}

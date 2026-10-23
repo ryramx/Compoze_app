@@ -18,6 +18,11 @@ import type {
   User,
 } from "@/types";
 import { adiantar } from "@/demo/semente";
+import { ApiError } from "@/lib/api";
+import { lerCopia, salvarCopia } from "@/lib/copiaLocal";
+import { abrirFila, enfileirar, esvaziar } from "@/lib/fila";
+import { uuidv7 } from "@/lib/uuidv7";
+import { patchDeMusicaParaApi } from "@/services/api/adapters";
 import * as folderApi from "@/services/api/folderService";
 import * as projectApi from "@/services/api/projectService";
 import * as songApi from "@/services/api/songService";
@@ -30,7 +35,12 @@ import * as userService from "@/services/mock/userService";
 /**
  * Estado da aplicação.
  *
- * Música, pasta, projeto e usuário vêm da API e persistem. Feed, mensagens e
+ * Música, pasta, projeto e usuário vêm da API e persistem. Escritas desses
+ * dados passam pela fila do aparelho (`lib/fila.ts`, ADR 0008): a tela muda na
+ * hora, a fila leva ao servidor quando houver rede. O caderno inteiro fica
+ * copiado no aparelho (`lib/copiaLocal.ts`) e abre sem rede.
+ *
+ * Feed, mensagens e
  * seguidores continuam vindo de `mockData`: são Fase 2 e 3 do PRD e ainda não
  * existem no backend. A separação está explícita nos imports acima — `*Api`
  * versus `*Service` — para que ninguém precise adivinhar o que é real.
@@ -60,6 +70,8 @@ interface CompozeState {
   hidratado: boolean;
   carregando: boolean;
   erro: string | null;
+  /** A última tentativa de ler do servidor falhou por falta de rede; a tela mostra a cópia do aparelho. */
+  semRede: boolean;
 
   hydrate: (currentUserId: string) => Promise<void>;
   limpar: () => void;
@@ -124,29 +136,37 @@ interface CompozeState {
 }
 
 /**
- * Temporizadores por bloco, para adiar a gravação do texto.
+ * Gravações adiadas, por chave (`song:id`, `folder:id`…).
  *
- * O editor chama `updateBlock` a cada tecla. Sem isto, cada letra digitada
- * viraria uma requisição. O estado local muda na hora — a digitação não trava —
- * e a gravação acontece quando a pessoa para de escrever.
+ * O título, a ficha e os nomes são gravados a cada tecla. Sem isto, cada letra
+ * digitada viraria um pedido. O estado local muda na hora — a digitação não
+ * trava — e o pedido entra na fila quando a pessoa para de escrever. Patches
+ * da mesma chave se acumulam: mudar o título e logo depois o tom grava os dois.
  */
 const ATRASO_DE_GRAVACAO = 600;
-const temporizadores = new Map<string, ReturnType<typeof setTimeout>>();
+const adiadas = new Map<string, { patch: object; temporizador: ReturnType<typeof setTimeout> }>();
 
-function agendarGravacao(chave: string, gravar: () => Promise<unknown>): void {
-  const anterior = temporizadores.get(chave);
-  if (anterior) clearTimeout(anterior);
-  temporizadores.set(
-    chave,
-    setTimeout(() => {
-      temporizadores.delete(chave);
-      void gravar().catch(() => {
-        // Falha de gravação não derruba a digitação em curso. O estado volta ao
-        // valor do servidor na próxima leitura da música.
-      });
+function agendarGravacao<P extends object>(chave: string, patch: P, gravar: (acumulado: P) => void): void {
+  const anterior = adiadas.get(chave);
+  if (anterior) clearTimeout(anterior.temporizador);
+  const acumulado = { ...(anterior?.patch as P | undefined), ...patch };
+  adiadas.set(chave, {
+    patch: acumulado,
+    temporizador: setTimeout(() => {
+      adiadas.delete(chave);
+      gravar(acumulado);
     }, ATRASO_DE_GRAVACAO),
-  );
+  });
 }
+
+/** Descarta uma gravação adiada (quem vai gravar tudo de uma vez é outro). */
+function cancelarGravacao(chave: string): void {
+  const anterior = adiadas.get(chave);
+  if (anterior) clearTimeout(anterior.temporizador);
+  adiadas.delete(chave);
+}
+
+const agora = () => new Date().toISOString();
 
 export const useCompoze = create<CompozeState>((set, get) => ({
   currentUserId: "",
@@ -167,12 +187,33 @@ export const useCompoze = create<CompozeState>((set, get) => ({
   hidratado: false,
   carregando: false,
   erro: null,
+  semRede: false,
 
   // ------------------------------------------------------------- carga inicial
 
   hydrate: async (currentUserId) => {
+    const outraPessoa = get().currentUserId !== currentUserId;
     set({ carregando: true, erro: null, currentUserId });
+    abrirFila(currentUserId);
+
+    // Primeiro a cópia do aparelho: a tela abre na hora, com ou sem rede.
+    const copia = await lerCopia(currentUserId);
+    if (copia && (outraPessoa || !get().hidratado)) {
+      set({
+        songs: copia.songs,
+        folders: copia.folders,
+        projects: copia.projects,
+        users: copia.users,
+        followingIds: userService.getFollowingIds(initialFollows, currentUserId),
+        hidratado: true,
+      });
+    }
+
     try {
+      // O que ficou na fila sobe antes da leitura; senão o servidor devolveria
+      // o estado de antes e a tela "desfaria" o que a pessoa fez offline.
+      if (!(await esvaziar())) throw new ApiError(0, "Escritas ainda na fila.");
+
       // Ativas e lixeira juntas: as telas filtram por `deletedAt`, e buscar as
       // duas de uma vez mantém `listActive`/`listTrashed` funcionando como antes.
       const [ativas, lixeira, folders, projects] = await Promise.all([
@@ -203,8 +244,15 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         followingIds: userService.getFollowingIds(initialFollows, currentUserId),
         hidratado: true,
         carregando: false,
+        semRede: false,
       });
-    } catch {
+    } catch (e) {
+      const semRede = e instanceof ApiError && (e.status === 0 || e.status >= 500);
+      if (get().hidratado && semRede) {
+        // Offline com cópia: segue com ela, e relê quando a rede voltar.
+        set({ carregando: false, semRede: true });
+        return;
+      }
       set({
         carregando: false,
         erro: "Não foi possível carregar seus dados. Verifique se a API está no ar.",
@@ -221,6 +269,7 @@ export const useCompoze = create<CompozeState>((set, get) => ({
       projects: [],
       hidratado: false,
       erro: null,
+      semRede: false,
     }),
 
   loadSong: async (id) => {
@@ -245,27 +294,91 @@ export const useCompoze = create<CompozeState>((set, get) => ({
 
   // ------------------------------------------------------------------ criação
 
+  // Criar não espera o servidor: o id nasce no aparelho (UUID v7) e o pedido
+  // vai para a fila. Funciona offline; o servidor aceita o id do cliente.
+
   createSong: async ({ title, folderId, projectId }) => {
-    const nova = await songApi.create({ title, folderId });
+    const id = uuidv7();
+    const eu = get().currentUserId;
+    // A folha pautada nasce no documento do aparelho, antes de o editor abrir.
+    const { semearFolhaInicial } = await import("@/lib/folhaInicial");
+    await semearFolhaInicial(id, eu);
+
+    const nova: Song = {
+      id,
+      title,
+      status: "ideia",
+      creatorId: eu,
+      collaborators: [{ userId: eu, percentage: 100 }],
+      createdAt: agora(),
+      updatedAt: agora(),
+      folderId,
+      blocks: [],
+      timeSignature: "4/4",
+      tags: [],
+      hidden: true,
+      contributionsConfirmed: false,
+    };
     set({ songs: [nova, ...get().songs] });
+    void enfileirar({
+      metodo: "POST",
+      caminho: "/songs",
+      corpo: { id, title, folder_id: folderId ?? null, folha_pautada: false },
+      rotulo: `a canção “${title}”`,
+    });
 
     if (projectId) {
-      const projeto = await projectApi.addSong(projectId, nova.id);
-      set({ projects: get().projects.map((p) => (p.id === projeto.id ? projeto : p)) });
+      set({
+        projects: get().projects.map((p) => (p.id === projectId ? { ...p, songIds: [...p.songIds, id] } : p)),
+      });
+      void enfileirar({
+        metodo: "POST",
+        caminho: `/projects/${projectId}/songs`,
+        corpo: { song_id: id },
+        rotulo: `a faixa “${title}”`,
+      });
     }
-    return nova.id;
+    return id;
   },
 
   createFolder: async (name, parentId) => {
-    const pasta = await folderApi.create(name, parentId);
-    set({ folders: [...get().folders, pasta] });
-    return pasta.id;
+    const id = uuidv7();
+    set({ folders: [...get().folders, { id, name, parentId, ownerId: get().currentUserId }] });
+    void enfileirar({
+      metodo: "POST",
+      caminho: "/folders",
+      corpo: { id, name, parent_id: parentId ?? null },
+      rotulo: `a pasta “${name}”`,
+    });
+    return id;
   },
 
   createProject: async (input) => {
-    const projeto = await projectApi.create(input);
+    const id = uuidv7();
+    const projeto: Project = {
+      id,
+      name: input.name,
+      type: input.type,
+      style: input.style,
+      description: input.description ?? "",
+      cover: "",
+      releaseDate: input.releaseDate ?? "",
+      estimatedCost: input.estimatedCost ?? 0,
+      fundingGoal: input.fundingGoal ?? 0,
+      fundingProgress: 0,
+      status: "planejamento",
+      songIds: [],
+      collaboratorIds: [],
+      ownerId: get().currentUserId,
+    };
     set({ projects: [projeto, ...get().projects] });
-    return projeto.id;
+    void enfileirar({
+      metodo: "POST",
+      caminho: "/projects",
+      corpo: projectApi.corpoDeNovoProjeto(input, id),
+      rotulo: `o projeto “${input.name}”`,
+    });
+    return id;
   },
 
   // ------------------------------------------------------------------ música
@@ -274,7 +387,14 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     // Otimista: a tela reflete a mudança na hora e a gravação é adiada. Vale
     // porque o editor salva a cada tecla no título e nos metadados.
     set({ songs: get().songs.map((s) => (s.id === id ? { ...s, ...patch } : s)) });
-    agendarGravacao(`song:${id}`, () => songApi.update(id, patch));
+    agendarGravacao(`song:${id}`, patch, (tudo) =>
+      void enfileirar({
+        metodo: "PATCH",
+        caminho: `/songs/${id}`,
+        corpo: patchDeMusicaParaApi(tudo),
+        rotulo: `a canção “${get().getSong(id)?.title ?? ""}”`,
+      }),
+    );
   },
 
   toggleSongHidden: (songId) => {
@@ -289,19 +409,19 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         s.id === songId ? { ...s, deletedAt: new Date().toISOString() } : s,
       ),
     });
-    void songApi.softDelete(songId).catch(() => void get().hydrate(get().currentUserId));
+    void enfileirar({ metodo: "DELETE", caminho: `/songs/${songId}`, rotulo: "a ida para a lixeira" });
   },
 
   restoreSong: (songId) => {
     set({
       songs: get().songs.map((s) => (s.id === songId ? { ...s, deletedAt: undefined } : s)),
     });
-    void songApi.restore(songId).catch(() => void get().hydrate(get().currentUserId));
+    void enfileirar({ metodo: "POST", caminho: `/songs/${songId}/restore`, rotulo: "a restauração da canção" });
   },
 
   permanentlyDeleteSong: (songId) => {
     set({ songs: get().songs.filter((s) => s.id !== songId) });
-    void songApi.permanentDelete(songId).catch(() => void get().hydrate(get().currentUserId));
+    void enfileirar({ metodo: "DELETE", caminho: `/songs/${songId}/permanent`, rotulo: "a exclusão da canção" });
   },
 
   purgeExpiredTrash: () => {
@@ -348,11 +468,10 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     const musica = get().getSong(songId);
     if (!musica) return;
     // Grava o que estiver pendente junto com a confirmação, numa chamada só.
-    const pendente = temporizadores.get(`contrib:${songId}`);
-    if (pendente) {
-      clearTimeout(pendente);
-      temporizadores.delete(`contrib:${songId}`);
-    }
+    cancelarGravacao(`contrib:${songId}`);
+    // Confirmar precisa de rede (RN05: o servidor vê a versão final de todos),
+    // e o que ainda está na fila precisa chegar antes.
+    if (!(await esvaziar())) throw new ApiError(0, "Sem conexão. Confirme a divisão quando a internet voltar.");
     await songApi.setContributions(songId, musica.collaborators, true);
     await get().loadSong(songId);
   },
@@ -372,16 +491,27 @@ export const useCompoze = create<CompozeState>((set, get) => ({
 
     // Sem confirmar: enquanto a divisão está em negociação, a soma não precisa
     // fechar 100 (RN05). Confirmar é ato separado.
-    agendarGravacao(`contrib:${songId}`, () =>
-      songApi.setContributions(songId, contribuicoes, false),
-    );
+    agendarGravacao(`contrib:${songId}`, {}, () => {
+      const atuais = get().getSong(songId)?.collaborators ?? contribuicoes;
+      void enfileirar({
+        metodo: "PUT",
+        caminho: `/songs/${songId}/contributions`,
+        corpo: {
+          contributions: atuais.map((c) => ({ user_id: c.userId, percentage: c.percentage })),
+          confirm: false,
+        },
+        rotulo: "a divisão de coautoria",
+      });
+    });
   },
 
   // ------------------------------------------------------------------ pastas
 
   renameFolder: (id, name) => {
     set({ folders: get().folders.map((f) => (f.id === id ? { ...f, name } : f)) });
-    agendarGravacao(`folder:${id}`, () => folderApi.rename(id, name));
+    agendarGravacao(`folder:${id}`, { name }, (tudo) =>
+      void enfileirar({ metodo: "PATCH", caminho: `/folders/${id}`, corpo: tudo, rotulo: `a pasta “${name}”` }),
+    );
   },
 
   deleteFolder: (id) => {
@@ -393,7 +523,7 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         .map((f) => (f.parentId === id ? { ...f, parentId: pasta?.parentId } : f)),
       songs: get().songs.map((s) => (s.folderId === id ? { ...s, folderId: undefined } : s)),
     });
-    void folderApi.remove(id).catch(() => void get().hydrate(get().currentUserId));
+    void enfileirar({ metodo: "DELETE", caminho: `/folders/${id}`, rotulo: `a exclusão da pasta “${pasta?.name ?? ""}”` });
   },
 
   // ---------------------------------------------------------------- projetos
@@ -405,17 +535,33 @@ export const useCompoze = create<CompozeState>((set, get) => ({
 
   updateProject: (id, patch) => {
     set({ projects: get().projects.map((p) => (p.id === id ? { ...p, ...patch } : p)) });
-    agendarGravacao(`project:${id}`, () => projectApi.update(id, patch));
+    agendarGravacao(`project:${id}`, patch, (tudo) =>
+      void enfileirar({
+        metodo: "PATCH",
+        caminho: `/projects/${id}`,
+        corpo: projectApi.patchDeProjeto(tudo),
+        rotulo: `o projeto “${get().getProject(id)?.name ?? ""}”`,
+      }),
+    );
   },
 
   deleteProject: (id) => {
     set({ projects: get().projects.filter((p) => p.id !== id) });
-    void projectApi.remove(id).catch(() => void get().hydrate(get().currentUserId));
+    void enfileirar({ metodo: "DELETE", caminho: `/projects/${id}`, rotulo: "a ida do projeto para a lixeira" });
   },
 
   addSongToProject: async (projectId, songId) => {
-    const projeto = await projectApi.addSong(projectId, songId);
-    set({ projects: get().projects.map((p) => (p.id === projectId ? projeto : p)) });
+    set({
+      projects: get().projects.map((p) =>
+        p.id === projectId && !p.songIds.includes(songId) ? { ...p, songIds: [...p.songIds, songId] } : p,
+      ),
+    });
+    void enfileirar({
+      metodo: "POST",
+      caminho: `/projects/${projectId}/songs`,
+      corpo: { song_id: songId },
+      rotulo: "a faixa nova do projeto",
+    });
   },
 
   removeSongFromProject: (projectId, songId) => {
@@ -424,7 +570,7 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         p.id === projectId ? { ...p, songIds: p.songIds.filter((s) => s !== songId) } : p,
       ),
     });
-    void projectApi.removeSong(projectId, songId).catch(() => void get().loadProject(projectId));
+    void enfileirar({ metodo: "DELETE", caminho: `/projects/${projectId}/songs/${songId}`, rotulo: "a retirada da faixa" });
   },
 
   // ------------------------------------------------------------------ perfil
@@ -432,7 +578,9 @@ export const useCompoze = create<CompozeState>((set, get) => ({
   updateCurrentUser: (patch) => {
     const id = get().currentUserId;
     set({ users: get().users.map((u) => (u.id === id ? { ...u, ...patch } : u)) });
-    agendarGravacao("me", () => userApi.updateMe(patch));
+    agendarGravacao("me", patch, (tudo) =>
+      void enfileirar({ metodo: "PATCH", caminho: "/users/me", corpo: userApi.patchDeEu(tudo), rotulo: "o seu perfil" }),
+    );
   },
 
   // ------------------------------------------- ainda sem backend (Fases 2 e 3)
@@ -457,3 +605,28 @@ export const useCompoze = create<CompozeState>((set, get) => ({
 
 // Reexportado para as telas que já o usavam a partir daqui.
 export { songService };
+
+// ------------------------------------------------------- cópia no aparelho
+
+// Guarda o caderno no aparelho a cada mudança (com folga de 1 s), para abrir
+// sem rede da próxima vez. Só depois da primeira carga: antes disso o store
+// está vazio e a cópia boa seria sobrescrita.
+let salvarDepois: ReturnType<typeof setTimeout> | undefined;
+useCompoze.subscribe((s, antes) => {
+  if (!s.hidratado || !s.currentUserId) return;
+  if (s.songs === antes.songs && s.folders === antes.folders && s.projects === antes.projects && s.users === antes.users) return;
+  clearTimeout(salvarDepois);
+  salvarDepois = setTimeout(() => {
+    const { currentUserId, songs, folders, projects, users } = useCompoze.getState();
+    if (currentUserId) void salvarCopia(currentUserId, { songs, folders, projects, users });
+  }, 1000);
+});
+
+// Rede de volta: a fila sobe sozinha (lib/fila.ts) e aqui relemos o servidor
+// para trazer o que os outros mudaram enquanto isto estava offline.
+if (typeof window !== "undefined") {
+  window.addEventListener("online", () => {
+    const { hidratado, currentUserId, hydrate } = useCompoze.getState();
+    if (hidratado && currentUserId) void hydrate(currentUserId);
+  });
+}

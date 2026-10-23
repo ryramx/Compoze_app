@@ -67,10 +67,14 @@ export function setAccessToken(token: string | null): void {
   }
 }
 
+export type Metodo = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+
 type RequestOptions = {
-  method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+  method?: Metodo;
   body?: unknown;
   signal?: AbortSignal;
+  /** Reenviar com a mesma chave não repete a escrita (ADR 0008). */
+  idempotencyKey?: string;
 };
 
 let renovador: (() => Promise<boolean>) | null = null;
@@ -84,10 +88,11 @@ export function definirRenovador(fn: () => Promise<boolean>): void {
 }
 
 async function request<T>(path: string, options: RequestOptions = {}, repetida = false): Promise<T> {
-  const { method = "GET", body, signal } = options;
+  const { method = "GET", body, signal, idempotencyKey } = options;
 
   const headers: Record<string, string> = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
 
   const token = getAccessToken();
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -137,4 +142,7 @@ export const api = {
   put: <T>(path: string, body?: unknown) => request<T>(path, { method: "PUT", body }),
   patch: <T>(path: string, body?: unknown) => request<T>(path, { method: "PATCH", body }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  /** Escrita da fila do aparelho, com chave de idempotência. */
+  enviar: <T>(method: Metodo, path: string, body: unknown, idempotencyKey: string) =>
+    request<T>(path, { method, body, idempotencyKey }),
 };

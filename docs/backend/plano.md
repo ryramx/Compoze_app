@@ -175,8 +175,9 @@ Fase 4 acrescenta `follows`, `posts`, `post_likes`, `comments`,
 
 Até a Fase 1 o editor salvava bloco a bloco com atraso de 600 ms; duas pessoas
 editando o mesmo bloco ao mesmo tempo perdiam texto, e nada funcionava sem
-rede. A Fase 2 troca isso pelo que segue. Os itens 1 a 5 estão feitos (Fase 2a,
-detalhes no [ADR 0007](../decisoes/0007-documento-yjs-da-cancao.md)):
+rede. A Fase 2 troca isso pelo que segue. Os itens 1 a 6 estão feitos (Fase 2a,
+detalhes no [ADR 0007](../decisoes/0007-documento-yjs-da-cancao.md); Fase 2b,
+no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
 
 1. Cada canção é um documento Yjs (`Y.Array` de blocos, cada bloco um `Y.Map`
    com `Y.Text`). A autoria por trecho vem dos atributos de inserção do Yjs, o
@@ -189,9 +190,10 @@ detalhes no [ADR 0007](../decisoes/0007-documento-yjs-da-cancao.md)):
 4. Presença (quem está na canção, onde está o cursor) vem do awareness do Yjs.
 5. No aparelho, o mesmo documento fica salvo no IndexedDB (`y-indexeddb`).
    Edições offline são fundidas na reconexão, sem conflito.
-6. Os dados estruturados sincronizam por `GET /sync/changes?since=` e
-   `POST /sync/push` (lote de operações com `Idempotency-Key`), detalhados no
-   ADR 0005.
+6. Os dados estruturados vão por uma fila no aparelho que chama as rotas REST
+   de sempre, cada chamada com `Idempotency-Key`; o caderno fica copiado no
+   IndexedDB. As rotas `/sync/changes` e `/sync/push` do ADR 0005 ficaram
+   adiadas (ADR 0008).
 7. Mudança de estágio para "Registrada" grava um `song_versions` com hash.
 
 ## 6. Segurança
@@ -228,7 +230,7 @@ detalhes no [ADR 0007](../decisoes/0007-documento-yjs-da-cancao.md)):
    Feito: respostas e corpos de requisição vêm dos schemas.
 5. ~~Fase 2a: Hocuspocus + Yjs no editor, presença, documento salvo no
    aparelho.~~ Feito (ADR 0007).
-6. Fase 2b: banco local e fila de envio no front, rotas `/sync/changes` e
-   `/sync/push` (título, ficha, pastas e projetos offline).
+6. ~~Fase 2b: fila de envio e cópia do caderno no front, `Idempotency-Key`
+   na API (título, ficha, pastas e projetos offline).~~ Feito (ADR 0008).
 7. Fase 2c: PWA instalável (o app abre sem rede).
 8. Fase 2d: convites por e-mail, histórico de versões e registro com hash.

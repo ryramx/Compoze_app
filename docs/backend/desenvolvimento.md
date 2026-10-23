@@ -98,6 +98,10 @@ percentual de coautoria entre 0 e 100, e-mail e @ sem diferenciar maiúsculas
   apagadas. O mesmo para faixa de projeto, cuja chave é `(project_id, song_id)`.
 - **Sessões**: `refresh_tokens` guarda só o hash de cada refresh, agrupado por
   família para a detecção de reuso ([ADR 0006](../decisoes/0006-autenticacao-propria.md)).
+- **Idempotência** (migração 0006, ADR 0008): `idempotency_keys` guarda, por
+  pessoa e chave, a resposta da primeira escrita por 24 h. `status` nulo quer
+  dizer "ainda rodando". O plugin `plugins/idempotencia.ts` cuida de tudo;
+  rota nenhuma precisa saber.
 - **Busca** (migração 0004): `compoze_normalizar(texto)` = minúsculas sem
   acento, imutável, com índices trigram no título e no texto dos blocos.
 
@@ -128,7 +132,7 @@ contrato) e `servico.ts` (regras e banco). Rota não tem regra de negócio.
 | `colab` | WebSocket `/collab` (Hocuspocus) | ADR 0007: documento Yjs, projeção em `song_blocks` |
 | `folders` | `/folders…` | pasta sem ciclo |
 | `projects` | `/projects…`, faixas | lixeira sem levar canções |
-| `lixeira` | job `expurgo-da-lixeira`, todo dia às 3h (Brasília) | RN08 |
+| `lixeira` | job `expurgo-da-lixeira`, todo dia às 3h (Brasília) | RN08; também apaga chaves de idempotência com mais de 24 h |
 
 **Quem pode o quê numa canção** (`modules/songs/acesso.ts`):
 

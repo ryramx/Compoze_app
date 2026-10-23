@@ -63,11 +63,18 @@ export const FiltroDeCancoes = z.object({
     .optional(),
 });
 
-/** `id` opcional: o aparelho pode criar offline com o id definitivo (ADR 0005). */
+/**
+ * `id` opcional: o aparelho pode criar offline com o id definitivo (ADR 0005).
+ *
+ * `folha_pautada: false` cria a canção sem blocos. O app usa isso porque monta
+ * a folha inicial no próprio documento Yjs, inclusive offline (ADR 0008): se o
+ * servidor também criasse blocos, os dois apareceriam juntos.
+ */
 export const NovaCancao = z.object({
   id: Id.optional(),
   title: z.string().trim().min(1).max(200),
   folder_id: Id.nullable().optional(),
+  folha_pautada: z.boolean().default(true),
 });
 export type NovaCancao = z.input<typeof NovaCancao>;
 

@@ -16,6 +16,11 @@ implementa. O backend novo deve cumprir este documento; o que estiver em
 - Ids são UUID v7 (gerados pelo `uuidv7()` do Postgres 18, ordenáveis por tempo) e opacos para o cliente.
   Criações (`POST /songs`, `/songs/{id}/blocks`, `/folders`, `/projects`) aceitam `id` opcional gerado
   no aparelho (ADR 0005); id repetido devolve `409`.
+- Escritas autenticadas aceitam o cabeçalho `Idempotency-Key` (8 a 200
+  caracteres entre letras, números e `_.:-`; o front manda um UUID). Repetir a chave em 24 h devolve a
+  resposta guardada da primeira vez, com `Idempotent-Replayed: true`, sem
+  executar de novo. A mesma chave em outra rota devolve `422`; enquanto a
+  primeira ainda roda, `409` (ADR 0008).
 - Outros status: `403` quando a pessoa vê o recurso mas não pode fazer aquilo
   (ex.: coautor tentando apagar), `409` em conflito (canção na lixeira,
   duplicata), `429` em excesso de tentativas de login.
@@ -53,7 +58,7 @@ O perfil público nunca inclui coordenadas nem e-mail.
 | Método | Rota | Resposta / regra |
 | --- | --- | --- |
 | GET | `/songs?q=&status=&folder_id=&expand=` | `SongSummary[]` ativas em que a pessoa é dona ou coautora. `q` busca em título, tags e texto dos blocos (sem acento, sem caixa). Com `expand=blocks,collaborators`, `SongDetail[]` |
-| POST | `/songs` | `{ title, folder_id? }` → `201 SongDetail`, já com a pessoa como `OWNER` a 100% |
+| POST | `/songs` | `{ id?, title, folder_id?, folha_pautada? }` → `201 SongDetail`, já com a pessoa como `OWNER` a 100%. Com `folha_pautada: false` nasce sem blocos (o aparelho semeia "Verso 1" no documento; padrão `true`) |
 | GET | `/songs/{id}` | `SongDetail` · `404` também quando a pessoa não tem acesso |
 | PATCH | `/songs/{id}` | `title, status, folder_id, musical_key, bpm, time_signature, tags, visibility, description` → `SongDetail` |
 | DELETE | `/songs/{id}` | Lixeira (RN07): preenche `deleted_at`, preserva pasta e projetos → `204` |
