@@ -21,6 +21,7 @@ vi.mock("@/services/api/projectService", () => ({ list: vi.fn(async () => []) })
 vi.mock("@/services/api/userService", () => ({ getMany: vi.fn(async () => []) }));
 vi.mock("@/services/api/authService", () => ({
   restaurarSessao: vi.fn(async () => null),
+  sessaoLembrada: vi.fn(() => null),
   logout: vi.fn(),
 }));
 
@@ -28,6 +29,7 @@ const { RequireAuth } = await import("./RequireAuth");
 const { useAuth } = await import("@/store/authStore");
 const { useCompoze } = await import("@/store/compozeStore");
 const songApi = await import("@/services/api/songService");
+const authService = await import("@/services/api/authService");
 
 const usuario = {
   id: "u1",
@@ -137,5 +139,25 @@ describe("RequireAuth", () => {
     expect(useCompoze.getState().songs).toEqual([]);
     expect(useCompoze.getState().users).toEqual([]);
     expect(useCompoze.getState().hidratado).toBe(false);
+  });
+
+  it("quem já entrou no aparelho abre na hora, sem esperar o servidor acordar", () => {
+    // No Render grátis a API leva até um minuto para acordar. A sessão é
+    // conferida em segundo plano; a tela não fica presa em "Verificando".
+    vi.mocked(authService.sessaoLembrada).mockReturnValue(usuario);
+    vi.mocked(authService.restaurarSessao).mockImplementation(() => new Promise(() => {}));
+
+    void useAuth.getState().restaurarSessao();
+
+    expect(useAuth.getState()).toMatchObject({ user: usuario, carregando: false });
+  });
+
+  it("sessão recusada na conferência em segundo plano faz sair", async () => {
+    vi.mocked(authService.sessaoLembrada).mockReturnValue(usuario);
+    vi.mocked(authService.restaurarSessao).mockResolvedValue(null);
+
+    await useAuth.getState().restaurarSessao();
+
+    expect(useAuth.getState().user).toBeNull();
   });
 });

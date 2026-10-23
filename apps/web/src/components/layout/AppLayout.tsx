@@ -50,6 +50,28 @@ function ItemDoTrilho({ item, aoClicar }: { item: ItemDeNavegacao; aoClicar?: ()
 function EstadoDaRede() {
   const online = useOnline();
   const pendentes = usePendentes();
+  // A tela já mostra a cópia do aparelho, mas a leitura do servidor ainda não
+  // voltou: no Render grátis, é a API acordando (até um minuto). Só aparece se
+  // demorar, para não piscar a cada abertura.
+  const lendo = useCompoze((s) => s.carregando && s.hidratado);
+  const [demorando, setDemorando] = useState(false);
+  useEffect(() => {
+    if (!lendo) {
+      setDemorando(false);
+      return;
+    }
+    const t = setTimeout(() => setDemorando(true), 3000);
+    return () => clearTimeout(t);
+  }, [lendo]);
+
+  if (online && demorando && pendentes === 0) {
+    return (
+      <p className="mb-3 flex items-start gap-2 text-[11.5px] leading-snug text-tinta-3" role="status">
+        <RefreshCw className="mt-px size-3 shrink-0 animate-spin [animation-duration:2s]" aria-hidden />
+        <span>Conectando ao servidor. Pode escrever: o que mudar sobe em seguida.</span>
+      </p>
+    );
+  }
   if (online && pendentes === 0) return null;
   const mudancas = pendentes === 1 ? "1 mudança" : `${pendentes} mudanças`;
   return (

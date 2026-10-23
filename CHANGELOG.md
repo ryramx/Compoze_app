@@ -9,6 +9,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- O app abre na hora para quem já entrou no aparelho, sem esperar a API
+  acordar (no Render grátis, até um minuto). Enquanto isso ele funciona como
+  offline e avisa "Conectando ao servidor".
 - Fase 2d, convites (ADR 0010):
   - "Convidar" busca qualquer pessoa do Compoze por nome ou @. A pessoa vê o
     convite no alto da Mesa e aceita ou recusa; só entra na canção se aceitar.
