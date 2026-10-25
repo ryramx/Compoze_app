@@ -1,6 +1,6 @@
 import { CloudOff, Menu as IconeMenu, Moon, RefreshCw, Search, Sun, X } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { BuscaGlobal } from "@/components/compoze/BuscaGlobal";
 import { Marca } from "@/components/compoze/Marca";
@@ -11,7 +11,7 @@ import { ESCRITA, GENTE, RODAPE, type ItemDeNavegacao } from "@/components/layou
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { quandoRecusar, usePendentes } from "@/lib/fila";
-import { renovarAvisos } from "@/lib/avisos";
+import { ouvirToqueNoAviso, renovarAvisos } from "@/lib/avisos";
 import { pedirArmazenamentoPersistente } from "@/lib/pwa";
 import { useOnline } from "@/lib/rede";
 import { definirTema, useTema } from "@/lib/tema";
@@ -184,6 +184,7 @@ export default function AppLayout() {
   const [buscaAberta, setBuscaAberta] = useState(false);
   const [gavetaAberta, setGavetaAberta] = useState(false);
   const local = useLocation();
+  const navegar = useNavigate();
   const noEditor = /^\/songs\/[^/]+\/edit/.test(local.pathname);
 
   useEffect(() => {
@@ -202,6 +203,7 @@ export default function AppLayout() {
   // Logada, a pessoa tem o que perder no aparelho: pede para não ser apagado.
   useEffect(pedirArmazenamentoPersistente, []);
   useEffect(renovarAvisos, []);
+  useEffect(() => ouvirToqueNoAviso((caminho) => void navegar(caminho)), [navegar]);
 
   // O servidor recusou algo feito offline (permissão mudou, canção apagada por
   // outra pessoa…): avisa e relê, para a tela voltar ao que vale.

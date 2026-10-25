@@ -19,7 +19,7 @@ export function configDeTeste(extra: Record<string, string> = {}): Config {
 }
 
 /** Sobe a API uma vez por arquivo de teste, sobre o banco compartilhado. */
-export function usarApp(extra: Record<string, string> = {}, deps: Pick<Dependencias, "entregarPush"> = {}) {
+export function usarApp(extra: Record<string, string> = {}, deps: Pick<Dependencias, "entregarPush" | "entregarFcm"> = {}) {
   const ctx = {} as { app: App; banco: Conexao };
   beforeAll(async () => {
     const config = configDeTeste(extra);

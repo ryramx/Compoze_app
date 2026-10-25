@@ -83,6 +83,24 @@ jobs:
           echo "codigo=$codigo" >> "$GITHUB_OUTPUT"
 
       - run: pnpm install --frozen-lockfile
+
+      # Push no Android (ADR 0016). Sem o segredo, o APK sai sem Firebase e o
+      # app esconde os avisos: chamar o Firebase sem configuração derruba o app.
+      - name: Firebase
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "::notice::Sem GOOGLE_SERVICES_JSON: APK sem push."
+            exit 0
+          fi
+          if ! printf '%s' "$GOOGLE_SERVICES_JSON" | jq -e '.client[0].client_info.android_client_info.package_name == "io.github.ryramx.compoze"' >/dev/null; then
+            echo "::error::GOOGLE_SERVICES_JSON não é o google-services.json do app io.github.ryramx.compoze."
+            exit 1
+          fi
+          printf '%s' "$GOOGLE_SERVICES_JSON" > apps/web/android/app/google-services.json
+          echo "VITE_PUSH_NATIVO=1" >> "$GITHUB_ENV"
+
       - run: pnpm --filter @compoze/web build
       - run: pnpm --filter @compoze/web exec cap sync android
 

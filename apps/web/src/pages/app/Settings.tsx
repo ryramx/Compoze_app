@@ -89,6 +89,7 @@ function AvisosDoAparelho() {
     ligado: "Ligados neste aparelho.",
     desligado: "Desligados neste aparelho.",
     bloqueado: "O navegador está bloqueando os avisos do Compoze. Libere nas configurações do site (o cadeado ao lado do endereço) e volte aqui.",
+    "sem-servidor": "O servidor ainda não está pronto para avisos no Android. Assim que estiver, é só voltar aqui.",
     "sem-suporte": "Este navegador não recebe avisos. No iPhone, instale o Compoze na tela de início (Compartilhar → Adicionar à Tela de Início) e abra por lá.",
   };
   return (

@@ -237,8 +237,9 @@ Na demonstração, a imagem reduzida vira `data:` no próprio registro.
 | Peça | O que faz |
 | --- | --- |
 | `public/avisos-sw.js` | Importado pelo service worker do Workbox (`workbox.importScripts`). Mostra o aviso no `push` e, no toque, foca a janela aberta ou abre uma na `url` do aviso |
-| `lib/avisos.ts` | `ligarAvisos` (permissão, `subscribe` com a chave da API, `PUT` da inscrição), `desligarAvisos`, `renovarAvisos` (a cada abertura, no `AppLayout`) e `esquecerAvisos` (no `logout`) |
+| `lib/avisos.ts` | Dois caminhos: Web Push no navegador e Firebase (`@capacitor/push-notifications`) no APK feito com `VITE_PUSH_NATIVO=1`. `ligarAvisos` (permissão, `subscribe` com a chave da API, `PUT` da inscrição), `desligarAvisos`, `renovarAvisos` (a cada abertura, no `AppLayout`) e `esquecerAvisos` (no `logout`) |
 | Ajustes → Avisos | Liga e desliga por aparelho; explica o bloqueio do navegador e o caso do iPhone (só instalado na tela de início) |
 
-Fora do app Android e do modo demo. Para testar, `vite build` + `vite preview`:
+No APK, tocar no aviso abre a conversa (`ouvirToqueNoAviso`, no `AppLayout`).
+Fora do modo demo. Para testar, `vite build` + `vite preview`:
 no `pnpm dev` não há service worker.

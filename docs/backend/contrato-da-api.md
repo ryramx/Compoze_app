@@ -248,9 +248,9 @@ Valores monetários em reais, inteiros (centavos não são usados na v1).
 
 | Método | Rota | Corpo / resposta |
 | --- | --- | --- |
-| GET | `/push/public-key` | `{ key }`: chave pública VAPID (base64url), para `PushManager.subscribe` |
-| PUT | `/push/subscriptions` | `{ endpoint (https), keys: { p256dh, auth } }`, o `toJSON()` da inscrição → `204`. O mesmo endpoint em outra conta passa para ela |
-| DELETE | `/push/subscriptions` | `{ endpoint }` → `204`; só apaga a inscrição da própria conta |
+| GET | `/push/public-key` | `{ key, fcm }`: chave pública VAPID (base64url), para `PushManager.subscribe`, e se o servidor tem o Firebase (push no APK) |
+| PUT | `/push/subscriptions` | Navegador: `{ endpoint (https), keys: { p256dh, auth } }`, o `toJSON()` da inscrição. APK: `{ fcm_token }` → `204`. O mesmo aparelho em outra conta passa para ela |
+| DELETE | `/push/subscriptions` | `{ endpoint }` (no APK, o token) → `204`; só apaga a inscrição da própria conta |
 
 O push leva `{ title, body, url, tag }` (o `Aviso` de `packages/contracts`).
 Sai em mensagem nova (para os outros da conversa) e em convite pela conta

@@ -85,4 +85,12 @@ describe("configuração", () => {
     expect(() => lerConfig({})).toThrow(/DATABASE_URL/);
     expect(() => lerConfig({ DATABASE_URL: "postgres://x@y/z", JWT_SECRET: "curto" })).toThrow(/JWT_SECRET/);
   });
+
+  it("lê a conta de serviço do Firebase como JSON e recusa o que não for", () => {
+    const base = { DATABASE_URL: "postgres://x@y/z", JWT_SECRET: "x".repeat(32) };
+    const conta = { project_id: "p", client_email: "c@p.iam.gserviceaccount.com", private_key: "-----BEGIN PRIVATE KEY-----", type: "service_account" };
+    expect(lerConfig({ ...base, FIREBASE_SERVICE_ACCOUNT: JSON.stringify(conta) }).FIREBASE_SERVICE_ACCOUNT).toMatchObject({ project_id: "p" });
+    expect(() => lerConfig({ ...base, FIREBASE_SERVICE_ACCOUNT: "{colado pela metade" })).toThrow(/FIREBASE_SERVICE_ACCOUNT/);
+    expect(lerConfig(base).FIREBASE_SERVICE_ACCOUNT).toBeUndefined();
+  });
 });

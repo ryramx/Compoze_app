@@ -14,6 +14,11 @@ const ctx = usarApp({}, {
     entregues.push({ endpoint: i.endpoint, aviso });
     return respostas.get(i.endpoint) ?? 201;
   },
+  // No FCM o token faz o papel do endpoint.
+  entregarFcm: async (token: string, aviso: Aviso) => {
+    entregues.push({ endpoint: token, aviso });
+    return respostas.get(token) ?? 200;
+  },
 });
 
 let n = 0;
@@ -40,6 +45,7 @@ describe("avisos por push (ADR 0016)", () => {
     const b = (await como(ctx.app, eu.token).get("/push/public-key")).json().key;
     expect(a).toMatch(/^[\w-]{80,}$/);
     expect(b).toBe(a);
+    expect((await como(ctx.app, eu.token).get("/push/public-key")).json().fcm).toBe(true);
   });
 
   it("mensagem nova vira aviso para quem está fora do app", async () => {
@@ -100,5 +106,26 @@ describe("avisos por push (ADR 0016)", () => {
     expect(await db.select().from(pushSubscriptions).where(eq(pushSubscriptions.endpoint, i.endpoint))).toHaveLength(0);
 
     expect((await como(ctx.app, bia.token).put("/push/subscriptions", { ...i, endpoint: "http://inseguro/x" })).statusCode).toBe(422);
+  });
+
+  it("app Android: token do Firebase recebe o aviso; token morto sai", async () => {
+    const ana = await novaPessoa(ctx.app, "Ana Android");
+    const bia = await novaPessoa(ctx.app, "Bia Android");
+    const conversa = (await como(ctx.app, ana.token).post("/conversations", { user_id: bia.id })).json();
+    const token = `fcm-${process.pid}-${++n}`;
+    expect((await como(ctx.app, bia.token).put("/push/subscriptions", { fcm_token: token })).statusCode).toBe(204);
+    await como(ctx.app, ana.token).post(`/conversations/${conversa.id}/messages`, { content: "no celular" });
+    await esperar(() => entregues.some((e) => e.endpoint === token));
+    expect(entregues.find((e) => e.endpoint === token)!.aviso.body).toBe("no celular");
+
+    respostas.set(token, 404);
+    await como(ctx.app, ana.token).post(`/conversations/${conversa.id}/messages`, { content: "de novo" });
+    const db = ctx.banco.db;
+    let resta = 1;
+    for (let i = 0; i < 50 && resta > 0; i++) {
+      resta = (await db.select().from(pushSubscriptions).where(eq(pushSubscriptions.endpoint, token))).length;
+      if (resta) await new Promise((r) => setTimeout(r, 20));
+    }
+    expect(resta).toBe(0);
   });
 });

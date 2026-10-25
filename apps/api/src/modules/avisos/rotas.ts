@@ -11,12 +11,12 @@ export const rotasDeAvisos: FastifyPluginAsyncZod = async (app) => {
   app.get(
     "/push/public-key",
     { schema: { tags, summary: "Chave pública VAPID, para PushManager.subscribe", response: { 200: ChaveDoPush } } },
-    async () => ({ key: await app.avisador.chavePublica() }),
+    async () => ({ key: await app.avisador.chavePublica(), fcm: app.avisador.androidLigado }),
   );
 
   app.put(
     "/push/subscriptions",
-    { schema: { tags, summary: "Inscrever este aparelho", body: InscricaoPush } },
+    { schema: { tags, summary: "Inscrever este aparelho (Web Push ou token do Firebase)", body: InscricaoPush } },
     async (req, reply) => {
       await s.inscrever(db, req.usuarioId, req.body);
       return reply.status(204).send();

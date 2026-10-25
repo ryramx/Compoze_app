@@ -28,6 +28,21 @@ const Ambiente = z.object({
   // Endereço do front, para montar os links dos e-mails. Sem ele, vale a
   // primeira origem de CORS_ORIGINS.
   WEB_URL: z.url().optional(),
+  // Push no app Android (ADR 0016): o JSON da conta de serviço do Firebase,
+  // inteiro. Sem ele, o push sai só para navegador e PWA.
+  FIREBASE_SERVICE_ACCOUNT: z
+    .string()
+    .min(1)
+    .transform((s, ctx) => {
+      try {
+        return JSON.parse(s) as unknown;
+      } catch {
+        ctx.addIssue({ code: "custom", message: "Não é um JSON válido." });
+        return z.NEVER;
+      }
+    })
+    .pipe(z.object({ project_id: z.string().min(1), client_email: z.string().min(1), private_key: z.string().min(1) }))
+    .optional(),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
 });
 

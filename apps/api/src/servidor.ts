@@ -24,6 +24,10 @@ const app = await construirApp({
 const jobs = config.JOBS ? await agendarExpurgo(config.DATABASE_URL, banco.db, app.log) : null;
 // Com a fila no ar, e-mail vira job do pg-boss (tenta de novo se o Resend falhar).
 if (jobs) await app.carteiro.usarFila(jobs);
+app.log.info(
+  { android: app.avisador.androidLigado },
+  app.avisador.androidLigado ? "push no Android ligado (Firebase)" : "push só no navegador: falta FIREBASE_SERVICE_ACCOUNT",
+);
 app.log.info({ email: app.carteiro.habilitado }, app.carteiro.habilitado ? "e-mail ligado (Resend)" : "e-mail desligado: convites só por link");
 
 for (const sinal of ["SIGINT", "SIGTERM"] as const) {

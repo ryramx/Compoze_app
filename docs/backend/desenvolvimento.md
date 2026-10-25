@@ -54,6 +54,7 @@ Validadas na subida por `src/config.ts`; faltando algo, a API não sobe e diz o 
 | `JOBS` | `on` | Agenda o expurgo diário da lixeira e a fila de e-mail (pg-boss); `off` nos testes |
 | `RESEND_API_KEY` | (vazio) | Liga o e-mail dos convites (ADR 0010). Vazio: convites só por link |
 | `EMAIL_FROM` | `Compoze <onboarding@resend.dev>` | Remetente. Sem domínio verificado, o Resend só entrega para o e-mail da conta |
+| `FIREBASE_SERVICE_ACCOUNT` | (vazio) | JSON da conta de serviço do Firebase: liga o push no app Android (ADR 0016). Vazio: push só no navegador e na PWA, que não precisam de nada |
 | `WEB_URL` | 1ª origem de `CORS_ORIGINS` | Endereço do front, para os links dos e-mails |
 | `LOG_LEVEL` | `info` | Nível do pino |
 | `NODE_ENV` | `development` | Em `development` os logs saem formatados |

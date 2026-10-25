@@ -257,5 +257,6 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
     S3/R2 fica para quando o volume pedir. O que falta da Fase 4 é o
     financiamento (PIX), que pede conta no Mercado Pago.
 15. ~~Fase 3d: avisos por Web Push no navegador e na PWA, sem conta externa
-    (ADR 0016).~~ Feito. Falta o push no APK, pelo Firebase (projeto grátis
-    do Ryan).
+    (ADR 0016).~~ Feito. O push no APK pelo Firebase também está pronto no
+    código; liga quando o Ryan criar o projeto e os segredos
+    (docs/mobile/android.md).

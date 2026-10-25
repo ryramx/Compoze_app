@@ -89,6 +89,34 @@ O workflow confere a chave antes de compilar e diz qual secret está errado:
 - "A senha ... não abre a chave": confira `COMPOZE_KEYSTORE_PASSWORD`.
 - "não tem o alias": `COMPOZE_KEY_ALIAS` deve ser `compoze`.
 
+## Avisos por push (Firebase)
+
+O Android só entrega push pelo Firebase Cloud Messaging (ADR 0016). O plano
+grátis (Spark) basta e não pede cartão. Sem estes passos o APK continua
+funcionando, só sem a opção de avisos em Ajustes.
+
+1. Em [console.firebase.google.com](https://console.firebase.google.com),
+   **Adicionar projeto** → nome "Compoze" → pode desligar o Google Analytics.
+2. Na página do projeto, **Adicionar app → Android**. Nome do pacote:
+   `io.github.ryramx.compoze` (tem que ser exatamente este). Apelido e SHA-1
+   podem ficar vazios. Baixe o `google-services.json` e pule os passos de
+   SDK: o projeto já está pronto.
+3. Em ⚙️ **Configurações do projeto → Contas de serviço → Gerar nova chave
+   privada**. Baixa outro JSON. Este é **secreto**: dá poder de mandar push
+   como o Compoze.
+4. No GitHub, **Settings → Secrets and variables → Actions → New repository
+   secret**: nome `GOOGLE_SERVICES_JSON`, valor o conteúdo do
+   `google-services.json` (abra no bloco de notas, copie tudo).
+5. No Render, `compoze-api-staging` → **Environment** → **Add environment
+   variable**: `FIREBASE_SERVICE_ACCOUNT`, valor o conteúdo inteiro do JSON da
+   conta de serviço. Salvar reinicia a API.
+6. Publique uma versão nova do APK (seção acima). O workflow confere se o
+   `google-services.json` é deste app e liga o push no build.
+
+Nenhum dos dois arquivos vai para o repositório nem para o chat. Depois de
+cadastrar, pode apagar os dois do computador: o Firebase gera outros se
+precisar (a chave antiga da conta de serviço se revoga em "Contas de serviço").
+
 ## Instalar no celular
 
 1. Abrir o link do APK no celular e baixar.

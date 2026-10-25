@@ -15,6 +15,7 @@ import {
 import type { Config } from "./config";
 import { criarAoVivo, type AoVivo } from "./lib/aoVivo";
 import { criarAvisador, type Avisador, type Entregar } from "./lib/avisador";
+import { criarFcm, type EntregarFcm } from "./lib/fcm";
 import { criarCarteiro, remetenteResend, type Carteiro, type Remetente } from "./lib/correio";
 import { rotasDeAutenticacao } from "./modules/auth/rotas";
 import { rotasDeAvisos } from "./modules/avisos/rotas";
@@ -60,13 +61,15 @@ export interface Dependencias {
   remetente?: Remetente | null;
   /** Como o push sai. Os testes trocam por um que só anota. */
   entregarPush?: Entregar;
+  /** Push no Android. Sem isto, vale o Firebase, se houver conta de serviço. */
+  entregarFcm?: EntregarFcm | null;
 }
 
 /**
  * Monta a API sem abrir porta: o servidor chama `listen`, os testes usam
  * `inject`. Cada módulo de `modules/` registra suas rotas aqui.
  */
-export async function construirApp({ config, banco, logger, remetente, entregarPush }: Dependencias) {
+export async function construirApp({ config, banco, logger, remetente, entregarPush, entregarFcm }: Dependencias) {
   const app = Fastify({
     logger: logger ?? { level: config.LOG_LEVEL },
     // Ids de requisição em UUID, para casar com os logs do front.
@@ -84,7 +87,9 @@ export async function construirApp({ config, banco, logger, remetente, entregarP
   app.decorate("carteiro", criarCarteiro(quemEntrega, app.log));
   app.decorate("aoVivo", criarAoVivo());
   app.decorate("aoVivoFechar", new Set<() => void>());
-  app.decorate("avisador", criarAvisador({ db: banco.db, aoVivo: app.aoVivo, log: app.log, entregar: entregarPush }));
+  const fcm =
+    entregarFcm !== undefined ? entregarFcm : config.FIREBASE_SERVICE_ACCOUNT ? criarFcm(config.FIREBASE_SERVICE_ACCOUNT) : null;
+  app.decorate("avisador", criarAvisador({ db: banco.db, aoVivo: app.aoVivo, log: app.log, entregar: entregarPush, entregarFcm: fcm }));
   // Fluxos ao vivo nunca terminam sozinhos; sem isto o close esperaria para sempre.
   app.addHook("preClose", async () => {
     for (const fechar of [...app.aoVivoFechar]) fechar();

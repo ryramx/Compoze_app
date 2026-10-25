@@ -9,13 +9,15 @@ import { and, eq, ne } from "drizzle-orm";
 
 /** Inscreve o aparelho. O mesmo endpoint em outra conta passa para esta. */
 export async function inscrever(db: Banco, usuarioId: string, i: InscricaoPush): Promise<void> {
+  // No FCM, o token faz o papel do endpoint.
+  const linha =
+    "fcm_token" in i
+      ? { kind: "FCM" as const, endpoint: i.fcm_token, p256dh: null, auth: null }
+      : { kind: "WEBPUSH" as const, endpoint: i.endpoint, p256dh: i.keys.p256dh, auth: i.keys.auth };
   await db
     .insert(pushSubscriptions)
-    .values({ userId: usuarioId, kind: "WEBPUSH", endpoint: i.endpoint, p256dh: i.keys.p256dh, auth: i.keys.auth })
-    .onConflictDoUpdate({
-      target: pushSubscriptions.endpoint,
-      set: { userId: usuarioId, kind: "WEBPUSH", p256dh: i.keys.p256dh, auth: i.keys.auth },
-    });
+    .values({ userId: usuarioId, ...linha })
+    .onConflictDoUpdate({ target: pushSubscriptions.endpoint, set: { userId: usuarioId, ...linha } });
 }
 
 /** Só a dona da inscrição a cancela; endpoint desconhecido não é erro. */

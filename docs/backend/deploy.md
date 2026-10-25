@@ -82,6 +82,19 @@ pânico" se o segredo vazar.
 O expurgo da lixeira roda dentro da API, às 3h. No plano grátis a API dorme sem
 uso; se estiver dormindo nessa hora, o pg-boss roda o job quando ela acordar.
 
+## Avisos por push (ADR 0016)
+
+No navegador e na PWA o push já funciona sem configurar nada: a API gera o
+próprio par de chaves VAPID na primeira vez e guarda na tabela `server_keys`.
+**Não apague essa tabela**: chaves novas invalidam todos os aparelhos
+inscritos, que teriam de ligar os avisos de novo.
+
+No app Android o push passa pelo Firebase. Os passos estão em
+[docs/mobile/android.md](../mobile/android.md#avisos-por-push-firebase); do
+lado do Render é uma variável só, `FIREBASE_SERVICE_ACCOUNT` em
+`compoze-api-staging` → **Environment**, com o conteúdo inteiro do JSON da
+conta de serviço. O log da subida mostra "push no Android ligado (Firebase)".
+
 ## E-mail dos convites (desligado)
 
 Os convites funcionam por link sem nenhum e-mail (ADR 0010). O e-mail é um

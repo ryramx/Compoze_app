@@ -6,11 +6,13 @@ import { createHash } from "node:crypto";
 import webpush from "web-push";
 
 import type { AoVivo } from "./aoVivo";
+import type { EntregarFcm } from "./fcm";
 
 /**
  * Avisos fora do app (Fase 3d, ADR 0016): mensagem nova, convite para
- * canção. Vão por Web Push a cada aparelho inscrito de quem não está com o
- * app aberto agora; quem está já recebeu pelo fluxo ao vivo (ADR 0014).
+ * canção. Vão a cada aparelho inscrito de quem não está com o app aberto
+ * agora (quem está já recebeu pelo fluxo ao vivo, ADR 0014): por Web Push ao
+ * navegador e à PWA, pelo Firebase ao app Android, se houver conta de serviço.
  *
  * O par de chaves VAPID nasce no próprio servidor na primeira vez e fica em
  * `server_keys`: nada para configurar no Render.
@@ -54,7 +56,19 @@ export const entregarPorWebPush: Entregar = async (i, aviso, chaves) => {
   }
 };
 
-export function criarAvisador({ db, aoVivo, log, entregar = entregarPorWebPush }: { db: Banco; aoVivo: AoVivo; log: FastifyBaseLogger; entregar?: Entregar }) {
+export function criarAvisador({
+  db,
+  aoVivo,
+  log,
+  entregar = entregarPorWebPush,
+  entregarFcm = null,
+}: {
+  db: Banco;
+  aoVivo: AoVivo;
+  log: FastifyBaseLogger;
+  entregar?: Entregar;
+  entregarFcm?: EntregarFcm | null;
+}) {
   let chaves: Promise<ChavesVapid> | null = null;
 
   async function lerOuCriarChaves(): Promise<ChavesVapid> {
@@ -93,12 +107,16 @@ export function criarAvisador({ db, aoVivo, log, entregar = entregarPorWebPush }
     if (fora.length === 0) return;
     const inscricoes = await db.select().from(pushSubscriptions).where(inArray(pushSubscriptions.userId, fora));
     const web = inscricoes.filter((i) => i.kind === "WEBPUSH" && i.p256dh && i.auth);
-    if (web.length === 0) return;
-    const ch = await obterChaves();
+    const android = entregarFcm ? inscricoes.filter((i) => i.kind === "FCM") : [];
+    if (web.length + android.length === 0) return;
+    const ch = web.length > 0 ? await obterChaves() : null;
     await Promise.all(
-      web.map(async (i) => {
+      [...web, ...android].map(async (i) => {
         try {
-          const status = await entregar({ endpoint: i.endpoint, p256dh: i.p256dh!, auth: i.auth! }, aviso, ch);
+          const status =
+            i.kind === "FCM"
+              ? await entregarFcm!(i.endpoint, aviso)
+              : await entregar({ endpoint: i.endpoint, p256dh: i.p256dh!, auth: i.auth! }, aviso, ch!);
           // 404 e 410: o navegador desinscreveu ou a inscrição venceu.
           if (status === 404 || status === 410) await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, i.id));
           else if (status >= 400) log.warn({ status, kind: i.kind }, "push recusado");
@@ -111,6 +129,8 @@ export function criarAvisador({ db, aoVivo, log, entregar = entregarPorWebPush }
 
   return {
     chavePublica: async () => (await obterChaves()).publicKey,
+    /** Se o servidor tem a conta do Firebase, para o app Android saber se vale se inscrever. */
+    androidLigado: entregarFcm !== null,
     /** Não espera nem falha: aviso é bônus, nunca segura a resposta da rota. */
     avisar(userIds: string[], aviso: Aviso): Promise<void> {
       return enviar(userIds, aviso).catch((err) => log.warn({ err }, "avisos não saíram"));

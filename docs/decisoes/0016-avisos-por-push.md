@@ -62,6 +62,14 @@ antes de haver uma tela de preferências.
   push já guarda o aviso por 24 h (TTL) para aparelho sem rede. Fica para
   quando houver volume.
 
+**7. No Android, Firebase pela API HTTP v1, sem o SDK `firebase-admin`.** São
+duas chamadas (o token de acesso, assinado com a conta de serviço pelo `jose`
+que a API já usa, e o envio). A conta vem de `FIREBASE_SERVICE_ACCOUNT`; o
+APK só liga o push quando foi feito com o `google-services.json`
+(`VITE_PUSH_NATIVO`), porque chamar o Firebase sem ele derruba o app. O app
+cria o canal "Mensagens e convites", e o aviso usa um ícone de um traço só,
+como o Android pede.
+
 ## Consequências
 
 - Push precisa do service worker: só funciona no build (`vite build` +

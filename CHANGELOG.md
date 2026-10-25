@@ -15,6 +15,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   início. Sem conta externa: o servidor gera as próprias chaves VAPID.
   - API: `GET /push/public-key`, `PUT/DELETE /push/subscriptions`; tabelas
     `push_subscriptions` e `server_keys` (migração 0013).
+  - App Android: push pelo Firebase, pronto no código. Liga com os segredos
+    `GOOGLE_SERVICES_JSON` (GitHub) e `FIREBASE_SERVICE_ACCOUNT` (Render);
+    passos em docs/mobile/android.md. Tocar no aviso abre a conversa.
 - Fase 4c, imagens (ADR 0015): foto de perfil (Ajustes → Perfil) e capa de
   projeto (no detalhe do projeto), com "tirar" para voltar ao monograma e à
   capa tipográfica.

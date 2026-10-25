@@ -5,17 +5,27 @@ import { z } from "zod";
  * com a chave pública do servidor e manda a inscrição para a API.
  */
 
-export const ChaveDoPush = z.object({ key: z.string() });
+export const ChaveDoPush = z.object({
+  key: z.string(),
+  /** O servidor tem a conta do Firebase: o app Android pode se inscrever. */
+  fcm: z.boolean(),
+});
 export type ChaveDoPush = z.infer<typeof ChaveDoPush>;
 
-/** O que `PushManager.subscribe()` devolve, em JSON. */
-export const InscricaoPush = z.object({
+/** Navegador e PWA: o que `PushManager.subscribe()` devolve, em JSON. */
+export const InscricaoWebPush = z.object({
   endpoint: z.url({ protocol: /^https$/ }).max(2000),
   keys: z.object({ p256dh: z.string().min(1).max(200), auth: z.string().min(1).max(100) }),
 });
+
+/** App Android: o token que o Firebase dá ao aparelho. */
+export const InscricaoFcm = z.object({ fcm_token: z.string().min(1).max(4096) });
+
+export const InscricaoPush = z.union([InscricaoWebPush, InscricaoFcm]);
 export type InscricaoPush = z.infer<typeof InscricaoPush>;
 
-export const CancelarInscricao = z.object({ endpoint: z.string().max(2000) });
+/** `endpoint` do navegador ou o token do Firebase. */
+export const CancelarInscricao = z.object({ endpoint: z.string().max(4096) });
 
 /** O que chega ao service worker no evento `push`. */
 export const Aviso = z.object({
