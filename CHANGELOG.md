@@ -9,6 +9,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Fase 4d, apoio por PIX (ADR 0018): no detalhe do projeto, a dona cadastra
+  a chave PIX e copia o link de apoio. Quem abre o link escolhe o valor e
+  paga pelo QR ou pelo copia e cola, direto para a chave dela, sem taxa.
+  - "Já paguei" avisa a dona; ela confere no extrato e marca "Chegou" ou
+    "Não chegou". Só o que chegou soma no arrecadado, e quem apoiou é avisado.
+  - API: `/projects/{id}/pix`, `/projects/{id}/contributions…` e
+    `/support/{id}…`; tabelas `project_pix` e `project_contributions`
+    (migração 0014).
+  - O arrecadado do projeto passa a mostrar o valor exato, não o calculado
+    do percentual arredondado.
 - Convites por e-mail pelo Gmail, sem domínio (ADR 0017): com `SMTP_USER` e
   `SMTP_PASS` (senha de app) no Render, o e-mail do convite sai pelo SMTP.
   O Resend continua valendo quando houver domínio. Passos em

@@ -13,3 +13,4 @@ export * from "./gente";
 export * from "./conversas";
 export * from "./imagens";
 export * from "./avisos";
+export * from "./apoios";

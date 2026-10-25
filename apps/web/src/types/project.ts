@@ -12,6 +12,8 @@ export interface Project {
   estimatedCost: number;
   fundingGoal: number;
   fundingProgress: number; // 0..100
+  /** Valor arrecadado em reais, quando a API diz (o percentual é arredondado). */
+  fundingRaised?: number;
   status: "planejamento" | "producao" | "mixagem" | "lancado";
   songIds: string[];
   collaboratorIds: string[];

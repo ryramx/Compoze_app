@@ -4,6 +4,7 @@ import { ptBR } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { ApoioPorPix } from "@/components/compoze/ApoioPorPix";
 import { TituloDeSecao, Vazio } from "@/components/compoze/Cabecalho";
 import { Capa } from "@/components/compoze/Capa";
 import { Confirmar } from "@/components/compoze/Confirmar";
@@ -14,6 +15,7 @@ import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { Seletor } from "@/components/ui/Campo";
 import { Dialogo } from "@/components/ui/Dialogo";
+import { MODO_DEMO } from "@/lib/api";
 import { dataLonga } from "@/lib/datas";
 import { ESTILOS_DE_PROJETO, FASES_DE_PROJETO, reais, TIPOS_DE_PROJETO } from "@/lib/rotulos";
 import { listActive } from "@/services/mock/songService";
@@ -52,7 +54,7 @@ export default function ProjectDetail() {
 
   const faixas = projeto.songIds.map((sid) => musicas.find((m) => m.id === sid)).filter(Boolean) as typeof musicas;
   const fora = musicas.filter((m) => !projeto.songIds.includes(m.id));
-  const arrecadado = Math.round((projeto.fundingGoal * projeto.fundingProgress) / 100);
+  const arrecadado = projeto.fundingRaised ?? Math.round((projeto.fundingGoal * projeto.fundingProgress) / 100);
   const pessoas = [...new Set(faixas.flatMap((f) => f.collaborators.map((c) => c.userId)))];
   const prontas = faixas.filter((f) => ["finalizada", "registrada", "gravada"].includes(f.status)).length;
   const patch = (p: Partial<Project>) => atualizar(projeto.id, p);
@@ -168,6 +170,9 @@ export default function ProjectDetail() {
           </ol>
         )}
       </section>
+
+      {/* Na demonstração não há servidor para guardar a chave nem os apoios. */}
+      {!MODO_DEMO && <ApoioPorPix projetoId={projeto.id} />}
 
       <Dialogo aberto={escolhendo} aoMudar={setEscolhendo} titulo="Adicionar faixa" descricao={`Canções do seu caderno que ainda não estão em “${projeto.name}”.`}>
         {fora.length === 0 ? (

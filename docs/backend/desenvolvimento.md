@@ -140,6 +140,7 @@ contrato) e `servico.ts` (regras e banco). Rota não tem regra de negócio.
 | `folders` | `/folders…` | pasta sem ciclo |
 | `projects` | `/projects…`, faixas | lixeira sem levar canções |
 | `imagens` | `/users/me/avatar`, `/projects/{id}/cover`, `/images/{id}` | ADR 0015: tipo pelos bytes, leitura pública |
+| `apoios` | `/projects/{id}/pix`, `/projects/{id}/contributions…`, `/support/{id}…` | ADR 0018: BR Code em `lib/pix.ts`; só o confirmado soma no arrecadado |
 | `avisos` | `/push/public-key`, `/push/subscriptions` | ADR 0016: envio em `lib/avisador.ts`, chamado pelas rotas de conversas e convites |
 | `lixeira` | job `expurgo-da-lixeira`, todo dia às 3h (Brasília) | RN08; também apaga chaves de idempotência com mais de 24 h |
 

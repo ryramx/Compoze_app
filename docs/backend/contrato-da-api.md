@@ -244,6 +244,31 @@ O id é gerado no aparelho (UUID v7), como o das canções.
 
 Valores monetários em reais, inteiros (centavos não são usados na v1).
 
+## Apoio por PIX (ADR 0018)
+
+Da dona do projeto:
+
+| Método | Rota | Corpo / resposta |
+| --- | --- | --- |
+| GET | `/projects/{id}/pix` | `PixDoProjeto \| null`: `{ key_type: CPF\|CNPJ\|PHONE\|EMAIL\|EVP, key, receiver_name, city, open }` |
+| PUT | `/projects/{id}/pix` | `{ key_type, key, receiver_name (≤ 25), city (≤ 15), open? }`; a chave é conferida e normalizada pelo tipo → `PixDoProjeto` |
+| DELETE | `/projects/{id}/pix` | Para de receber; os apoios ficam → `204` |
+| GET | `/projects/{id}/contributions` | `ApoioRecebido[]` (o apoio e `supporter`), mais novos primeiro |
+| POST | `/projects/{id}/contributions/{apoio_id}/confirm` | `PENDENTE` → `CONFIRMADO`, soma em `funding_current` e avisa quem apoiou; já decidido → `409` |
+| POST | `/projects/{id}/contributions/{apoio_id}/refuse` | `PENDENTE` → `RECUSADO`; já decidido → `409` |
+
+De quem apoia (qualquer conta, menos a dona):
+
+| Método | Rota | Corpo / resposta |
+| --- | --- | --- |
+| GET | `/support/{id}` | `ProjetoParaApoiar`: nome, descrição, capa, dona, meta, arrecadado, `receiver_name`, `supporters`. Sem PIX aberto → `404` |
+| POST | `/support/{id}/contributions` | `{ id?, amount (1 a 100000) }` → `201 { contribution, pix_code }`; a dona → `422` |
+| GET | `/support/{id}/contributions` | Os apoios da própria pessoa neste projeto |
+| POST | `/support/{id}/contributions/{apoio_id}/paid` | Marca "já paguei" e avisa a dona → `Apoio` |
+
+`Apoio = { id, project_id, supporter_id, amount, txid, status: PENDENTE|CONFIRMADO|RECUSADO, paid_claimed_at, decided_at, created_at }`.
+O `pix_code` é o BR Code estático com o valor e o `txid`, o mesmo do QR.
+
 ## Avisos por push (ADR 0016)
 
 | Método | Rota | Corpo / resposta |

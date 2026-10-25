@@ -17,6 +17,7 @@ import { criarAoVivo, type AoVivo } from "./lib/aoVivo";
 import { criarAvisador, type Avisador, type Entregar } from "./lib/avisador";
 import { criarFcm, type EntregarFcm } from "./lib/fcm";
 import { criarCarteiro, remetenteDaConfig, type Carteiro, type Remetente } from "./lib/correio";
+import { rotasDeApoios } from "./modules/apoios/rotas";
 import { rotasDeAutenticacao } from "./modules/auth/rotas";
 import { rotasDeAvisos } from "./modules/avisos/rotas";
 import { rotasDeConversas } from "./modules/conversas/rotas";
@@ -148,6 +149,7 @@ export async function construirApp({ config, banco, logger, remetente, entregarP
   await app.register(rotasDeProjetos);
   await app.register(rotasDeImagens);
   await app.register(rotasDeAvisos);
+  await app.register(rotasDeApoios);
 
   return app;
 }

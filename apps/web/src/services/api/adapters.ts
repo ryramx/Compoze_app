@@ -200,6 +200,7 @@ export function projetoDaApi(p: ApiProjectDetail): Project {
     // cálculo fica aqui para que o backend nunca tenha um percentual que possa
     // divergir da meta.
     fundingProgress: meta > 0 ? Math.min(100, Math.round((p.funding_current / meta) * 100)) : 0,
+    fundingRaised: p.funding_current,
     status: STATUS_PROJETO_DA_API[p.status],
     songIds: (p.songs ?? []).map((v) => v.song_id),
     // A API ainda não expõe colaboradores de projeto; a tela trata lista vazia.

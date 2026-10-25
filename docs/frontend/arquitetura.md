@@ -243,3 +243,14 @@ Na demonstração, a imagem reduzida vira `data:` no próprio registro.
 No APK, tocar no aviso abre a conversa (`ouvirToqueNoAviso`, no `AppLayout`).
 Fora do modo demo. Para testar, `vite build` + `vite preview`:
 no `pnpm dev` não há service worker.
+
+## Apoio por PIX (Fase 4d, ADR 0018)
+
+| Peça | O que faz |
+| --- | --- |
+| `components/compoze/ApoioPorPix.tsx` | No detalhe do projeto, só para a dona: cadastra a chave (confere pelo tipo antes de mandar), copia o link de apoio e lista "Para conferir no extrato" com "Chegou" e "Não chegou". Ao confirmar, recarrega o projeto para o arrecadado mudar |
+| `pages/app/Apoiar.tsx` | `/apoiar/:id`: valor (com sugestões), QR desenhado com `qrcode` em SVG, copia e cola, "Já paguei" e "Seus apoios" |
+| `services/api/apoioService.ts` | As rotas de `/projects/{id}/pix`, `/contributions` e `/support/{id}`, tipadas pelo `@compoze/contracts/apoios` |
+
+Pede rede: dinheiro não entra na fila offline. Na demonstração, a página de
+apoio só explica que precisa da conta de verdade.
