@@ -4,11 +4,13 @@ import { PgBoss } from "pg-boss";
 import type { FastifyBaseLogger } from "fastify";
 
 import { expurgarIdempotencia } from "../../plugins/idempotencia";
+import { expurgarImagensSoltas } from "../imagens/servico";
 import { RETENCAO_DIAS } from "../songs/servico";
 
 /**
  * RN08: apaga de vez canções e projetos que estão na lixeira há mais de
- * 30 dias. Blocos, coautores, versões e faixas vão junto (ON DELETE CASCADE).
+ * 30 dias. Blocos, coautores, versões e faixas vão junto (ON DELETE CASCADE);
+ * a capa do projeto sai depois, em `expurgarImagensSoltas`.
  */
 export async function expurgarLixeira(db: Banco): Promise<{ cancoes: number; projetos: number }> {
   const limite = sql`now() - make_interval(days => ${RETENCAO_DIAS})`;
@@ -40,6 +42,7 @@ export async function agendarExpurgo(url: string, db: Banco, log: FastifyBaseLog
     const r = await expurgarLixeira(db);
     log.info(r, "lixeira expurgada (RN08)");
     log.info({ chaves: await expurgarIdempotencia(db) }, "chaves de idempotência vencidas apagadas");
+    log.info({ imagens: await expurgarImagensSoltas(db) }, "imagens que ninguém aponta apagadas (ADR 0015)");
   });
   return boss;
 }

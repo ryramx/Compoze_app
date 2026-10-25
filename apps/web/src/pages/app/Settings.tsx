@@ -3,6 +3,8 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Cabecalho } from "@/components/compoze/Cabecalho";
 import { Confirmar } from "@/components/compoze/Confirmar";
+import { EscolherImagem } from "@/components/compoze/EscolherImagem";
+import { Monograma } from "@/components/compoze/Monograma";
 import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { AreaDeTexto, Campo, Entrada } from "@/components/ui/Campo";
@@ -69,6 +71,7 @@ function Bloco({ titulo, descricao, children }: { titulo: string; descricao: str
 export default function Settings() {
   const eu = useCompoze((s) => s.users.find((u) => u.id === s.currentUserId));
   const atualizarEu = useCompoze((s) => s.updateCurrentUser);
+  const trocarFoto = useCompoze((s) => s.trocarFoto);
   const hidratar = useCompoze((s) => s.hydrate);
   const limpar = useCompoze((s) => s.limpar);
   const sair = useAuth((s) => s.logout);
@@ -110,6 +113,10 @@ export default function Settings() {
       <Cabecalho titulo="Ajustes" />
 
       <Bloco titulo="Perfil" descricao="Como você aparece nos créditos, no mapa e para quem escreve com você.">
+        <div className="mb-8 flex items-center gap-5">
+          <Monograma usuario={eu} tamanho="lg" />
+          <EscolherImagem temImagem={!!eu?.avatar} rotuloTrocar={eu?.avatar ? "Trocar foto" : "Pôr uma foto"} rotuloTirar="Tirar foto" trocar={trocarFoto} />
+        </div>
         <form onSubmit={salvar} className="space-y-6">
           <Campo rotulo="Nome artístico" erro={erroNome}>
             {(id) => <Entrada id={id} value={nome} onChange={(e) => setNome(e.target.value)} />}

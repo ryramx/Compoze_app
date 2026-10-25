@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./canonico": "./src/canonico.ts"
+    "./canonico": "./src/canonico.ts",
+    "./imagens": "./src/imagens.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -56,3 +56,9 @@ export async function noMapa(): Promise<User[]> {
   const dados = await api.get<ApiUserOnMap[]>("/map/people");
   return dados.map(usuarioDaApi);
 }
+
+/** Foto de perfil (ADR 0015): a imagem já reduzida, ou null para tirar. */
+export async function trocarFoto(imagem: Blob | null): Promise<User> {
+  const dados = imagem ? await api.subir<ApiUserMe>("/users/me/avatar", imagem) : await api.delete<ApiUserMe>("/users/me/avatar");
+  return usuarioDaApi(dados);
+}

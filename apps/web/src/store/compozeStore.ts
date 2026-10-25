@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { AVATAR_LADO_PX, CAPA_LADO_PX } from "@compoze/contracts/imagens";
 
 import type {
   Folder,
@@ -12,6 +13,7 @@ import type {
 import { ApiError } from "@/lib/api";
 import { lerCopia, salvarCopia } from "@/lib/copiaLocal";
 import { abrirFila, enfileirar, esvaziar } from "@/lib/fila";
+import { reduzirImagem } from "@/lib/imagens";
 import { uuidv7 } from "@/lib/uuidv7";
 import { patchDeMusicaParaApi } from "@/services/api/adapters";
 import type { ApiReceivedInvite, ApiVersion } from "@/services/api/dto";
@@ -129,6 +131,13 @@ interface CompozeState {
   purgeExpiredTrash: () => void;
 
   updateCurrentUser: (patch: Partial<Pick<User, "name" | "bio" | "instagram" | "location">>) => void;
+
+  /**
+   * Foto de perfil e capa (ADR 0015). Pedem rede, como o lado social: imagem
+   * não entra na fila do aparelho. Reduzem antes de subir; null tira a imagem.
+   */
+  trocarFoto: (arquivo: Blob | null) => Promise<void>;
+  trocarCapa: (projetoId: string, arquivo: Blob | null) => Promise<void>;
 }
 
 /**
@@ -613,6 +622,18 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     agendarGravacao("me", patch, (tudo) =>
       void enfileirar({ metodo: "PATCH", caminho: "/users/me", corpo: userApi.patchDeEu(tudo), rotulo: "o seu perfil" }),
     );
+  },
+
+  trocarFoto: async (arquivo) => {
+    const imagem = arquivo ? await reduzirImagem(arquivo, AVATAR_LADO_PX) : null;
+    const eu = await userApi.trocarFoto(imagem);
+    set({ users: get().users.map((u) => (u.id === eu.id ? { ...u, avatar: eu.avatar } : u)) });
+  },
+
+  trocarCapa: async (projetoId, arquivo) => {
+    const imagem = arquivo ? await reduzirImagem(arquivo, CAPA_LADO_PX) : null;
+    const p = await projectApi.trocarCapa(projetoId, imagem);
+    set({ projects: get().projects.map((x) => (x.id === projetoId ? { ...x, cover: p.cover } : x)) });
   },
 }));
 

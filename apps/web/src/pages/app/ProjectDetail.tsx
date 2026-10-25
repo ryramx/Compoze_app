@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { TituloDeSecao, Vazio } from "@/components/compoze/Cabecalho";
 import { Capa } from "@/components/compoze/Capa";
 import { Confirmar } from "@/components/compoze/Confirmar";
+import { EscolherImagem } from "@/components/compoze/EscolherImagem";
 import { Estagio } from "@/components/compoze/Estagio";
 import { PilhaDeMonogramas } from "@/components/compoze/Monograma";
 import { Pagina } from "@/components/layout/Pagina";
@@ -27,6 +28,7 @@ export default function ProjectDetail() {
   const getUser = useCompoze((s) => s.getUser);
   const carregar = useCompoze((s) => s.loadProject);
   const atualizar = useCompoze((s) => s.updateProject);
+  const trocarCapa = useCompoze((s) => s.trocarCapa);
   const excluir = useCompoze((s) => s.deleteProject);
   const adicionar = useCompoze((s) => s.addSongToProject);
   const retirar = useCompoze((s) => s.removeSongFromProject);
@@ -64,6 +66,14 @@ export default function ProjectDetail() {
       <div className="grid gap-10 md:grid-cols-[minmax(0,380px)_minmax(0,1fr)] lg:gap-16">
         <div>
           <Capa projeto={projeto} className="shadow-folha" />
+          <div className="mt-4">
+            <EscolherImagem
+              temImagem={!!projeto.cover}
+              rotuloTrocar={projeto.cover ? "Trocar capa" : "Pôr uma capa"}
+              rotuloTirar="Voltar à capa tipográfica"
+              trocar={(arquivo) => trocarCapa(projeto.id, arquivo)}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col">

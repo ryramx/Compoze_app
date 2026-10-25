@@ -251,5 +251,8 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
 12. ~~Fase 4a: seguir pessoas e mural, com curtidas e comentários
     (ADR 0013).~~ Feito.
 13. ~~Fase 4b: conversas a dois com entrega ao vivo por SSE (ADR 0014).~~
-    Feito. O que falta da Fase 4: uploads (avatar, capa, áudio no S3/R2) e
-    financiamento (PIX), os dois com conta externa e decisão do Ryan.
+    Feito.
+14. ~~Fase 4c: foto de perfil e capa de projeto, guardadas no Postgres
+    (ADR 0015).~~ Feito. O áudio dos memos já estava no banco (ADR 0012); o
+    S3/R2 fica para quando o volume pedir. O que falta da Fase 4 é o
+    financiamento (PIX), que pede conta no Mercado Pago.

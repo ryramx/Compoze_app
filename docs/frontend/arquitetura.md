@@ -220,3 +220,14 @@ A Mesa mostra as três mais novas (`["mural","roda"]`).
 | `components/gente/AoVivo.tsx` | Montado no `AppLayout`: mantém o fluxo ao vivo e põe cada mensagem no cache; fora da conversa, avisa |
 | `lib/aoVivo.ts` | Lê `GET /events` com `fetch` (token no cabeçalho), reconecta com espera crescente. Na demo, o servidor da demo chama `emitir` |
 | `services/api/conversaService.ts` | Rotas `/conversations` |
+
+## Foto de perfil e capa (Fase 4c, ADR 0015)
+
+| Peça | O que faz |
+| --- | --- |
+| `components/compoze/EscolherImagem.tsx` | "Trocar / tirar" com o seletor de arquivo do sistema (no celular, oferece a câmera). Usado em Ajustes → Perfil e no detalhe do projeto |
+| `lib/imagens.ts` | `reduzirImagem` (lado maior 512 px no perfil, 1200 px na capa, WebP ou JPEG) e `enderecoDaImagem`, que transforma o `/images/{id}` da API em endereço completo |
+| Store: `trocarFoto`, `trocarCapa` | Reduzem, sobem e atualizam o store com a resposta. Pedem rede; não passam pela fila |
+| `services/api/adapters.ts` | `avatar` e `cover` já saem com o endereço completo, para `Monograma` e `Capa` não saberem de onde vem a imagem |
+
+Na demonstração, a imagem reduzida vira `data:` no próprio registro.

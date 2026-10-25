@@ -20,3 +20,4 @@ duas apontam uma para a outra.
 | [0012](0012-memos-de-voz.md) | Memos de voz guardados no Postgres, por enquanto | Aceita |
 | [0013](0013-seguir-e-mural.md) | Seguir pessoas e mural | Aceita |
 | [0014](0014-conversas-ao-vivo.md) | Conversas a dois, com entrega ao vivo por SSE | Aceita |
+| [0015](0015-imagens-no-postgres.md) | Foto de perfil e capa de projeto guardadas no Postgres | Aceita |

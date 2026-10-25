@@ -73,6 +73,20 @@ export async function restaurarDadosDeExemplo(): Promise<void> {
 const agora = () => new Date().toISOString();
 const novoId = (prefixo: string) => `${prefixo}_${Math.random().toString(36).slice(2, 10)}`;
 
+/**
+ * Foto e capa na demonstração (ADR 0015): a imagem, já reduzida no aparelho,
+ * vira `data:` e fica no próprio registro. Cabe no localStorage porque a
+ * redução deixa cada uma em dezenas de KB.
+ */
+function comoDataUrl(imagem: Blob): Promise<string> {
+  return new Promise((ok, falha) => {
+    const leitor = new FileReader();
+    leitor.onload = () => ok(String(leitor.result));
+    leitor.onerror = () => falha(leitor.error);
+    leitor.readAsDataURL(imagem);
+  });
+}
+
 function json(corpo: unknown, status = 200): Response {
   if (status === 204) return new Response(null, { status });
   return new Response(JSON.stringify(corpo), {
@@ -426,12 +440,18 @@ const rotasPrivadas: Rota[] = [
   },
 
   // ------------------------------------------------------------ usuários
-  ({ metodo, partes, query, corpo, userId }) => {
+  async ({ metodo, partes, query, corpo, bruto, userId }) => {
     if (partes[0] !== "users") return null;
     const db = carregar();
 
     if (partes[1] === "me") {
       const eu = db.usuarios.find((u) => u.id === userId)!;
+      if (partes[2] === "avatar") {
+        if (metodo === "PUT" && !bruto?.size) return erro(422, "A imagem veio vazia.");
+        if (metodo === "PUT") eu.avatar_url = await comoDataUrl(bruto!);
+        if (metodo === "DELETE") eu.avatar_url = null;
+        return json(eu);
+      }
       if (metodo === "GET") return json(eu);
       if (metodo === "PATCH") {
         Object.assign(eu, corpo);
@@ -865,7 +885,7 @@ const rotasPrivadas: Rota[] = [
   },
 
   // ------------------------------------------------------------ projetos
-  ({ metodo, partes, corpo, userId }) => {
+  async ({ metodo, partes, corpo, bruto, userId }) => {
     if (partes[0] !== "projects") return null;
     const db = carregar();
 
@@ -907,6 +927,11 @@ const rotasPrivadas: Rota[] = [
         p.deleted_at = agora();
         return json(null, 204);
       }
+    }
+    if (partes[2] === "cover") {
+      if (metodo === "PUT" && !bruto?.size) return erro(422, "A imagem veio vazia.");
+      p.cover_url = metodo === "PUT" ? await comoDataUrl(bruto!) : null;
+      return json(projetoCompleto(p));
     }
     if (partes[2] === "restore" && metodo === "POST") {
       p.deleted_at = null;
