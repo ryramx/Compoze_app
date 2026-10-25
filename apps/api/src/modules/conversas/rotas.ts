@@ -2,6 +2,7 @@ import { ConsultaDeMensagens, Conversa, Id, Mensagem, NovaConversa, NovaMensagem
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
+import { avisoDeMensagem } from "../avisos/servico";
 import * as s from "./servico";
 
 const ParamConversa = z.object({ id: Id });
@@ -40,6 +41,7 @@ export const rotasDeConversas: FastifyPluginAsyncZod = async (app) => {
     { schema: { tags, params: ParamConversa, body: NovaMensagem, response: { 200: Mensagem, 201: Mensagem } } },
     async (req, reply) => {
       const { mensagem, nova } = await s.enviar(db, app.aoVivo, req.params.id, req.usuarioId, req.body);
+      if (nova) void app.avisador.avisarDepois(avisoDeMensagem(db, mensagem));
       return reply.status(nova ? 201 : 200).send(mensagem);
     },
   );

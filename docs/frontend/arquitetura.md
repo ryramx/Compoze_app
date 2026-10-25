@@ -231,3 +231,14 @@ A Mesa mostra as três mais novas (`["mural","roda"]`).
 | `services/api/adapters.ts` | `avatar` e `cover` já saem com o endereço completo, para `Monograma` e `Capa` não saberem de onde vem a imagem |
 
 Na demonstração, a imagem reduzida vira `data:` no próprio registro.
+
+## Avisos por push (Fase 3d, ADR 0016)
+
+| Peça | O que faz |
+| --- | --- |
+| `public/avisos-sw.js` | Importado pelo service worker do Workbox (`workbox.importScripts`). Mostra o aviso no `push` e, no toque, foca a janela aberta ou abre uma na `url` do aviso |
+| `lib/avisos.ts` | `ligarAvisos` (permissão, `subscribe` com a chave da API, `PUT` da inscrição), `desligarAvisos`, `renovarAvisos` (a cada abertura, no `AppLayout`) e `esquecerAvisos` (no `logout`) |
+| Ajustes → Avisos | Liga e desliga por aparelho; explica o bloqueio do navegador e o caso do iPhone (só instalado na tela de início) |
+
+Fora do app Android e do modo demo. Para testar, `vite build` + `vite preview`:
+no `pnpm dev` não há service worker.

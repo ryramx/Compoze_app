@@ -11,6 +11,7 @@ import { ESCRITA, GENTE, RODAPE, type ItemDeNavegacao } from "@/components/layou
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { quandoRecusar, usePendentes } from "@/lib/fila";
+import { renovarAvisos } from "@/lib/avisos";
 import { pedirArmazenamentoPersistente } from "@/lib/pwa";
 import { useOnline } from "@/lib/rede";
 import { definirTema, useTema } from "@/lib/tema";
@@ -200,6 +201,7 @@ export default function AppLayout() {
 
   // Logada, a pessoa tem o que perder no aparelho: pede para não ser apagado.
   useEffect(pedirArmazenamentoPersistente, []);
+  useEffect(renovarAvisos, []);
 
   // O servidor recusou algo feito offline (permissão mudou, canção apagada por
   // outra pessoa…): avisa e relê, para a tela voltar ao que vale.

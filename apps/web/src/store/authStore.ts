@@ -1,5 +1,6 @@
 import { create } from "zustand";
 
+import { esquecerAvisos } from "@/lib/avisos";
 import { apagarCopia } from "@/lib/copiaLocal";
 import { descartarFila } from "@/lib/fila";
 import * as authService from "@/services/api/authService";
@@ -61,6 +62,7 @@ export const useAuth = create<Estado & Acoes>((set, get) => ({
 
   logout: () => {
     const eu = useCompoze.getState().currentUserId;
+    esquecerAvisos();
     authService.logout();
     // O que não subiu fica perdido de propósito: o próximo a usar o aparelho
     // pode ser outra pessoa. A cópia do caderno vai junto.

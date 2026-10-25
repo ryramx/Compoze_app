@@ -21,3 +21,4 @@ duas apontam uma para a outra.
 | [0013](0013-seguir-e-mural.md) | Seguir pessoas e mural | Aceita |
 | [0014](0014-conversas-ao-vivo.md) | Conversas a dois, com entrega ao vivo por SSE | Aceita |
 | [0015](0015-imagens-no-postgres.md) | Foto de perfil e capa de projeto guardadas no Postgres | Aceita |
+| [0016](0016-avisos-por-push.md) | Avisos fora do app por Web Push, com chaves geradas pelo servidor | Aceita |

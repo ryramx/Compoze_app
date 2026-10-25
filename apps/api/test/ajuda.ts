@@ -1,7 +1,7 @@
 import { conectar, type Conexao } from "@compoze/db";
 import { afterAll, beforeAll, inject } from "vitest";
 
-import { construirApp, type App } from "../src/app";
+import { construirApp, type App, type Dependencias } from "../src/app";
 import { lerConfig, type Config } from "../src/config";
 
 export const SEGREDO_DE_TESTE = "segredo-de-teste-com-pelo-menos-32-caracteres";
@@ -19,12 +19,12 @@ export function configDeTeste(extra: Record<string, string> = {}): Config {
 }
 
 /** Sobe a API uma vez por arquivo de teste, sobre o banco compartilhado. */
-export function usarApp(extra: Record<string, string> = {}) {
+export function usarApp(extra: Record<string, string> = {}, deps: Pick<Dependencias, "entregarPush"> = {}) {
   const ctx = {} as { app: App; banco: Conexao };
   beforeAll(async () => {
     const config = configDeTeste(extra);
     ctx.banco = conectar(config.DATABASE_URL, { max: 4 });
-    ctx.app = await construirApp({ config, banco: ctx.banco });
+    ctx.app = await construirApp({ config, banco: ctx.banco, ...deps });
     await ctx.app.ready();
   });
   afterAll(async () => {

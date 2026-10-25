@@ -9,6 +9,12 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Fase 3d, avisos por push (ADR 0016): Ajustes → Avisos liga, neste
+  aparelho, o aviso do sistema para mensagem nova e convite para canção, mesmo
+  com o Compoze fechado. Navegador e PWA; no iPhone, só instalado na tela de
+  início. Sem conta externa: o servidor gera as próprias chaves VAPID.
+  - API: `GET /push/public-key`, `PUT/DELETE /push/subscriptions`; tabelas
+    `push_subscriptions` e `server_keys` (migração 0013).
 - Fase 4c, imagens (ADR 0015): foto de perfil (Ajustes → Perfil) e capa de
   projeto (no detalhe do projeto), com "tirar" para voltar ao monograma e à
   capa tipográfica.

@@ -84,6 +84,9 @@ services:
       - path: /sw.js
         name: Cache-Control
         value: no-cache
+      - path: /avisos-sw.js
+        name: Cache-Control
+        value: no-cache
       - path: /manifest.webmanifest
         name: Cache-Control
         value: no-cache

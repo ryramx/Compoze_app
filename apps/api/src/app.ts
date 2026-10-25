@@ -14,8 +14,10 @@ import {
 
 import type { Config } from "./config";
 import { criarAoVivo, type AoVivo } from "./lib/aoVivo";
+import { criarAvisador, type Avisador, type Entregar } from "./lib/avisador";
 import { criarCarteiro, remetenteResend, type Carteiro, type Remetente } from "./lib/correio";
 import { rotasDeAutenticacao } from "./modules/auth/rotas";
+import { rotasDeAvisos } from "./modules/avisos/rotas";
 import { rotasDeConversas } from "./modules/conversas/rotas";
 import { rotasDeConvites } from "./modules/convites/rotas";
 import { anexarColaboracao, criarColaboracao, type Colaboracao } from "./modules/colab/servidor";
@@ -45,6 +47,8 @@ declare module "fastify" {
     aoVivo: AoVivo;
     /** Fluxos `/events` abertos, encerrados antes de o servidor fechar. */
     aoVivoFechar: Set<() => void>;
+    /** Avisos por push para quem está com o app fechado (ADR 0016). */
+    avisador: Avisador;
   }
 }
 
@@ -54,13 +58,15 @@ export interface Dependencias {
   logger?: FastifyServerOptions["logger"];
   /** Quem entrega os e-mails. Sem isto, vale o Resend, se houver chave. */
   remetente?: Remetente | null;
+  /** Como o push sai. Os testes trocam por um que só anota. */
+  entregarPush?: Entregar;
 }
 
 /**
  * Monta a API sem abrir porta: o servidor chama `listen`, os testes usam
  * `inject`. Cada módulo de `modules/` registra suas rotas aqui.
  */
-export async function construirApp({ config, banco, logger, remetente }: Dependencias) {
+export async function construirApp({ config, banco, logger, remetente, entregarPush }: Dependencias) {
   const app = Fastify({
     logger: logger ?? { level: config.LOG_LEVEL },
     // Ids de requisição em UUID, para casar com os logs do front.
@@ -78,6 +84,7 @@ export async function construirApp({ config, banco, logger, remetente }: Depende
   app.decorate("carteiro", criarCarteiro(quemEntrega, app.log));
   app.decorate("aoVivo", criarAoVivo());
   app.decorate("aoVivoFechar", new Set<() => void>());
+  app.decorate("avisador", criarAvisador({ db: banco.db, aoVivo: app.aoVivo, log: app.log, entregar: entregarPush }));
   // Fluxos ao vivo nunca terminam sozinhos; sem isto o close esperaria para sempre.
   app.addHook("preClose", async () => {
     for (const fechar of [...app.aoVivoFechar]) fechar();
@@ -135,6 +142,7 @@ export async function construirApp({ config, banco, logger, remetente }: Depende
   await app.register(rotasDePastas);
   await app.register(rotasDeProjetos);
   await app.register(rotasDeImagens);
+  await app.register(rotasDeAvisos);
 
   return app;
 }

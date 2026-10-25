@@ -10,6 +10,7 @@ import { Botao } from "@/components/ui/Botao";
 import { AreaDeTexto, Campo, Entrada } from "@/components/ui/Campo";
 import { MODO_DEMO } from "@/lib/api";
 import { baixarVersaoNova, maisNova, ultimaVersao, versaoInstalada } from "@/lib/atualizacao";
+import { desligarAvisos, estadoDosAvisos, ligarAvisos, suportaAvisos, type EstadoDosAvisos } from "@/lib/avisos";
 import { cn } from "@/lib/cn";
 import { NATIVO } from "@/lib/nativo";
 import { definirTema, useTema, type Tema } from "@/lib/tema";
@@ -50,6 +51,52 @@ function VersaoDoApp() {
       ) : (
         <Botao onClick={() => void procurar()} disabled={estado === "procurando"}>
           {estado === "procurando" ? "Procurando…" : "Procurar atualização"}
+        </Botao>
+      )}
+    </>
+  );
+}
+
+/** Avisos com o app fechado, por aparelho (Fase 3d, ADR 0016). */
+function AvisosDoAparelho() {
+  const [estado, setEstado] = useState<EstadoDosAvisos | null>(null);
+  const [mexendo, setMexendo] = useState(false);
+
+  useEffect(() => {
+    void estadoDosAvisos().then(setEstado);
+  }, []);
+
+  async function trocar() {
+    setMexendo(true);
+    try {
+      if (estado === "ligado") {
+        await desligarAvisos();
+        setEstado("desligado");
+      } else {
+        const novo = await ligarAvisos();
+        setEstado(novo);
+        if (novo === "ligado") toast("Avisos ligados neste aparelho.");
+      }
+    } catch {
+      toast.error("Não deu para ligar os avisos agora. Confira a internet e tente de novo.");
+    } finally {
+      setMexendo(false);
+    }
+  }
+
+  if (estado === null) return null;
+  const textos: Record<EstadoDosAvisos, string> = {
+    ligado: "Ligados neste aparelho.",
+    desligado: "Desligados neste aparelho.",
+    bloqueado: "O navegador está bloqueando os avisos do Compoze. Libere nas configurações do site (o cadeado ao lado do endereço) e volte aqui.",
+    "sem-suporte": "Este navegador não recebe avisos. No iPhone, instale o Compoze na tela de início (Compartilhar → Adicionar à Tela de Início) e abra por lá.",
+  };
+  return (
+    <>
+      <p className="mb-4 text-[14px] text-tinta-2">{textos[estado]}</p>
+      {(estado === "ligado" || estado === "desligado") && (
+        <Botao variante={estado === "ligado" ? "contorno" : "tinta"} onClick={() => void trocar()} disabled={mexendo}>
+          {mexendo ? "Um momento…" : estado === "ligado" ? "Desligar avisos" : "Ligar avisos"}
         </Botao>
       )}
     </>
@@ -158,6 +205,12 @@ export default function Settings() {
           ))}
         </div>
       </Bloco>
+
+      {suportaAvisos() && (
+        <Bloco titulo="Avisos" descricao="Mensagem nova e convite para canção aparecem no aparelho mesmo com o Compoze fechado.">
+          <AvisosDoAparelho />
+        </Bloco>
+      )}
 
       {MODO_DEMO && (
         <Bloco titulo="Demonstração" descricao="Os dados desta versão vivem só no seu navegador.">

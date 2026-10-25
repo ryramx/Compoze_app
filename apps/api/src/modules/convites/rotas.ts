@@ -2,6 +2,7 @@ import { ConviteCriado, ConviteRecebido, ConvitesDaCancao, DetalheDaCancao, Id, 
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
+import { avisoDeConvite } from "../avisos/servico";
 import * as s from "./servico";
 
 const ParamCancao = z.object({ id: Id });
@@ -33,10 +34,11 @@ export const rotasDeConvites: FastifyPluginAsyncZod = async (app) => {
         response: { 201: ConviteCriado },
       },
     },
-    async (req, reply) =>
-      reply
-        .status(201)
-        .send(await s.convidar(db, app.carteiro, app.config.WEB_URL, req.params.id, req.usuarioId, req.body)),
+    async (req, reply) => {
+      const convite = await s.convidar(db, app.carteiro, app.config.WEB_URL, req.params.id, req.usuarioId, req.body);
+      void app.avisador.avisarDepois(avisoDeConvite(db, convite));
+      return reply.status(201).send(convite);
+    },
   );
 
   app.delete(

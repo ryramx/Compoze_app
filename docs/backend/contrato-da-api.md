@@ -244,6 +244,18 @@ O id é gerado no aparelho (UUID v7), como o das canções.
 
 Valores monetários em reais, inteiros (centavos não são usados na v1).
 
+## Avisos por push (ADR 0016)
+
+| Método | Rota | Corpo / resposta |
+| --- | --- | --- |
+| GET | `/push/public-key` | `{ key }`: chave pública VAPID (base64url), para `PushManager.subscribe` |
+| PUT | `/push/subscriptions` | `{ endpoint (https), keys: { p256dh, auth } }`, o `toJSON()` da inscrição → `204`. O mesmo endpoint em outra conta passa para ela |
+| DELETE | `/push/subscriptions` | `{ endpoint }` → `204`; só apaga a inscrição da própria conta |
+
+O push leva `{ title, body, url, tag }` (o `Aviso` de `packages/contracts`).
+Sai em mensagem nova (para os outros da conversa) e em convite pela conta
+(para a convidada), só para quem não está com um fluxo `/events` aberto.
+
 ## Processos do servidor
 
 - **Expurgo da lixeira (RN08):** job diário apaga canções e projetos com
