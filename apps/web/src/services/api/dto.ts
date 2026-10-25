@@ -14,6 +14,10 @@
  */
 import type {
   Comentario,
+  Conversa,
+  EventoAoVivo,
+  Mensagem,
+  PaginaDeMensagens,
   MemoDeVoz,
   PaginaDoMural,
   PerfilPublico,
@@ -86,6 +90,10 @@ export type ApiProfile = PerfilPublico;
 export type ApiPost = Publicacao;
 export type ApiFeedPage = PaginaDoMural;
 export type ApiComment = Comentario;
+export type ApiConversation = Conversa;
+export type ApiMessage = Mensagem;
+export type ApiMessagePage = PaginaDeMensagens;
+export type ApiLiveEvent = EventoAoVivo;
 export type ApiSnapshot = RetratoDaCancao;
 export type ApiInvite = Convite;
 export type ApiInviteCreated = ConviteCriado;

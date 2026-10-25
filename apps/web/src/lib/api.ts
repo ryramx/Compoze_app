@@ -90,6 +90,12 @@ export function definirRenovador(fn: () => Promise<boolean>): void {
   renovador = fn;
 }
 
+/** Renova a sessão por fora de `request` (o fluxo ao vivo, que usa fetch direto). */
+export const renovarSessao = (): Promise<boolean> => renovador?.() ?? Promise.resolve(false);
+
+/** Endereço da API, para quem fala com ela sem passar por `request`. */
+export const URL_DA_API = BASE_URL;
+
 async function request<T>(path: string, options: RequestOptions = {}, repetida = false): Promise<T> {
   const { method = "GET", body, signal, idempotencyKey, binaria } = options;
   const crua = body instanceof Blob;

@@ -210,3 +210,13 @@ cópia no aparelho. As telas leem da API com React Query.
 | `components/gente/cache.ts` | `trocarNoMural`: muda uma publicação em todas as páginas de mural em cache |
 
 A Mesa mostra as três mais novas (`["mural","roda"]`).
+
+## Conversas (Fase 4b, ADR 0014)
+
+| Peça | O que faz |
+| --- | --- |
+| `pages/app/Messages.tsx` | `/messages` e `/messages/:id`; `?com=<id>` abre a conversa com a pessoa (o "Conversar" do perfil) |
+| `components/gente/conversas.ts` | `useConversas` (chave `["conversas"]`), `useNaoLidas` (contador do menu), `guardarMensagem` |
+| `components/gente/AoVivo.tsx` | Montado no `AppLayout`: mantém o fluxo ao vivo e põe cada mensagem no cache; fora da conversa, avisa |
+| `lib/aoVivo.ts` | Lê `GET /events` com `fetch` (token no cabeçalho), reconecta com espera crescente. Na demo, o servidor da demo chama `emitir` |
+| `services/api/conversaService.ts` | Rotas `/conversations` |

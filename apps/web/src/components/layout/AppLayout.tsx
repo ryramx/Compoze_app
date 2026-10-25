@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { BuscaGlobal } from "@/components/compoze/BuscaGlobal";
 import { Marca } from "@/components/compoze/Marca";
 import { Monograma } from "@/components/compoze/Monograma";
+import { AoVivo } from "@/components/gente/AoVivo";
+import { useNaoLidas } from "@/components/gente/conversas";
 import { ESCRITA, GENTE, RODAPE, type ItemDeNavegacao } from "@/components/layout/navegacao";
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -14,7 +16,7 @@ import { useOnline } from "@/lib/rede";
 import { definirTema, useTema } from "@/lib/tema";
 import { useCompoze } from "@/store/compozeStore";
 
-function ItemDoTrilho({ item, aoClicar }: { item: ItemDeNavegacao; aoClicar?: () => void }) {
+function ItemDoTrilho({ item, aoClicar, contador = 0 }: { item: ItemDeNavegacao; aoClicar?: () => void; contador?: number }) {
   return (
     <NavLink
       to={item.url}
@@ -37,6 +39,11 @@ function ItemDoTrilho({ item, aoClicar }: { item: ItemDeNavegacao; aoClicar?: ()
           />
           <item.icone aria-hidden className={cn("size-4 shrink-0", isActive ? "text-lapis" : "text-tinta-3")} strokeWidth={1.5} />
           <span className={cn(isActive && "font-medium")}>{item.titulo}</span>
+          {contador > 0 && (
+            <span className="numeral ml-auto bg-lapis px-1.5 text-[10.5px] leading-[1.15rem] text-papel" aria-label={`${contador} não lidas`}>
+              {contador}
+            </span>
+          )}
         </>
       )}
     </NavLink>
@@ -96,6 +103,7 @@ function EstadoDaRede() {
 function Trilho({ aoNavegar, aoBuscar }: { aoNavegar?: () => void; aoBuscar: () => void }) {
   const eu = useCompoze((s) => s.users.find((u) => u.id === s.currentUserId));
   const [, escuro] = useTema();
+  const naoLidas = useNaoLidas();
 
   return (
     <div className="flex h-full flex-col">
@@ -124,7 +132,7 @@ function Trilho({ aoNavegar, aoBuscar }: { aoNavegar?: () => void; aoBuscar: () 
         <div>
           <div className="rotulo mb-1.5 px-5">Gente</div>
           {GENTE.map((i) => (
-            <ItemDoTrilho key={i.url} item={i} aoClicar={aoNavegar} />
+            <ItemDoTrilho key={i.url} item={i} aoClicar={aoNavegar} contador={i.url === "/messages" ? naoLidas : 0} />
           ))}
         </div>
         <div>
@@ -278,6 +286,7 @@ export default function AppLayout() {
       )}
 
       <BuscaGlobal aberta={buscaAberta} aoMudar={setBuscaAberta} />
+      <AoVivo />
     </div>
   );
 }

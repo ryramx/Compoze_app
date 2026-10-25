@@ -1,8 +1,6 @@
 import { create } from "zustand";
 
-import { conversations as initialConversations } from "@/data/mockData";
 import type {
-  Conversation,
   Folder,
   Project,
   ProjectStyle,
@@ -11,7 +9,6 @@ import type {
   SongBlock,
   User,
 } from "@/types";
-import { adiantar } from "@/demo/semente";
 import { ApiError } from "@/lib/api";
 import { lerCopia, salvarCopia } from "@/lib/copiaLocal";
 import { abrirFila, enfileirar, esvaziar } from "@/lib/fila";
@@ -24,7 +21,6 @@ import * as folderApi from "@/services/api/folderService";
 import * as projectApi from "@/services/api/projectService";
 import * as songApi from "@/services/api/songService";
 import * as userApi from "@/services/api/userService";
-import * as messageService from "@/services/mock/messageService";
 import * as songService from "@/services/mock/songService";
 
 /**
@@ -37,7 +33,7 @@ import * as songService from "@/services/mock/songService";
  *
  * Mural e seguidores (Fase 4a) não moram aqui: as telas leem da API com
  * `useQuery` (`services/api/genteService.ts`), porque exigem rede e não têm
- * cópia offline. Conversas ainda vêm de `mockData` (Fase 4b). A separação está
+ * cópia offline. O mesmo vale para as conversas (Fase 4b). A separação está
  * explícita nos imports acima — `*Api` versus `*Service`.
  *
  * ## Por que um store, e não `useQuery` em cada tela
@@ -56,8 +52,6 @@ interface CompozeState {
   folders: Folder[];
   projects: Project[];
 
-  // Ainda sem backend (Fase 4b).
-  conversations: Conversation[];
 
   hidratado: boolean;
   carregando: boolean;
@@ -135,7 +129,6 @@ interface CompozeState {
   purgeExpiredTrash: () => void;
 
   updateCurrentUser: (patch: Partial<Pick<User, "name" | "bio" | "instagram" | "location">>) => void;
-  sendMessage: (toUserId: string, content: string) => void;
 }
 
 /**
@@ -191,12 +184,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
   folders: [],
   projects: [],
 
-  // Datas do exemplo alinhadas com as da demonstração, para o mural não parecer parado.
-  conversations: initialConversations.map((c) => ({
-    ...c,
-    messages: c.messages.map((m) => ({ ...m, timestamp: adiantar(m.timestamp) })),
-  })),
-
   hidratado: false,
   carregando: false,
   erro: null,
@@ -244,8 +231,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         ids.add(s.creatorId);
         for (const c of s.collaborators) ids.add(c.userId);
       }
-      // Quem aparece nas conversas (ainda de exemplo) também precisa de nome.
-      for (const c of get().conversations) ids.add(c.withUserId);
 
       set({
         songs,
@@ -629,19 +614,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
       void enfileirar({ metodo: "PATCH", caminho: "/users/me", corpo: userApi.patchDeEu(tudo), rotulo: "o seu perfil" }),
     );
   },
-
-  // ------------------------------------------------ ainda sem backend (Fase 4b)
-
-  sendMessage: (toUserId, content) =>
-    set({
-      conversations: messageService.send(
-        get().conversations,
-        get().currentUserId,
-        toUserId,
-        content,
-      ),
-    }),
-
 }));
 
 // Reexportado para as telas que já o usavam a partir daqui.

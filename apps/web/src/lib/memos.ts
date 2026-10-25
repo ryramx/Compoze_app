@@ -98,8 +98,9 @@ export function enviarPendentes(): Promise<void> {
           const r = await servico.subir(m.songId, { id: m.id, audio: m.audio!, durationMs: m.durationMs, title: m.title });
           await set(m.id, { ...m, ...daApi(r), audio: m.audio }, banco());
         } catch (e) {
-          // Sem rede, servidor dormindo ou sessão vencida: tenta depois.
-          if (!(e instanceof ApiError) || e.status === 0 || e.status === 401 || e.status >= 500) break;
+          // Sem rede, servidor dormindo ou sessão vencida: tenta depois. 404
+          // também: a canção pode ter nascido offline e ainda estar na fila.
+          if (!(e instanceof ApiError) || [0, 401, 404].includes(e.status) || e.status >= 500) break;
           await set(m.id, { ...m, pendente: false, erro: e.message }, banco());
         }
         avisar();

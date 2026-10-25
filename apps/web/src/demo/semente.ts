@@ -36,6 +36,27 @@ export interface BancoDemo {
   seguindo?: SeguirDemo[];
   posts?: PostDemo[];
   comentarios?: ComentarioDemo[];
+  /** Conversas (ADR 0014). */
+  conversas?: ConversaDemo[];
+}
+
+export interface ConversaDemo {
+  id: string;
+  membros: string[];
+  lida: Record<string, string | null>;
+  criada: string;
+  mensagens: { id: string; author_id: string; content: string; created_at: string }[];
+}
+
+/** Conversas de exemplo (Fase 4b), as mesmas do protótipo. */
+export function conversasDeExemplo(): ConversaDemo[] {
+  const delta = deslocamento();
+  return mock.conversations.map((c) => {
+    const mensagens = c.messages.map((m) => ({ id: `${c.id}_${m.id}`, author_id: m.fromId, content: m.content, created_at: adiantar(m.timestamp, delta) }));
+    // Só a última conversa fica com mensagem por ler, para o contador aparecer.
+    const lida = c.id === "c1" ? null : (mensagens.at(-1)?.created_at ?? null);
+    return { id: c.id, membros: [mock.CURRENT_USER_ID, c.withUserId], lida: { [mock.CURRENT_USER_ID]: lida, [c.withUserId]: mensagens.at(-1)?.created_at ?? null }, criada: mensagens[0]?.created_at ?? adiantar("2026-04-01T00:00:00Z", delta), mensagens };
+  });
 }
 
 export interface SeguirDemo {
@@ -224,7 +245,7 @@ export function semear(): BancoDemo {
 
   const senhas = Object.fromEntries(usuarios.map((u) => [u.id, SENHA_DEMO]));
 
-  return { usuarios, senhas, musicas, pastas, projetos, faixas, ...genteDeExemplo() };
+  return { usuarios, senhas, musicas, pastas, projetos, faixas, ...genteDeExemplo(), conversas: conversasDeExemplo() };
 }
 
 export type ConviteDemo = ApiInvite & {

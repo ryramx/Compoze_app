@@ -13,8 +13,10 @@ import {
 } from "fastify-type-provider-zod";
 
 import type { Config } from "./config";
+import { criarAoVivo, type AoVivo } from "./lib/aoVivo";
 import { criarCarteiro, remetenteResend, type Carteiro, type Remetente } from "./lib/correio";
 import { rotasDeAutenticacao } from "./modules/auth/rotas";
+import { rotasDeConversas } from "./modules/conversas/rotas";
 import { rotasDeConvites } from "./modules/convites/rotas";
 import { anexarColaboracao, criarColaboracao, type Colaboracao } from "./modules/colab/servidor";
 import { rotasDePastas } from "./modules/folders/rotas";
@@ -38,6 +40,10 @@ declare module "fastify" {
     colab: Colaboracao;
     /** E-mail que sai do Compoze (convites por link). */
     carteiro: Carteiro;
+    /** Quem está com o app aberto, para entregar mensagens na hora (ADR 0014). */
+    aoVivo: AoVivo;
+    /** Fluxos `/events` abertos, encerrados antes de o servidor fechar. */
+    aoVivoFechar: Set<() => void>;
   }
 }
 
@@ -69,6 +75,12 @@ export async function construirApp({ config, banco, logger, remetente }: Depende
   const quemEntrega =
     remetente !== undefined ? remetente : config.RESEND_API_KEY ? remetenteResend(config.RESEND_API_KEY, config.EMAIL_FROM) : null;
   app.decorate("carteiro", criarCarteiro(quemEntrega, app.log));
+  app.decorate("aoVivo", criarAoVivo());
+  app.decorate("aoVivoFechar", new Set<() => void>());
+  // Fluxos ao vivo nunca terminam sozinhos; sem isto o close esperaria para sempre.
+  app.addHook("preClose", async () => {
+    for (const fechar of [...app.aoVivoFechar]) fechar();
+  });
 
   registrarErros(app);
 
@@ -117,6 +129,7 @@ export async function construirApp({ config, banco, logger, remetente }: Depende
   await app.register(rotasDeVersoes);
   await app.register(rotasDeMemos);
   await app.register(rotasDeGente);
+  await app.register(rotasDeConversas);
   await app.register(rotasDeConvites);
   await app.register(rotasDePastas);
   await app.register(rotasDeProjetos);

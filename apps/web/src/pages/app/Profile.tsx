@@ -73,7 +73,7 @@ export default function Profile() {
           ) : (
             <>
               <BotaoDeSeguir pessoaId={pessoa.id} username={pessoa.username} sigo={perfil.data?.followed_by_me ?? false} />
-              <Link to="/messages">
+              <Link to={`/messages?com=${pessoa.id}`}>
                 <Botao variante="texto">Conversar</Botao>
               </Link>
             </>

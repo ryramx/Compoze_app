@@ -8,3 +8,4 @@ export * from "./idempotencia";
 export * from "./convites";
 export * from "./memos";
 export * from "./gente";
+export * from "./conversas";

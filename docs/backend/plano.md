@@ -160,7 +160,8 @@ id definitivo (ADR 0005). Toda tabela que sincroniza tem ainda `version int`
 lógica (`deleted_at`), para que o delta consiga informar o que foi apagado.
 
 Fase 4 acrescenta `follows`, `posts`, `post_likes`, `post_comments` (4a, feitas),
-`conversations`, `conversation_members`, `messages`, `notifications`.
+`conversations`, `conversation_members`, `messages` (4b, feitas) e, mais
+tarde, `notifications`.
 
 **Onde cada regra vive**
 
@@ -249,3 +250,6 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
     tokens no Keystore e SQLite nativo (só com a loja).
 12. ~~Fase 4a: seguir pessoas e mural, com curtidas e comentários
     (ADR 0013).~~ Feito.
+13. ~~Fase 4b: conversas a dois com entrega ao vivo por SSE (ADR 0014).~~
+    Feito. O que falta da Fase 4: uploads (avatar, capa, áudio no S3/R2) e
+    financiamento (PIX), os dois com conta externa e decisão do Ryan.

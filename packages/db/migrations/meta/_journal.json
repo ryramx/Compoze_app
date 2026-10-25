@@ -78,6 +78,13 @@
       "when": 1792956290928,
       "tag": "0010_gente",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792956866743,
+      "tag": "0011_conversas",
+      "breakpoints": true
     }
   ]
 }

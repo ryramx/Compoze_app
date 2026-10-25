@@ -34,7 +34,7 @@ quê e com qual percentual.
 | Mapa de quem compõe (RN11) | Pronto no front, rota nova no contrato | `/map` |
 | Busca global (⌘K) | Pronto | qualquer tela |
 | Mural e seguidores | Pronto (Fase 4a, ADR 0013): seguir, publicar, citar canção, curtir, comentar | `/feed`, `/profile` |
-| Conversas | Prévia com dados de exemplo (Fase 4b) | `/messages` |
+| Conversas | Pronto (Fase 4b, ADR 0014): conversa a dois, mensagens ao vivo, não lidas no menu | `/messages` |
 | Edição simultânea em tempo real | Planejado (Fase 2 do backend) | — |
 | App instalável e uso offline | Planejado: PWA na Fase 2, lojas na Fase 3 (ADR 0005) | — |
 

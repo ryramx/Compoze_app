@@ -186,6 +186,21 @@ O id é gerado no aparelho (UUID v7), como o das canções.
 `Post = { id, author: UserPublic, content, song: { id, title, status } | null, like_count, comment_count, liked_by_me, created_at }`. `song` some se a canção virar privada ou for para a lixeira.
 `Comment = { id, post_id, author: UserPublic, content, created_at }`.
 
+## Conversas (ADR 0014)
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/conversations` | `Conversation[]`, da última mensagem mais nova à mais antiga |
+| POST | `/conversations` | `{ user_id }` → `201 Conversation`; se já existe a da dupla, `200` com ela. Consigo mesma → `422` |
+| GET | `/conversations/{id}` | `Conversation` · quem não é membro → `404` |
+| GET | `/conversations/{id}/messages?before=&limit=` | `{ items: Message[], next_cursor }`, da mais nova à mais antiga; `limit` até 100 (padrão 50) |
+| POST | `/conversations/{id}/messages` | `{ id?, content }` (até 4000) → `201 Message`; mesmo `id` de novo → `200` |
+| POST | `/conversations/{id}/read` | `204`. Marca tudo até agora como lido |
+| GET | `/events` | `text/event-stream`. Eventos `message` (`{ type, message }`) e `read` (`{ type, conversation_id, user_id, at }`), para todos os aparelhos de quem está na conversa. Comentário `: pulso` a cada 25 s |
+
+`Conversation = { id, other: UserPublic, last_message: Message | null, unread_count, created_at }`
+`Message = { id, conversation_id, author_id, content, created_at }`
+
 ## Pastas
 
 | Método | Rota | Corpo / regra |
@@ -234,5 +249,5 @@ Valores monetários em reais, inteiros (centavos não são usados na v1).
 5. Sincronização offline (ADR 0005): `POST` de criação aceita `id` do cliente
    (UUID v7); todas as escritas aceitam `Idempotency-Key`; registros ganham
    `version`; novas rotas `GET /sync/changes?since=` e `POST /sync/push` — Fase 2.
-6. Rotas sociais: seguidores e mural feitos na Fase 4a (acima); conversas e
-   notificações na Fase 4b em diante.
+6. Rotas sociais: seguidores e mural (Fase 4a) e conversas (Fase 4b) feitos;
+   notificações fora do app dependem de push.

@@ -116,6 +116,7 @@ export default function App() {
                 <Route path="/projects/:id" element={<ProjectDetail />} />
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/messages" element={<Messages />} />
+                <Route path="/messages/:id" element={<Messages />} />
                 <Route path="/map" element={<MapPage />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/profile/:username" element={<Profile />} />

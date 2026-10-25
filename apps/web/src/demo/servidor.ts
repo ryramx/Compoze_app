@@ -17,7 +17,8 @@
  */
 
 import { textoDaVersao } from "@compoze/contracts/canonico";
-import { genteDeExemplo, semear, type BancoDemo, type ConviteDemo, type PostDemo } from "@/demo/semente";
+import { conversasDeExemplo, genteDeExemplo, semear, type BancoDemo, type ConversaDemo, type ConviteDemo, type PostDemo } from "@/demo/semente";
+import { emitir } from "@/lib/aoVivo";
 import { apagarDocumentosLocais } from "@/lib/colaboracao";
 import type {
   ApiBlock,
@@ -216,6 +217,76 @@ const rotasPublicas: Rota[] = [
 ];
 
 const rotasPrivadas: Rota[] = [
+  // ----------------------------------------------------------- conversas
+  // ADR 0014. "Ao vivo" aqui é o próprio navegador: `emitir` entrega o evento.
+  ({ metodo, partes, query, corpo, userId }) => {
+    if (partes[0] !== "conversations") return null;
+    const db = carregar();
+    db.conversas ??= conversasDeExemplo();
+    const eu = userId!;
+    const pessoa = (id: string) => db.usuarios.find((u) => u.id === id);
+    const msg = (c: ConversaDemo, m: ConversaDemo["mensagens"][number]) => ({ ...m, conversation_id: c.id });
+    const conversa = (c: ConversaDemo) => {
+      const outra = c.membros.find((id) => id !== eu)!;
+      const ultima = c.mensagens.at(-1);
+      const lida = c.lida[eu];
+      return {
+        id: c.id,
+        other: publico(pessoa(outra)!),
+        last_message: ultima ? msg(c, ultima) : null,
+        unread_count: c.mensagens.filter((m) => m.author_id !== eu && (!lida || m.created_at > lida)).length,
+        created_at: c.criada,
+      };
+    };
+    const minhas = db.conversas.filter((c) => c.membros.includes(eu));
+
+    if (partes.length === 1 && metodo === "GET") {
+      return json(
+        minhas
+          .map(conversa)
+          .sort((a, b) => (b.last_message?.created_at ?? b.created_at).localeCompare(a.last_message?.created_at ?? a.created_at)),
+      );
+    }
+    if (partes.length === 1 && metodo === "POST") {
+      const outra = String(corpo.user_id ?? "");
+      if (outra === eu) return erro(422, "Você não pode conversar consigo mesma.");
+      if (!pessoa(outra)) return erro(404, "Pessoa não encontrada.");
+      const existente = minhas.find((c) => c.membros.includes(outra));
+      if (existente) return json(conversa(existente));
+      const nova: ConversaDemo = { id: novoId("c"), membros: [eu, outra], lida: {}, criada: agora(), mensagens: [] };
+      db.conversas.push(nova);
+      return json(conversa(nova), 201);
+    }
+    const c = minhas.find((x) => x.id === partes[1]);
+    if (!c) return erro(404, "Conversa não encontrada.");
+    if (partes.length === 2 && metodo === "GET") return json(conversa(c));
+    if (partes[2] === "messages" && metodo === "GET") {
+      const lista = [...c.mensagens].reverse();
+      const antes = query.get("before");
+      const inicio = antes ? lista.findIndex((m) => m.id === antes) + 1 : 0;
+      const limite = Number(query.get("limit") ?? 50);
+      const pagina = lista.slice(inicio, inicio + limite);
+      return json({ items: pagina.map((m) => msg(c, m)), next_cursor: inicio + limite < lista.length ? pagina.at(-1)!.id : null });
+    }
+    if (partes[2] === "messages" && metodo === "POST") {
+      const texto = String(corpo.content ?? "").trim();
+      if (!texto) return erro(422, "Escreva alguma coisa.");
+      const id = (corpo.id as string | undefined) ?? novoId("m");
+      const existente = c.mensagens.find((m) => m.id === id);
+      if (existente) return json(msg(c, existente));
+      const m = { id, author_id: eu, content: texto, created_at: agora() };
+      c.mensagens.push(m);
+      c.lida[eu] = m.created_at;
+      setTimeout(() => emitir({ type: "message", message: msg(c, m) }), 0);
+      return json(msg(c, m), 201);
+    }
+    if (partes[2] === "read" && metodo === "POST") {
+      c.lida[eu] = agora();
+      return json(null, 204);
+    }
+    return null;
+  },
+
   // --------------------------------------------------------------- gente
   // Seguir e mural (ADR 0013), com as mesmas regras da API.
   ({ metodo, partes, query, corpo, userId }) => {

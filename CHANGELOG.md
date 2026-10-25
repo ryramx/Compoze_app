@@ -9,6 +9,14 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Fase 4b, conversas (ADR 0014): a tela de Conversas deixa de ser prévia.
+  - "Conversar" no perfil abre (ou cria) a conversa com a pessoa.
+  - A mensagem chega na hora, nos dois lados e em todos os aparelhos. Fora
+    da conversa, aparece um aviso com "Abrir"; o menu mostra quantas não
+    foram lidas.
+  - API: `/conversations`, `/conversations/{id}/messages`, `.../read` e o
+    fluxo ao vivo `GET /events` (Server-Sent Events); tabelas
+    `conversations`, `conversation_members`, `messages` (migração 0011).
 - Fase 4a, gente (ADR 0013): o Mural deixa de ser prévia.
   - Seguir e deixar de seguir pelo perfil; o perfil mostra seguidores, quem a
     pessoa segue e se ela segue você.
