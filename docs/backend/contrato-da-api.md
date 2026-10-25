@@ -168,6 +168,24 @@ imutáveis: o banco recusa UPDATE.
 `VoiceMemo = { id, song_id, author_id, title, duration_ms, mime_type, size_bytes, created_at }`.
 O id é gerado no aparelho (UUID v7), como o das canções.
 
+## Gente (ADR 0013)
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/profiles/{username}` | `Profile` = `UserPublic & { followers_count, following_count, followed_by_me, follows_me }` |
+| PUT / DELETE | `/users/{id}/follow` | `204`. Seguir de novo não faz nada. Seguir a si mesma → `422`; pessoa inexistente → `404` |
+| GET | `/users/{id}/followers`, `/users/{id}/following` | `UserPublic[]`, mais recentes primeiro |
+| GET | `/suggestions/people` | `UserPublic[]`: quem escreve comigo e eu não sigo |
+| GET | `/feed?author_id=&before=&limit=` | `{ items: Post[], next_cursor }`. Sem `author_id`: eu e quem eu sigo. `before` é o `next_cursor` da página anterior; `limit` até 50 (padrão 20) |
+| POST | `/posts` | `{ id?, content, song_id? }` → `201 Post`; mesmo `id` de novo → `200`. Citar canção: só coautora, e canção não privada (`422`) |
+| GET / DELETE | `/posts/{id}` | `Post` · apagar só quem publicou (`403`) |
+| PUT / DELETE | `/posts/{id}/like` | → `Post` atualizado |
+| GET / POST | `/posts/{id}/comments` | `Comment[]` em ordem · `{ id?, content }` → `201 Comment` |
+| DELETE | `/posts/{id}/comments/{comment_id}` | `204`. Quem comentou ou quem publicou |
+
+`Post = { id, author: UserPublic, content, song: { id, title, status } | null, like_count, comment_count, liked_by_me, created_at }`. `song` some se a canção virar privada ou for para a lixeira.
+`Comment = { id, post_id, author: UserPublic, content, created_at }`.
+
 ## Pastas
 
 | Método | Rota | Corpo / regra |
@@ -216,4 +234,5 @@ Valores monetários em reais, inteiros (centavos não são usados na v1).
 5. Sincronização offline (ADR 0005): `POST` de criação aceita `id` do cliente
    (UUID v7); todas as escritas aceitam `Idempotency-Key`; registros ganham
    `version`; novas rotas `GET /sync/changes?since=` e `POST /sync/push` — Fase 2.
-6. Rotas sociais (mural, seguidores, conversas, notificações) — Fase 4.
+6. Rotas sociais: seguidores e mural feitos na Fase 4a (acima); conversas e
+   notificações na Fase 4b em diante.

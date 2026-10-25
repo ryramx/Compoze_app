@@ -9,6 +9,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Fase 4a, gente (ADR 0013): o Mural deixa de ser prévia.
+  - Seguir e deixar de seguir pelo perfil; o perfil mostra seguidores, quem a
+    pessoa segue e se ela segue você.
+  - Publicar no mural, citando uma canção que não seja privada. Curtir,
+    comentar, apagar a própria publicação.
+  - O mural mostra você e quem você segue, em páginas; o perfil mostra o mural
+    da pessoa. Sugestões de quem seguir: quem escreve com você.
+  - A Mesa mostra as três publicações mais novas em "Na roda".
+  - API: `/profiles`, `/users/{id}/follow`, `/feed`, `/posts`; tabelas
+    `follows`, `posts`, `post_likes`, `post_comments` (migração 0010).
 - Fase 3c, memos de voz (ADR 0012): botão "Memos" no editor. Grava a
   melodia ou o riff (até 10 minutos), dá nome, toca, apaga. Funciona sem
   internet: o áudio fica no aparelho e sobe quando a rede volta. Os coautores

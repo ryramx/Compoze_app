@@ -32,6 +32,56 @@ export interface BancoDemo {
   convites?: ConviteDemo[];
   /** Memos de voz (ADR 0012): só os dados; o áudio fica no IndexedDB. */
   memos?: ApiVoiceMemo[];
+  /** Gente (ADR 0013). Opcionais: dados salvos antes delas ganham os de exemplo. */
+  seguindo?: SeguirDemo[];
+  posts?: PostDemo[];
+  comentarios?: ComentarioDemo[];
+}
+
+export interface SeguirDemo {
+  follower_id: string;
+  followed_id: string;
+  created_at: string;
+}
+export interface PostDemo {
+  id: string;
+  author_id: string;
+  content: string;
+  song_id: string | null;
+  created_at: string;
+  curtidas: string[];
+}
+export interface ComentarioDemo {
+  id: string;
+  post_id: string;
+  author_id: string;
+  content: string;
+  created_at: string;
+}
+
+/** Quem segue quem, publicações e comentários de exemplo (Fase 4a). */
+export function genteDeExemplo(): Required<Pick<BancoDemo, "seguindo" | "posts" | "comentarios">> {
+  const delta = deslocamento();
+  const quando = (iso: string) => adiantar(iso, delta);
+  const outros = mock.users.map((u) => u.id).filter((id) => id !== mock.CURRENT_USER_ID);
+  const seguindo: SeguirDemo[] = [
+    ...mock.follows.map((f) => ({ follower_id: f.followerId, followed_id: f.followingId, created_at: quando("2026-03-01T12:00:00Z") })),
+    // Quem segue a Lara, para o perfil dela não nascer vazio.
+    ...outros.slice(0, 3).map((id) => ({ follower_id: id, followed_id: mock.CURRENT_USER_ID, created_at: quando("2026-03-02T12:00:00Z") })),
+  ];
+  const posts: PostDemo[] = mock.feed.map((f, i) => ({
+    id: `post_${f.id}`,
+    author_id: f.userId,
+    content: f.content ?? "",
+    song_id: f.songId ?? null,
+    created_at: quando(f.timestamp),
+    curtidas: [...mock.users.map((u) => u.id)].filter((id) => id !== f.userId).slice(0, (i % 3) + 1),
+  }));
+  const comentarios: ComentarioDemo[] = [
+    { id: "com_1", post_id: "post_fi1", author_id: "u2", content: "Que ponte bonita nessa.", created_at: quando("2026-04-20T11:00:00Z") },
+    { id: "com_2", post_id: "post_fi3", author_id: "u5", content: "Topo! Me chama.", created_at: quando("2026-04-19T14:00:00Z") },
+  ];
+  return { seguindo, posts, comentarios };
 }
 
 export const SENHA_DEMO = "compoze";
@@ -174,7 +224,7 @@ export function semear(): BancoDemo {
 
   const senhas = Object.fromEntries(usuarios.map((u) => [u.id, SENHA_DEMO]));
 
-  return { usuarios, senhas, musicas, pastas, projetos, faixas };
+  return { usuarios, senhas, musicas, pastas, projetos, faixas, ...genteDeExemplo() };
 }
 
 export type ConviteDemo = ApiInvite & {

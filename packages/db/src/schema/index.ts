@@ -7,3 +7,4 @@ export * from "./sessoes";
 export * from "./idempotencia";
 export * from "./convites";
 export * from "./memos";
+export * from "./gente";

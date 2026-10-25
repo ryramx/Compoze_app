@@ -1,15 +1,9 @@
 import { create } from "zustand";
 
-import {
-  conversations as initialConversations,
-  feed as initialFeed,
-  follows as initialFollows,
-} from "@/data/mockData";
+import { conversations as initialConversations } from "@/data/mockData";
 import type {
   Conversation,
-  FeedItem,
   Folder,
-  Follow,
   Project,
   ProjectStyle,
   ProjectType,
@@ -30,10 +24,8 @@ import * as folderApi from "@/services/api/folderService";
 import * as projectApi from "@/services/api/projectService";
 import * as songApi from "@/services/api/songService";
 import * as userApi from "@/services/api/userService";
-import * as feedService from "@/services/mock/feedService";
 import * as messageService from "@/services/mock/messageService";
 import * as songService from "@/services/mock/songService";
-import * as userService from "@/services/mock/userService";
 
 /**
  * Estado da aplicação.
@@ -43,10 +35,10 @@ import * as userService from "@/services/mock/userService";
  * hora, a fila leva ao servidor quando houver rede. O caderno inteiro fica
  * copiado no aparelho (`lib/copiaLocal.ts`) e abre sem rede.
  *
- * Feed, mensagens e
- * seguidores continuam vindo de `mockData`: são Fase 2 e 3 do PRD e ainda não
- * existem no backend. A separação está explícita nos imports acima — `*Api`
- * versus `*Service` — para que ninguém precise adivinhar o que é real.
+ * Mural e seguidores (Fase 4a) não moram aqui: as telas leem da API com
+ * `useQuery` (`services/api/genteService.ts`), porque exigem rede e não têm
+ * cópia offline. Conversas ainda vêm de `mockData` (Fase 4b). A separação está
+ * explícita nos imports acima — `*Api` versus `*Service`.
  *
  * ## Por que um store, e não `useQuery` em cada tela
  *
@@ -64,11 +56,8 @@ interface CompozeState {
   folders: Folder[];
   projects: Project[];
 
-  // Ainda sem backend (PRD Fases 2 e 3).
+  // Ainda sem backend (Fase 4b).
   conversations: Conversation[];
-  feed: FeedItem[];
-  follows: Follow[];
-  followingIds: string[];
 
   hidratado: boolean;
   carregando: boolean;
@@ -146,9 +135,7 @@ interface CompozeState {
   purgeExpiredTrash: () => void;
 
   updateCurrentUser: (patch: Partial<Pick<User, "name" | "bio" | "instagram" | "location">>) => void;
-  toggleFollow: (userId: string) => void;
   sendMessage: (toUserId: string, content: string) => void;
-  postFeed: (content: string) => void;
 }
 
 /**
@@ -209,9 +196,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     ...c,
     messages: c.messages.map((m) => ({ ...m, timestamp: adiantar(m.timestamp) })),
   })),
-  feed: initialFeed.map((f) => ({ ...f, timestamp: adiantar(f.timestamp) })),
-  follows: initialFollows,
-  followingIds: [],
 
   hidratado: false,
   carregando: false,
@@ -233,7 +217,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         folders: copia.folders,
         projects: copia.projects,
         users: copia.users,
-        followingIds: userService.getFollowingIds(initialFollows, currentUserId),
         hidratado: true,
       });
     }
@@ -261,8 +244,7 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         ids.add(s.creatorId);
         for (const c of s.collaborators) ids.add(c.userId);
       }
-      // Quem aparece no feed e nas conversas (ainda de exemplo) também precisa de nome.
-      for (const f of get().feed) ids.add(f.userId);
+      // Quem aparece nas conversas (ainda de exemplo) também precisa de nome.
       for (const c of get().conversations) ids.add(c.withUserId);
 
       set({
@@ -270,7 +252,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         folders,
         projects,
         users: await userApi.getMany([...ids]),
-        followingIds: userService.getFollowingIds(initialFollows, currentUserId),
         hidratado: true,
         carregando: false,
         semRede: false,
@@ -649,12 +630,7 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     );
   },
 
-  // ------------------------------------------- ainda sem backend (Fases 2 e 3)
-
-  toggleFollow: (userId) => {
-    const follows = userService.toggleFollow(get().follows, get().currentUserId, userId);
-    set({ follows, followingIds: userService.getFollowingIds(follows, get().currentUserId) });
-  },
+  // ------------------------------------------------ ainda sem backend (Fase 4b)
 
   sendMessage: (toUserId, content) =>
     set({
@@ -666,7 +642,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
       ),
     }),
 
-  postFeed: (content) => set({ feed: feedService.post(get().feed, get().currentUserId, content) }),
 }));
 
 // Reexportado para as telas que já o usavam a partir daqui.

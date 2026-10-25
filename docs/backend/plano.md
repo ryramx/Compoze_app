@@ -159,7 +159,7 @@ id definitivo (ADR 0005). Toda tabela que sincroniza tem ainda `version int`
 (incrementada a cada escrita), `updated_at` definido pelo servidor e exclusão
 lógica (`deleted_at`), para que o delta consiga informar o que foi apagado.
 
-Fase 4 acrescenta `follows`, `posts`, `post_likes`, `comments`,
+Fase 4 acrescenta `follows`, `posts`, `post_likes`, `post_comments` (4a, feitas),
 `conversations`, `conversation_members`, `messages`, `notifications`.
 
 **Onde cada regra vive**
@@ -247,3 +247,5 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
     O que resta da Fase 3 depende de conta paga ou de serviço externo: lojas
     (Play US$ 25, Apple US$ 99/ano), notificações push (projeto no Firebase),
     tokens no Keystore e SQLite nativo (só com a loja).
+12. ~~Fase 4a: seguir pessoas e mural, com curtidas e comentários
+    (ADR 0013).~~ Feito.

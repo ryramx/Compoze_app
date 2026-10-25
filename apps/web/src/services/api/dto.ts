@@ -13,7 +13,11 @@
  * conhece as duas formas.
  */
 import type {
+  Comentario,
   MemoDeVoz,
+  PaginaDoMural,
+  PerfilPublico,
+  Publicacao,
   AtualizarBloco,
   AtualizarCancao,
   AtualizarEu,
@@ -78,6 +82,10 @@ export type ApiProjectDetail = DetalheDoProjeto;
 export type ApiVersionSummary = ResumoDaVersao;
 export type ApiVersion = Versao;
 export type ApiVoiceMemo = MemoDeVoz;
+export type ApiProfile = PerfilPublico;
+export type ApiPost = Publicacao;
+export type ApiFeedPage = PaginaDoMural;
+export type ApiComment = Comentario;
 export type ApiSnapshot = RetratoDaCancao;
 export type ApiInvite = Convite;
 export type ApiInviteCreated = ConviteCriado;

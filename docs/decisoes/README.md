@@ -18,3 +18,4 @@ duas apontam uma para a outra.
 | [0010](0010-convites.md) | Convites pela conta, por link e (com domínio) por e-mail | Aceita |
 | [0011](0011-app-android-fora-da-loja.md) | App Android pelo Capacitor, distribuído fora da loja | Aceita |
 | [0012](0012-memos-de-voz.md) | Memos de voz guardados no Postgres, por enquanto | Aceita |
+| [0013](0013-seguir-e-mural.md) | Seguir pessoas e mural | Aceita |

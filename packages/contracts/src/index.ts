@@ -9,3 +9,4 @@ export * from "./versoes";
 export * from "./canonico";
 export * from "./convites";
 export * from "./memos";
+export * from "./gente";

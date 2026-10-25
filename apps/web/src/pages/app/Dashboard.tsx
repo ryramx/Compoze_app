@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { Capa } from "@/components/compoze/Capa";
@@ -9,7 +10,10 @@ import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { cn } from "@/lib/cn";
 import { hojePorExtenso, quando, saudacao } from "@/lib/datas";
+import { useOnline } from "@/lib/rede";
 import { ESTAGIOS, FASES_DE_PROJETO, TIPOS_DE_PROJETO } from "@/lib/rotulos";
+import { usuarioDaApi } from "@/services/api/adapters";
+import * as gente from "@/services/api/genteService";
 import { listActive } from "@/services/mock/songService";
 import { useCompoze } from "@/store/compozeStore";
 import type { Song } from "@/types";
@@ -48,7 +52,10 @@ export default function Dashboard() {
   const euId = useCompoze((s) => s.currentUserId);
   const musicas = listActive(useCompoze((s) => s.songs));
   const projetos = useCompoze((s) => s.projects);
-  const mural = useCompoze((s) => s.feed);
+  const online = useOnline();
+  // "Na roda": as três publicações mais novas do mural (ADR 0013).
+  const { data: roda } = useQuery({ queryKey: ["mural", "roda"], queryFn: () => gente.mural({ limite: 3 }), enabled: online });
+  const mural = roda?.items ?? [];
   const getUser = useCompoze((s) => s.getUser);
   const criarMusica = useCompoze((s) => s.createSong);
   const navegar = useNavigate();
@@ -233,21 +240,23 @@ export default function Dashboard() {
                 <span id="mural">Na roda</span>
               </TituloDeSecao>
               <ul className="space-y-5">
-                {mural.slice(0, 3).map((f) => {
-                  const u = getUser(f.userId);
-                  return (
-                    <li key={f.id} className="flex gap-3">
-                      <Monograma usuario={u} tamanho="sm" />
-                      <div className="min-w-0 flex-1 text-[14px]">
-                        <div>
-                          <span className="font-medium">{u?.name}</span>{" "}
-                          <span className="text-tinta-3">· {quando(f.timestamp)}</span>
-                        </div>
-                        <p className="line-clamp-2 text-tinta-2">{f.content}</p>
+                {mural.length === 0 && (
+                  <li className="font-serif text-[15px] text-tinta-3 italic">
+                    {online ? "Quieto por aqui. Siga quem escreve com você." : "O mural precisa de internet."}
+                  </li>
+                )}
+                {mural.map((f) => (
+                  <li key={f.id} className="flex gap-3">
+                    <Monograma usuario={getUser(f.author.id) ?? usuarioDaApi(f.author)} tamanho="sm" />
+                    <div className="min-w-0 flex-1 text-[14px]">
+                      <div>
+                        <span className="font-medium">{f.author.name}</span>{" "}
+                        <span className="text-tinta-3">· {quando(f.created_at)}</span>
                       </div>
-                    </li>
-                  );
-                })}
+                      <p className="line-clamp-2 text-tinta-2">{f.content}</p>
+                    </div>
+                  </li>
+                ))}
               </ul>
             </section>
           </div>

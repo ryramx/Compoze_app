@@ -71,6 +71,13 @@
       "when": 1792955800405,
       "tag": "0009_memos",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792956290928,
+      "tag": "0010_gente",
+      "breakpoints": true
     }
   ]
 }

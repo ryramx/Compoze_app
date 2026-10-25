@@ -1,7 +1,7 @@
 /**
- * Aviso de que a tela usa dados de exemplo. Mural, conversas e seguidores são
- * Fases 2 e 3 do produto e ainda não têm backend; a tela existe para validar o
- * desenho, e dizer isso evita que alguém ache que a mensagem foi enviada.
+ * Aviso de que a tela usa dados de exemplo. Conversas são a Fase 4b e ainda
+ * não têm backend; a tela existe para validar o desenho, e dizer isso evita
+ * que alguém ache que a mensagem foi enviada.
  */
 export function AvisoDePrevia() {
   return (

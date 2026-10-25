@@ -194,3 +194,19 @@ em `apps/api/test/colaboracao.test.ts`.
 O formato de gravação é o primeiro que o aparelho aceita entre Opus (WebM,
 Ogg) e AAC (`audio/mp4`, o do Safari). Na demonstração, o áudio fica no
 IndexedDB e os dados no banco da demo.
+
+## Gente: seguir e mural (Fase 4a, ADR 0013)
+
+Mural e seguidores não passam pelo store do caderno: exigem rede e não têm
+cópia no aparelho. As telas leem da API com React Query.
+
+| Peça | O que faz |
+| --- | --- |
+| `services/api/genteService.ts` | Perfil, seguir, mural, publicações, curtidas, comentários |
+| `pages/app/Feed.tsx` | Mural (`useInfiniteQuery`, chave `["mural","meu"]`), caixa de publicar com canção citada, sugestões |
+| `pages/app/Profile.tsx` | Seguidores e "segue você" de `/profiles/{username}`; mural da pessoa (`["mural","autora",id]`) |
+| `components/gente/Publicacao.tsx` | Uma publicação: curtir (muda na hora e volta se falhar), comentários, apagar |
+| `components/gente/BotaoDeSeguir.tsx` | Seguir/Seguindo, atualiza o perfil em cache e relê o mural |
+| `components/gente/cache.ts` | `trocarNoMural`: muda uma publicação em todas as páginas de mural em cache |
+
+A Mesa mostra as três mais novas (`["mural","roda"]`).

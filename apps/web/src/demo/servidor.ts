@@ -17,7 +17,7 @@
  */
 
 import { textoDaVersao } from "@compoze/contracts/canonico";
-import { semear, type BancoDemo, type ConviteDemo } from "@/demo/semente";
+import { genteDeExemplo, semear, type BancoDemo, type ConviteDemo, type PostDemo } from "@/demo/semente";
 import { apagarDocumentosLocais } from "@/lib/colaboracao";
 import type {
   ApiBlock,
@@ -216,6 +216,144 @@ const rotasPublicas: Rota[] = [
 ];
 
 const rotasPrivadas: Rota[] = [
+  // --------------------------------------------------------------- gente
+  // Seguir e mural (ADR 0013), com as mesmas regras da API.
+  ({ metodo, partes, query, corpo, userId }) => {
+    const social =
+      partes[0] === "profiles" ||
+      partes[0] === "feed" ||
+      partes[0] === "posts" ||
+      (partes[0] === "suggestions" && partes[1] === "people") ||
+      (partes[0] === "users" && ["follow", "followers", "following"].includes(partes[2] ?? ""));
+    if (!social) return null;
+    const db = carregar();
+    if (!db.posts) Object.assign(db, genteDeExemplo());
+    const seguindo = db.seguindo!;
+    const posts = db.posts!;
+    const comentarios = db.comentarios!;
+    const eu = userId!;
+    const pessoa = (id: string) => db.usuarios.find((u) => u.id === id);
+    const publicacao = (p: PostDemo) => {
+      const s = p.song_id ? db.musicas.find((m) => m.id === p.song_id) : undefined;
+      return {
+        id: p.id,
+        author: publico(pessoa(p.author_id)!),
+        content: p.content,
+        song: s && s.visibility !== "PRIVATE" && !s.deleted_at ? { id: s.id, title: s.title, status: s.status } : null,
+        like_count: p.curtidas.length,
+        comment_count: comentarios.filter((c) => c.post_id === p.id).length,
+        liked_by_me: p.curtidas.includes(eu),
+        created_at: p.created_at,
+      };
+    };
+
+    if (partes[0] === "profiles" && metodo === "GET") {
+      const u = db.usuarios.find((x) => x.username === partes[1]);
+      if (!u) return erro(404, "Pessoa não encontrada.");
+      return json({
+        ...publico(u),
+        followers_count: seguindo.filter((f) => f.followed_id === u.id).length,
+        following_count: seguindo.filter((f) => f.follower_id === u.id).length,
+        followed_by_me: seguindo.some((f) => f.follower_id === eu && f.followed_id === u.id),
+        follows_me: seguindo.some((f) => f.follower_id === u.id && f.followed_id === eu),
+      });
+    }
+    if (partes[0] === "users") {
+      const alvo = partes[1]!;
+      if (!pessoa(alvo)) return erro(404, "Pessoa não encontrada.");
+      if (partes[2] === "follow") {
+        if (alvo === eu) return erro(422, "Você não pode seguir a si mesma.");
+        const i = seguindo.findIndex((f) => f.follower_id === eu && f.followed_id === alvo);
+        if (metodo === "PUT" && i < 0) seguindo.push({ follower_id: eu, followed_id: alvo, created_at: agora() });
+        if (metodo === "DELETE" && i >= 0) seguindo.splice(i, 1);
+        return json(null, 204);
+      }
+      const ids =
+        partes[2] === "followers"
+          ? seguindo.filter((f) => f.followed_id === alvo).map((f) => f.follower_id)
+          : seguindo.filter((f) => f.follower_id === alvo).map((f) => f.followed_id);
+      return json(ids.map((id) => publico(pessoa(id)!)));
+    }
+    if (partes[0] === "suggestions") {
+      const parceiras = new Set(
+        db.musicas.filter((m) => podeVer(m, eu)).flatMap((m) => [m.owner_id, ...m.collaborators.map((c) => c.user_id)]),
+      );
+      return json(
+        [...parceiras]
+          .filter((id) => id !== eu && !seguindo.some((f) => f.follower_id === eu && f.followed_id === id))
+          .map((id) => publico(pessoa(id)!)),
+      );
+    }
+    if (partes[0] === "feed") {
+      const autora = query.get("author_id");
+      const sigo = new Set([eu, ...seguindo.filter((f) => f.follower_id === eu).map((f) => f.followed_id)]);
+      const lista = posts
+        .filter((p) => (autora ? p.author_id === autora : sigo.has(p.author_id)))
+        .sort((a, b) => b.created_at.localeCompare(a.created_at));
+      const antes = query.get("before");
+      const inicio = antes ? lista.findIndex((p) => p.id === antes) + 1 : 0;
+      const limite = Number(query.get("limit") ?? 20);
+      const pagina = lista.slice(inicio, inicio + limite);
+      const temMais = inicio + limite < lista.length;
+      return json({ items: pagina.map(publicacao), next_cursor: temMais ? pagina.at(-1)!.id : null });
+    }
+
+    // /posts
+    if (partes.length === 1 && metodo === "POST") {
+      const texto = String(corpo.content ?? "").trim();
+      if (!texto) return erro(422, "Escreva alguma coisa.");
+      const id = (corpo.id as string | undefined) ?? novoId("post");
+      const existente = posts.find((p) => p.id === id);
+      if (existente) return existente.author_id === eu ? json(publicacao(existente)) : erro(409, "Já existe uma publicação com este id.");
+      const songId = (corpo.song_id as string | null | undefined) ?? null;
+      if (songId) {
+        const s = db.musicas.find((m) => m.id === songId);
+        if (!s || !podeVer(s, eu)) return erro(404, "Canção não encontrada.");
+        if (s.visibility === "PRIVATE") return erro(422, "Só dá para citar uma canção que não seja privada.");
+      }
+      const p: PostDemo = { id, author_id: eu, content: texto, song_id: songId, created_at: agora(), curtidas: [] };
+      posts.push(p);
+      return json(publicacao(p), 201);
+    }
+    const p = posts.find((x) => x.id === partes[1]);
+    if (!p) return metodo === "DELETE" ? json(null, 204) : erro(404, "Publicação não encontrada.");
+    if (partes.length === 2 && metodo === "GET") return json(publicacao(p));
+    if (partes.length === 2 && metodo === "DELETE") {
+      if (p.author_id !== eu) return erro(403, "Só quem publicou pode apagar.");
+      posts.splice(posts.indexOf(p), 1);
+      return json(null, 204);
+    }
+    if (partes[2] === "like") {
+      p.curtidas = p.curtidas.filter((id) => id !== eu);
+      if (metodo === "PUT") p.curtidas.push(eu);
+      return json(publicacao(p));
+    }
+    if (partes[2] === "comments") {
+      if (metodo === "GET") {
+        return json(
+          comentarios
+            .filter((c) => c.post_id === p.id)
+            .sort((a, b) => a.created_at.localeCompare(b.created_at))
+            .map((c) => ({ id: c.id, post_id: c.post_id, author: publico(pessoa(c.author_id)!), content: c.content, created_at: c.created_at })),
+        );
+      }
+      if (metodo === "POST") {
+        const texto = String(corpo.content ?? "").trim();
+        if (!texto) return erro(422, "Escreva alguma coisa.");
+        const c = { id: (corpo.id as string | undefined) ?? novoId("com"), post_id: p.id, author_id: eu, content: texto, created_at: agora() };
+        comentarios.push(c);
+        return json({ ...c, author: publico(pessoa(eu)!) }, 201);
+      }
+      if (metodo === "DELETE") {
+        const c = comentarios.find((x) => x.id === partes[3] && x.post_id === p.id);
+        if (c && c.author_id !== eu && p.author_id !== eu) return erro(403, "Só quem comentou ou quem publicou pode apagar.");
+        if (c) comentarios.splice(comentarios.indexOf(c), 1);
+        return json(null, 204);
+      }
+    }
+    return null;
+  },
+
   // ------------------------------------------------------------ usuários
   ({ metodo, partes, query, corpo, userId }) => {
     if (partes[0] !== "users") return null;
