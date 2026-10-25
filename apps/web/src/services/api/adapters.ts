@@ -17,6 +17,7 @@
  */
 
 import type { BlocoDoDocumento } from "@compoze/documento";
+import { enderecoDaImagem } from "@/lib/imagens";
 import type {
   ApiBlock,
   ApiBlockType,
@@ -191,7 +192,7 @@ export function projetoDaApi(p: ApiProjectDetail): Project {
     type: TIPO_PROJETO_DA_API[p.type],
     style: p.style ? ESTILO_PROJETO_DA_API[p.style] : "banda",
     description: p.description ?? "",
-    cover: p.cover_url ?? "",
+    cover: enderecoDaImagem(p.cover_url),
     releaseDate: p.release_date ?? "",
     estimatedCost: p.estimated_cost ?? 0,
     fundingGoal: meta,
@@ -214,7 +215,7 @@ export function usuarioDaApi(u: ApiUserPublic | ApiUserMe): User {
     id: u.id,
     name: u.name,
     username: u.username,
-    avatar: u.avatar_url ?? "",
+    avatar: enderecoDaImagem(u.avatar_url),
     bio: u.bio ?? "",
     location: {
       city: u.city ?? "",

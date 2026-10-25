@@ -54,6 +54,20 @@ Conflito de e-mail ou usuário: `409`.
 
 O perfil público nunca inclui coordenadas nem e-mail.
 
+### Imagens (ADR 0015)
+
+| Método | Rota | Resposta |
+| --- | --- | --- |
+| PUT | `/users/me/avatar` | Corpo: a imagem crua (`Content-Type: image/jpeg|png|webp`, até 2 MB) → `UserMe` com `avatar_url = "/images/{id}"`; a foto anterior é apagada |
+| DELETE | `/users/me/avatar` | `UserMe` com `avatar_url = null` |
+| PUT | `/projects/{id}/cover` | Igual, para a capa (só a dona) → `ProjectDetail` |
+| DELETE | `/projects/{id}/cover` | `ProjectDetail` com `cover_url = null` |
+| GET | `/images/{id}` | Os bytes, **sem login**, `Cache-Control: immutable` · `404` |
+
+O tipo vem dos primeiros bytes, não do cabeçalho: o que não for JPEG, PNG ou
+WebP volta `415`; vazio, `422`; acima de 2 MB, `413`. `avatar_url` e
+`cover_url` que começam com `/images/` são relativos à API.
+
 ## Canções
 
 | Método | Rota | Resposta / regra |
@@ -233,7 +247,8 @@ Valores monetários em reais, inteiros (centavos não são usados na v1).
 ## Processos do servidor
 
 - **Expurgo da lixeira (RN08):** job diário apaga canções e projetos com
-  `deleted_at` há mais de 30 dias.
+  `deleted_at` há mais de 30 dias. O mesmo job apaga imagens que nenhum perfil
+  nem projeto aponta há mais de um dia (ADR 0015).
 - **E-mail (ADR 0010):** com `RESEND_API_KEY`, os convites por link com
   e-mail viram jobs do pg-boss (fila `enviar-email`, até 5 novas tentativas).
 

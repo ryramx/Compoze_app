@@ -102,3 +102,9 @@ export async function addSong(
 export async function removeSong(projectId: string, songId: string): Promise<void> {
   await api.delete(`/projects/${projectId}/songs/${songId}`);
 }
+
+/** Capa do projeto (ADR 0015): a imagem já reduzida, ou null para a capa tipográfica. */
+export async function trocarCapa(id: string, imagem: Blob | null): Promise<Project> {
+  const caminho = `/projects/${id}/cover`;
+  return projetoDaApi(imagem ? await api.subir<ApiProjectDetail>(caminho, imagem) : await api.delete<ApiProjectDetail>(caminho));
+}

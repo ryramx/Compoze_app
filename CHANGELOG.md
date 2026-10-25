@@ -9,6 +9,14 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Fase 4c, imagens (ADR 0015): foto de perfil (Ajustes → Perfil) e capa de
+  projeto (no detalhe do projeto), com "tirar" para voltar ao monograma e à
+  capa tipográfica.
+  - O aparelho reduz a imagem antes de subir (512 px no perfil, 1200 px na
+    capa); uma foto de 5 MB chega ao servidor com poucos KB.
+  - API: `PUT/DELETE /users/me/avatar`, `PUT/DELETE /projects/{id}/cover` e
+    `GET /images/{id}` sem login; tabela `images` (migração 0012). O tipo é
+    conferido pelos bytes. Imagens sem dono saem no expurgo diário.
 - Fase 4b, conversas (ADR 0014): a tela de Conversas deixa de ser prévia.
   - "Conversar" no perfil abre (ou cria) a conversa com a pessoa.
   - A mensagem chega na hora, nos dois lados e em todos os aparelhos. Fora
