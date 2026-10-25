@@ -1,5 +1,5 @@
 import { App } from "@capacitor/app";
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, registerPlugin, type PluginListenerHandle } from "@capacitor/core";
 
 /**
  * App Android (Fase 3, ADR 0011). O mesmo código roda no navegador e dentro
@@ -23,4 +23,26 @@ export function iniciarNativo(): void {
     if (canGoBack) window.history.back();
     else void App.minimizeApp();
   });
+}
+
+interface Recebido {
+  texto: string;
+  titulo?: string | null;
+}
+
+// Plugin do próprio app (android/.../CompartilharPlugin.java): entrega o texto
+// que outro app mandou pelo "Compartilhar" do Android.
+const Compartilhar = registerPlugin<{
+  addListener(evento: "recebido", f: (r: Recebido) => void): Promise<PluginListenerHandle>;
+}>("Compartilhar");
+
+/**
+ * Chama `aoReceber` a cada texto compartilhado com o app (Fase 3b), inclusive
+ * o que abriu o app: o plugin guarda o evento até alguém ouvir. Devolve a
+ * função que para de ouvir.
+ */
+export function ouvirCompartilhamento(aoReceber: (r: Recebido) => void): () => void {
+  if (!NATIVO) return () => undefined;
+  const ouvinte = Compartilhar.addListener("recebido", aoReceber);
+  return () => void ouvinte.then((o) => o.remove());
 }

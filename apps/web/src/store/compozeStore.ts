@@ -89,6 +89,8 @@ interface CompozeState {
     title: string;
     folderId?: string;
     projectId?: string;
+    /** Letra inicial, uma estrofe por bloco (texto compartilhado, Fase 3b). */
+    estrofes?: string[];
   }) => Promise<string>;
   createProject: (input: {
     name: string;
@@ -325,12 +327,12 @@ export const useCompoze = create<CompozeState>((set, get) => ({
   // Criar não espera o servidor: o id nasce no aparelho (UUID v7) e o pedido
   // vai para a fila. Funciona offline; o servidor aceita o id do cliente.
 
-  createSong: async ({ title, folderId, projectId }) => {
+  createSong: async ({ title, folderId, projectId, estrofes }) => {
     const id = uuidv7();
     const eu = get().currentUserId;
     // A folha pautada nasce no documento do aparelho, antes de o editor abrir.
     const { semearFolhaInicial } = await import("@/lib/folhaInicial");
-    await semearFolhaInicial(id, eu);
+    await semearFolhaInicial(id, eu, estrofes);
 
     const nova: Song = {
       id,

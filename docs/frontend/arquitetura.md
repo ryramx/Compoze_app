@@ -133,6 +133,12 @@ build; a configuração está em `vite.config.ts`.
 No app Android (Capacitor, ADR 0011) não há service worker: o app já está no
 APK. Ver [`docs/mobile/android.md`](../mobile/android.md).
 
+O manifesto tem `share_target` (Fase 3b): instalada no Android, a PWA aparece
+no menu "Compartilhar" e o texto chega em `/compartilhar?title=&text=&url=`
+(`pages/app/Compartilhar.tsx`, que cria a canção com `lib/compartilhar.ts`).
+Sem sessão, o `RequireAuth` guarda o caminho com a busca e devolve depois do
+login.
+
 Instalar: no Chrome e no Edge, o ícone de instalar na barra de endereço (no
 Android, "Adicionar à tela inicial"). No iPhone, Safari → Compartilhar →
 "Adicionar à Tela de Início". No iOS, só o app instalado fica livre da regra

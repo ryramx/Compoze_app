@@ -9,6 +9,12 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Fase 3b, app Android:
+  - "Compartilhar para o Compoze": texto de outro app (bloco de notas,
+    mensagem, link) vira uma canção nova no estágio "ideia", aberta no
+    editor. Funciona offline. Na PWA instalada, pelo `share_target`.
+  - O app avisa quando sai versão nova do APK e oferece baixar. Em Ajustes →
+    Aplicativo, a versão instalada e "Procurar atualização".
 - App Android (Fase 3, ADR 0011): o Compoze vira um APK, publicado nos
   Releases do GitHub, sem passar pela loja. Link fixo para a versão mais nova:
   `releases/latest/download/Compoze.apk`.

@@ -48,8 +48,9 @@ export function RequireAuth() {
   if (carregando) return <TelaDeEspera mensagem="Verificando sessão" />;
 
   if (!user) {
-    // Guarda o destino para voltar a ele depois do login.
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    // Guarda o destino para voltar a ele depois do login, com a busca: o
+    // texto compartilhado de outro app vem nela (/compartilhar?text=…).
+    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
   }
 
   if (erroDados) {

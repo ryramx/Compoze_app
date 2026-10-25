@@ -237,3 +237,7 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
 8. ~~Fase 2d: histórico de versões e registro com hash (ADR 0009); convites
    pela conta, por link e por e-mail (ADR 0010).~~ Feito. O e-mail fica
    desligado até haver um domínio verificado no Resend.
+9. ~~Fase 3a: app Android pelo Capacitor, APK nos Releases, sem loja
+   (ADR 0011).~~ Feito; v0.1.0 publicada em 2026-10-25.
+10. ~~Fase 3b: aviso de versão nova no app e "Compartilhar para o Compoze"
+    (Android e PWA).~~ Feito.
