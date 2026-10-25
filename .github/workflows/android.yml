@@ -89,6 +89,8 @@ jobs:
       - name: Chave de assinatura
         env:
           KEYSTORE_BASE64: ${{ secrets.COMPOZE_KEYSTORE_BASE64 }}
+          COMPOZE_KEYSTORE_PASSWORD: ${{ secrets.COMPOZE_KEYSTORE_PASSWORD }}
+          COMPOZE_KEY_ALIAS: ${{ secrets.COMPOZE_KEY_ALIAS }}
         run: |
           if [ -z "$KEYSTORE_BASE64" ]; then
             if [ "$PUBLICAR" = true ]; then
@@ -98,7 +100,25 @@ jobs:
             echo "::notice::Sem a chave: o APK do PR sai assinado com a chave de debug."
             exit 0
           fi
-          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/compoze.jks"
+          # Quebras de linha e espaços do copiar e colar não fazem parte do base64.
+          if ! printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --decode > "$RUNNER_TEMP/compoze.jks" 2>/dev/null; then
+            echo "::error::COMPOZE_KEYSTORE_BASE64 não é um texto base64 válido. Gere de novo e cole o texto inteiro."
+            exit 1
+          fi
+          # Confere a chave aqui, com uma mensagem clara, em vez de deixar o
+          # Gradle falhar minutos depois com um erro de baixo nível.
+          if ! saida=$(keytool -list -keystore "$RUNNER_TEMP/compoze.jks" -storepass:env COMPOZE_KEYSTORE_PASSWORD 2>&1); then
+            if grep -qiE "password|tampered" <<< "$saida"; then
+              echo "::error::A senha em COMPOZE_KEYSTORE_PASSWORD não abre a chave."
+            else
+              echo "::error::COMPOZE_KEYSTORE_BASE64 não é um arquivo .jks válido (texto incompleto ou de outro arquivo). Gere o base64 do compoze.jks de novo."
+            fi
+            exit 1
+          fi
+          if ! keytool -list -keystore "$RUNNER_TEMP/compoze.jks" -storepass:env COMPOZE_KEYSTORE_PASSWORD -alias "$COMPOZE_KEY_ALIAS" > /dev/null 2>&1; then
+            echo "::error::A chave não tem o alias de COMPOZE_KEY_ALIAS. O alias do passo a passo é: compoze"
+            exit 1
+          fi
           echo "COMPOZE_KEYSTORE_PATH=$RUNNER_TEMP/compoze.jks" >> "$GITHUB_ENV"
 
       - name: Gerar o APK

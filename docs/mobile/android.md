@@ -55,7 +55,14 @@ O secret do GitHub só aceita texto, então o arquivo vai em base64:
   [Convert]::ToBase64String([IO.File]::ReadAllBytes("compoze.jks")) | Set-Clipboard
   ```
 - macOS: `base64 -i compoze.jks | pbcopy`
-- Linux: `base64 -w0 compoze.jks`
+- Linux ou Codespace do GitHub: `base64 -w0 compoze.jks > /tmp/chave.txt && code /tmp/chave.txt`
+  abre o texto num editor; copie com Ctrl+A e Ctrl+C. Copiar direto do
+  terminal costuma levar junto pedaços do prompt.
+
+Sem Java no computador, dá para fazer os passos 1 e 2 num Codespace do
+`Compoze_app` (Code → Codespaces), dentro de `apps/web/android`, onde o git
+ignora arquivos `.jks`. Baixe o `compoze.jks` (botão direito → Download) e
+exclua o Codespace no fim.
 
 ### 3. Cadastrar os secrets
 
@@ -72,6 +79,15 @@ GitHub → `Compoze_app` → **Settings** → **Secrets and variables** →
 Pronto. A primeira execução publicada mostra no log, no passo "Conferir a
 assinatura", a impressão digital SHA-256 do certificado. Ela deve ser a mesma
 em todas as versões.
+
+### Se a publicação falhar no passo "Chave de assinatura"
+
+O workflow confere a chave antes de compilar e diz qual secret está errado:
+
+- "não é um texto base64 válido" ou "não é um arquivo .jks válido": refaça o
+  passo 2 e atualize `COMPOZE_KEYSTORE_BASE64` (Update no secret).
+- "A senha ... não abre a chave": confira `COMPOZE_KEYSTORE_PASSWORD`.
+- "não tem o alias": `COMPOZE_KEY_ALIAS` deve ser `compoze`.
 
 ## Instalar no celular
 
