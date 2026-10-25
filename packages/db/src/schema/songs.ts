@@ -2,7 +2,6 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   check,
-  customType,
   index,
   integer,
   jsonb,
@@ -17,14 +16,9 @@ import {
 
 import { blockType, collaboratorRole, songStatus, versionReason, visibility } from "./enums";
 import { folders } from "./folders";
-import { carimbos, idPrimario, quando, sincronizavel } from "./tipos";
+import { bytea, carimbos, idPrimario, quando, sincronizavel } from "./tipos";
 import { users } from "./users";
 
-const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
-  dataType: () => "bytea",
-  fromDriver: (b) => new Uint8Array(b),
-  toDriver: (u) => Buffer.from(u),
-});
 
 export const songs = pgTable(
   "songs",

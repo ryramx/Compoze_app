@@ -8,6 +8,8 @@ import "./index.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { conferirAtualizacao } from "./lib/atualizacao";
+import { iniciarMemos } from "./lib/memos";
 import { iniciarNativo } from "./lib/nativo";
 import { registrarServiceWorker } from "./lib/pwa";
 import { iniciarTema } from "./lib/tema";
@@ -15,6 +17,8 @@ import { iniciarTema } from "./lib/tema";
 iniciarTema();
 registrarServiceWorker();
 iniciarNativo();
+conferirAtualizacao();
+iniciarMemos();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

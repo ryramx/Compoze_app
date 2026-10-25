@@ -133,6 +133,12 @@ build; a configuração está em `vite.config.ts`.
 No app Android (Capacitor, ADR 0011) não há service worker: o app já está no
 APK. Ver [`docs/mobile/android.md`](../mobile/android.md).
 
+O manifesto tem `share_target` (Fase 3b): instalada no Android, a PWA aparece
+no menu "Compartilhar" e o texto chega em `/compartilhar?title=&text=&url=`
+(`pages/app/Compartilhar.tsx`, que cria a canção com `lib/compartilhar.ts`).
+Sem sessão, o `RequireAuth` guarda o caminho com a busca e devolve depois do
+login.
+
 Instalar: no Chrome e no Edge, o ícone de instalar na barra de endereço (no
 Android, "Adicionar à tela inicial"). No iPhone, Safari → Compartilhar →
 "Adicionar à Tela de Início". No iOS, só o app instalado fica livre da regra
@@ -176,3 +182,41 @@ Vitest + Testing Library (`pnpm test`). Cobrem adapters, transporte, store,
 fila offline, guarda de rota e o servidor de demonstração. A fusão de edições do documento é
 testada em `packages/documento`, e a edição em tempo real com dois editores,
 em `apps/api/test/colaboracao.test.ts`.
+
+## Memos de voz (Fase 3c, ADR 0012)
+
+| Peça | O que faz |
+| --- | --- |
+| `components/editor/Memos.tsx` | Diálogo do botão "Memos" no editor: gravar (`MediaRecorder`, até 10 min), tocar, renomear, apagar |
+| `lib/memos.ts` | Memos no aparelho (IndexedDB, banco `compoze-memos`): grava pendente, sobe com `enviarPendentes` (ao gravar, ao abrir o app, ao voltar a rede, ao abrir o diálogo), junta a lista do servidor com os pendentes |
+| `services/api/memoService.ts` | Rotas `/songs/{id}/memos`; o áudio vai cru (`api.subir`) e volta como `Blob` (`api.baixar`) |
+
+O formato de gravação é o primeiro que o aparelho aceita entre Opus (WebM,
+Ogg) e AAC (`audio/mp4`, o do Safari). Na demonstração, o áudio fica no
+IndexedDB e os dados no banco da demo.
+
+## Gente: seguir e mural (Fase 4a, ADR 0013)
+
+Mural e seguidores não passam pelo store do caderno: exigem rede e não têm
+cópia no aparelho. As telas leem da API com React Query.
+
+| Peça | O que faz |
+| --- | --- |
+| `services/api/genteService.ts` | Perfil, seguir, mural, publicações, curtidas, comentários |
+| `pages/app/Feed.tsx` | Mural (`useInfiniteQuery`, chave `["mural","meu"]`), caixa de publicar com canção citada, sugestões |
+| `pages/app/Profile.tsx` | Seguidores e "segue você" de `/profiles/{username}`; mural da pessoa (`["mural","autora",id]`) |
+| `components/gente/Publicacao.tsx` | Uma publicação: curtir (muda na hora e volta se falhar), comentários, apagar |
+| `components/gente/BotaoDeSeguir.tsx` | Seguir/Seguindo, atualiza o perfil em cache e relê o mural |
+| `components/gente/cache.ts` | `trocarNoMural`: muda uma publicação em todas as páginas de mural em cache |
+
+A Mesa mostra as três mais novas (`["mural","roda"]`).
+
+## Conversas (Fase 4b, ADR 0014)
+
+| Peça | O que faz |
+| --- | --- |
+| `pages/app/Messages.tsx` | `/messages` e `/messages/:id`; `?com=<id>` abre a conversa com a pessoa (o "Conversar" do perfil) |
+| `components/gente/conversas.ts` | `useConversas` (chave `["conversas"]`), `useNaoLidas` (contador do menu), `guardarMensagem` |
+| `components/gente/AoVivo.tsx` | Montado no `AppLayout`: mantém o fluxo ao vivo e põe cada mensagem no cache; fora da conversa, avisa |
+| `lib/aoVivo.ts` | Lê `GET /events` com `fetch` (token no cabeçalho), reconecta com espera crescente. Na demo, o servidor da demo chama `emitir` |
+| `services/api/conversaService.ts` | Rotas `/conversations` |

@@ -1,5 +1,5 @@
 import { editarTexto, inserirBloco, mudarBloco, removerBloco, substituirBlocos } from "@compoze/documento";
-import { ArrowLeft, History, Link2, MoreHorizontal, Redo2, SlidersHorizontal, Trash2, Undo2, X } from "lucide-react";
+import { ArrowLeft, History, Link2, Mic, MoreHorizontal, Redo2, SlidersHorizontal, Trash2, Undo2, X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { PilhaDeMonogramas } from "@/components/compoze/Monograma";
 import { Bloco } from "@/components/editor/Bloco";
 import { FichaTecnica } from "@/components/editor/FichaTecnica";
 import { Historico } from "@/components/editor/Historico";
+import { Memos } from "@/components/editor/Memos";
 import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { Dica } from "@/components/ui/Dica";
@@ -77,6 +78,7 @@ export default function SongEditor() {
   const [fichaAberta, setFichaAberta] = useState(false);
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
   const [historicoAberto, setHistoricoAberto] = useState(false);
+  const [memosAbertos, setMemosAbertos] = useState(false);
   const tituloRef = useRef<HTMLTextAreaElement>(null);
 
   // A listagem pode não trazer os blocos; o editor busca a canção completa ao
@@ -292,6 +294,11 @@ export default function SongEditor() {
               Alinhar
             </button>
           </Dica>
+          <Dica texto="Memos de voz: grave a melodia">
+            <Botao variante="texto" tamanho="sm" onClick={() => setMemosAbertos(true)}>
+              <Mic /> <span className="hidden sm:inline">Memos</span>
+            </Botao>
+          </Dica>
           <Botao variante="texto" tamanho="sm" className="xl:hidden" onClick={() => setFichaAberta(true)}>
             <SlidersHorizontal /> <span className="hidden sm:inline">Ficha</span>
           </Botao>
@@ -454,6 +461,8 @@ export default function SongEditor() {
         podeEscrever={documento.estado !== "recusado"}
         aoRestaurar={(blocos) => doc && substituirBlocos(doc, blocos, ORIGEM_LOCAL)}
       />
+
+      <Memos musica={musica} aberto={memosAbertos} aoMudar={setMemosAbertos} podeEscrever={documento.estado !== "recusado"} />
 
       <Confirmar
         aberto={confirmandoExclusao}

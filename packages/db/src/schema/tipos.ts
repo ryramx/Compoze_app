@@ -15,6 +15,13 @@ export const ponto = customType<{ data: { lat: number; lng: number }; driverData
   toDriver: ({ lat, lng }) => `SRID=4326;POINT(${lng} ${lat})`,
 });
 
+/** Bytes crus: estado Yjs, áudio dos memos. */
+export const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
+  dataType: () => "bytea",
+  fromDriver: (b) => new Uint8Array(b),
+  toDriver: (u) => Buffer.from(u),
+});
+
 /** Chave primária UUID v7. O Postgres 18 gera; o aparelho também pode enviar (ADR 0005). */
 export const idPrimario = () => uuid("id").primaryKey().default(sql`uuidv7()`);
 

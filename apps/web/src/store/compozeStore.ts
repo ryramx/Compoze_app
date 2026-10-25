@@ -1,15 +1,7 @@
 import { create } from "zustand";
 
-import {
-  conversations as initialConversations,
-  feed as initialFeed,
-  follows as initialFollows,
-} from "@/data/mockData";
 import type {
-  Conversation,
-  FeedItem,
   Folder,
-  Follow,
   Project,
   ProjectStyle,
   ProjectType,
@@ -17,7 +9,6 @@ import type {
   SongBlock,
   User,
 } from "@/types";
-import { adiantar } from "@/demo/semente";
 import { ApiError } from "@/lib/api";
 import { lerCopia, salvarCopia } from "@/lib/copiaLocal";
 import { abrirFila, enfileirar, esvaziar } from "@/lib/fila";
@@ -30,10 +21,7 @@ import * as folderApi from "@/services/api/folderService";
 import * as projectApi from "@/services/api/projectService";
 import * as songApi from "@/services/api/songService";
 import * as userApi from "@/services/api/userService";
-import * as feedService from "@/services/mock/feedService";
-import * as messageService from "@/services/mock/messageService";
 import * as songService from "@/services/mock/songService";
-import * as userService from "@/services/mock/userService";
 
 /**
  * Estado da aplicação.
@@ -43,10 +31,10 @@ import * as userService from "@/services/mock/userService";
  * hora, a fila leva ao servidor quando houver rede. O caderno inteiro fica
  * copiado no aparelho (`lib/copiaLocal.ts`) e abre sem rede.
  *
- * Feed, mensagens e
- * seguidores continuam vindo de `mockData`: são Fase 2 e 3 do PRD e ainda não
- * existem no backend. A separação está explícita nos imports acima — `*Api`
- * versus `*Service` — para que ninguém precise adivinhar o que é real.
+ * Mural e seguidores (Fase 4a) não moram aqui: as telas leem da API com
+ * `useQuery` (`services/api/genteService.ts`), porque exigem rede e não têm
+ * cópia offline. O mesmo vale para as conversas (Fase 4b). A separação está
+ * explícita nos imports acima — `*Api` versus `*Service`.
  *
  * ## Por que um store, e não `useQuery` em cada tela
  *
@@ -64,11 +52,6 @@ interface CompozeState {
   folders: Folder[];
   projects: Project[];
 
-  // Ainda sem backend (PRD Fases 2 e 3).
-  conversations: Conversation[];
-  feed: FeedItem[];
-  follows: Follow[];
-  followingIds: string[];
 
   hidratado: boolean;
   carregando: boolean;
@@ -89,6 +72,8 @@ interface CompozeState {
     title: string;
     folderId?: string;
     projectId?: string;
+    /** Letra inicial, uma estrofe por bloco (texto compartilhado, Fase 3b). */
+    estrofes?: string[];
   }) => Promise<string>;
   createProject: (input: {
     name: string;
@@ -144,9 +129,6 @@ interface CompozeState {
   purgeExpiredTrash: () => void;
 
   updateCurrentUser: (patch: Partial<Pick<User, "name" | "bio" | "instagram" | "location">>) => void;
-  toggleFollow: (userId: string) => void;
-  sendMessage: (toUserId: string, content: string) => void;
-  postFeed: (content: string) => void;
 }
 
 /**
@@ -202,15 +184,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
   folders: [],
   projects: [],
 
-  // Datas do exemplo alinhadas com as da demonstração, para o mural não parecer parado.
-  conversations: initialConversations.map((c) => ({
-    ...c,
-    messages: c.messages.map((m) => ({ ...m, timestamp: adiantar(m.timestamp) })),
-  })),
-  feed: initialFeed.map((f) => ({ ...f, timestamp: adiantar(f.timestamp) })),
-  follows: initialFollows,
-  followingIds: [],
-
   hidratado: false,
   carregando: false,
   erro: null,
@@ -231,7 +204,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         folders: copia.folders,
         projects: copia.projects,
         users: copia.users,
-        followingIds: userService.getFollowingIds(initialFollows, currentUserId),
         hidratado: true,
       });
     }
@@ -259,16 +231,12 @@ export const useCompoze = create<CompozeState>((set, get) => ({
         ids.add(s.creatorId);
         for (const c of s.collaborators) ids.add(c.userId);
       }
-      // Quem aparece no feed e nas conversas (ainda de exemplo) também precisa de nome.
-      for (const f of get().feed) ids.add(f.userId);
-      for (const c of get().conversations) ids.add(c.withUserId);
 
       set({
         songs,
         folders,
         projects,
         users: await userApi.getMany([...ids]),
-        followingIds: userService.getFollowingIds(initialFollows, currentUserId),
         hidratado: true,
         carregando: false,
         semRede: false,
@@ -325,12 +293,12 @@ export const useCompoze = create<CompozeState>((set, get) => ({
   // Criar não espera o servidor: o id nasce no aparelho (UUID v7) e o pedido
   // vai para a fila. Funciona offline; o servidor aceita o id do cliente.
 
-  createSong: async ({ title, folderId, projectId }) => {
+  createSong: async ({ title, folderId, projectId, estrofes }) => {
     const id = uuidv7();
     const eu = get().currentUserId;
     // A folha pautada nasce no documento do aparelho, antes de o editor abrir.
     const { semearFolhaInicial } = await import("@/lib/folhaInicial");
-    await semearFolhaInicial(id, eu);
+    await semearFolhaInicial(id, eu, estrofes);
 
     const nova: Song = {
       id,
@@ -646,25 +614,6 @@ export const useCompoze = create<CompozeState>((set, get) => ({
       void enfileirar({ metodo: "PATCH", caminho: "/users/me", corpo: userApi.patchDeEu(tudo), rotulo: "o seu perfil" }),
     );
   },
-
-  // ------------------------------------------- ainda sem backend (Fases 2 e 3)
-
-  toggleFollow: (userId) => {
-    const follows = userService.toggleFollow(get().follows, get().currentUserId, userId);
-    set({ follows, followingIds: userService.getFollowingIds(follows, get().currentUserId) });
-  },
-
-  sendMessage: (toUserId, content) =>
-    set({
-      conversations: messageService.send(
-        get().conversations,
-        get().currentUserId,
-        toUserId,
-        content,
-      ),
-    }),
-
-  postFeed: (content) => set({ feed: feedService.post(get().feed, get().currentUserId, content) }),
 }));
 
 // Reexportado para as telas que já o usavam a partir daqui.

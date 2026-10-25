@@ -155,6 +155,52 @@ e com strings como `JSON.stringify` as escreve. A função de referência é
 `textoDaVersao` em `packages/contracts/src/canonico.ts`. Versões são
 imutáveis: o banco recusa UPDATE.
 
+### Memos de voz (ADR 0012)
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/songs/{id}/memos` | `VoiceMemo[]`, do mais novo ao mais antigo. Quem vê a canção vê os memos |
+| PUT | `/songs/{id}/memos/{memo_id}?duration_ms=&title=` | Corpo: o áudio cru, `Content-Type: audio/webm\|ogg\|mp4\|aac\|mpeg\|x-m4a\|wav` (parâmetros como `;codecs=opus` são ignorados). `201 VoiceMemo`; o mesmo id da mesma pessoa de novo → `200` com o que já está lá. `VIEWER` → `403`; outro formato → `415`; mais de 8 MB → `413` |
+| GET | `/songs/{id}/memos/{memo_id}/audio` | Os bytes, com o `Content-Type` gravado. Cache `immutable` |
+| PATCH | `/songs/{id}/memos/{memo_id}` | `{ title }` → `VoiceMemo`. Quem gravou ou a dona (`403`) |
+| DELETE | `/songs/{id}/memos/{memo_id}` | `204`, apaga de vez com o áudio. Quem gravou ou a dona |
+
+`VoiceMemo = { id, song_id, author_id, title, duration_ms, mime_type, size_bytes, created_at }`.
+O id é gerado no aparelho (UUID v7), como o das canções.
+
+## Gente (ADR 0013)
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/profiles/{username}` | `Profile` = `UserPublic & { followers_count, following_count, followed_by_me, follows_me }` |
+| PUT / DELETE | `/users/{id}/follow` | `204`. Seguir de novo não faz nada. Seguir a si mesma → `422`; pessoa inexistente → `404` |
+| GET | `/users/{id}/followers`, `/users/{id}/following` | `UserPublic[]`, mais recentes primeiro |
+| GET | `/suggestions/people` | `UserPublic[]`: quem escreve comigo e eu não sigo |
+| GET | `/feed?author_id=&before=&limit=` | `{ items: Post[], next_cursor }`. Sem `author_id`: eu e quem eu sigo. `before` é o `next_cursor` da página anterior; `limit` até 50 (padrão 20) |
+| POST | `/posts` | `{ id?, content, song_id? }` → `201 Post`; mesmo `id` de novo → `200`. Citar canção: só coautora, e canção não privada (`422`) |
+| GET / DELETE | `/posts/{id}` | `Post` · apagar só quem publicou (`403`) |
+| PUT / DELETE | `/posts/{id}/like` | → `Post` atualizado |
+| GET / POST | `/posts/{id}/comments` | `Comment[]` em ordem · `{ id?, content }` → `201 Comment` |
+| DELETE | `/posts/{id}/comments/{comment_id}` | `204`. Quem comentou ou quem publicou |
+
+`Post = { id, author: UserPublic, content, song: { id, title, status } | null, like_count, comment_count, liked_by_me, created_at }`. `song` some se a canção virar privada ou for para a lixeira.
+`Comment = { id, post_id, author: UserPublic, content, created_at }`.
+
+## Conversas (ADR 0014)
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/conversations` | `Conversation[]`, da última mensagem mais nova à mais antiga |
+| POST | `/conversations` | `{ user_id }` → `201 Conversation`; se já existe a da dupla, `200` com ela. Consigo mesma → `422` |
+| GET | `/conversations/{id}` | `Conversation` · quem não é membro → `404` |
+| GET | `/conversations/{id}/messages?before=&limit=` | `{ items: Message[], next_cursor }`, da mais nova à mais antiga; `limit` até 100 (padrão 50) |
+| POST | `/conversations/{id}/messages` | `{ id?, content }` (até 4000) → `201 Message`; mesmo `id` de novo → `200` |
+| POST | `/conversations/{id}/read` | `204`. Marca tudo até agora como lido |
+| GET | `/events` | `text/event-stream`. Eventos `message` (`{ type, message }`) e `read` (`{ type, conversation_id, user_id, at }`), para todos os aparelhos de quem está na conversa. Comentário `: pulso` a cada 25 s |
+
+`Conversation = { id, other: UserPublic, last_message: Message | null, unread_count, created_at }`
+`Message = { id, conversation_id, author_id, content, created_at }`
+
 ## Pastas
 
 | Método | Rota | Corpo / regra |
@@ -203,4 +249,5 @@ Valores monetários em reais, inteiros (centavos não são usados na v1).
 5. Sincronização offline (ADR 0005): `POST` de criação aceita `id` do cliente
    (UUID v7); todas as escritas aceitam `Idempotency-Key`; registros ganham
    `version`; novas rotas `GET /sync/changes?since=` e `POST /sync/push` — Fase 2.
-6. Rotas sociais (mural, seguidores, conversas, notificações) — Fase 4.
+6. Rotas sociais: seguidores e mural (Fase 4a) e conversas (Fase 4b) feitos;
+   notificações fora do app dependem de push.

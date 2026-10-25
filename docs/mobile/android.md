@@ -95,6 +95,7 @@ O workflow confere a chave antes de compilar e diz qual secret está errado:
 2. Tocar no arquivo baixado. Na primeira vez, o Android pede para permitir que
    o navegador (ou o app de arquivos) instale apps; permita.
 3. Para atualizar, baixe o APK novo e instale por cima. Os dados ficam.
+   O app avisa sozinho quando sai versão nova (ver abaixo).
 
 O Google Play Protect pode avisar que o app não é conhecido. É o aviso padrão
 para qualquer app fora da loja: "Instalar mesmo assim".
@@ -110,6 +111,21 @@ para qualquer app fora da loja: "Instalar mesmo assim".
 - O botão voltar do Android volta uma tela; na primeira, manda o app para o
   fundo (`@capacitor/app`).
 - `appId`: `io.github.ryramx.compoze`. Não muda nunca mais.
+- **Aviso de versão nova** (`lib/atualizacao.ts`): uma vez por dia, ao abrir,
+  o app pergunta à API do GitHub qual é o último Release e compara com a
+  versão instalada. Se houver mais nova, um aviso oferece "Baixar", que abre o
+  link do APK no navegador do celular. Em Ajustes → Aplicativo dá para ver a
+  versão instalada e procurar na hora.
+- **Compartilhar para o Compoze**: o app aparece no menu "Compartilhar" do
+  Android para texto. O `CompartilharPlugin.java` (plugin do próprio app,
+  registrado no `MainActivity`) recebe o texto e emite o evento `recebido`;
+  o `App.tsx` leva para `/compartilhar`, que cria uma canção no estágio
+  "ideia" com o texto como letra (uma estrofe por bloco) e abre no editor.
+  Funciona offline. A PWA instalada faz o mesmo pelo `share_target` do
+  manifesto.
+- **Memos de voz** (ADR 0012): gravados pelo `MediaRecorder` do WebView. O
+  manifesto declara `RECORD_AUDIO`; o Capacitor pede a permissão na primeira
+  gravação. A gravação para se a tela bloquear.
 - Ícone e tela de abertura foram gerados do `favicon.svg` com
   `@capacitor/assets` (fundo tinta, nota em lápis vermelho; abertura clara e
   escura conforme o tema do sistema).

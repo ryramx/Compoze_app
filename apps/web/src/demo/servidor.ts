@@ -17,7 +17,8 @@
  */
 
 import { textoDaVersao } from "@compoze/contracts/canonico";
-import { semear, type BancoDemo, type ConviteDemo } from "@/demo/semente";
+import { conversasDeExemplo, genteDeExemplo, semear, type BancoDemo, type ConversaDemo, type ConviteDemo, type PostDemo } from "@/demo/semente";
+import { emitir } from "@/lib/aoVivo";
 import { apagarDocumentosLocais } from "@/lib/colaboracao";
 import type {
   ApiBlock,
@@ -29,7 +30,9 @@ import type {
   ApiUserMe,
   ApiUserPublic,
   ApiVersion,
+  ApiVoiceMemo,
 } from "@/services/api/dto";
+import { del as apagarAudio, get as lerAudio, set as guardarAudio } from "idb-keyval";
 
 const CHAVE = "compoze.demo.v1";
 const RETENCAO_DIAS = 30;
@@ -150,6 +153,8 @@ type Contexto = {
   partes: string[];
   query: URLSearchParams;
   corpo: Record<string, unknown>;
+  /** Corpo binário (áudio dos memos). */
+  bruto: Blob | null;
   userId: string | null;
 };
 
@@ -212,6 +217,214 @@ const rotasPublicas: Rota[] = [
 ];
 
 const rotasPrivadas: Rota[] = [
+  // ----------------------------------------------------------- conversas
+  // ADR 0014. "Ao vivo" aqui é o próprio navegador: `emitir` entrega o evento.
+  ({ metodo, partes, query, corpo, userId }) => {
+    if (partes[0] !== "conversations") return null;
+    const db = carregar();
+    db.conversas ??= conversasDeExemplo();
+    const eu = userId!;
+    const pessoa = (id: string) => db.usuarios.find((u) => u.id === id);
+    const msg = (c: ConversaDemo, m: ConversaDemo["mensagens"][number]) => ({ ...m, conversation_id: c.id });
+    const conversa = (c: ConversaDemo) => {
+      const outra = c.membros.find((id) => id !== eu)!;
+      const ultima = c.mensagens.at(-1);
+      const lida = c.lida[eu];
+      return {
+        id: c.id,
+        other: publico(pessoa(outra)!),
+        last_message: ultima ? msg(c, ultima) : null,
+        unread_count: c.mensagens.filter((m) => m.author_id !== eu && (!lida || m.created_at > lida)).length,
+        created_at: c.criada,
+      };
+    };
+    const minhas = db.conversas.filter((c) => c.membros.includes(eu));
+
+    if (partes.length === 1 && metodo === "GET") {
+      return json(
+        minhas
+          .map(conversa)
+          .sort((a, b) => (b.last_message?.created_at ?? b.created_at).localeCompare(a.last_message?.created_at ?? a.created_at)),
+      );
+    }
+    if (partes.length === 1 && metodo === "POST") {
+      const outra = String(corpo.user_id ?? "");
+      if (outra === eu) return erro(422, "Você não pode conversar consigo mesma.");
+      if (!pessoa(outra)) return erro(404, "Pessoa não encontrada.");
+      const existente = minhas.find((c) => c.membros.includes(outra));
+      if (existente) return json(conversa(existente));
+      const nova: ConversaDemo = { id: novoId("c"), membros: [eu, outra], lida: {}, criada: agora(), mensagens: [] };
+      db.conversas.push(nova);
+      return json(conversa(nova), 201);
+    }
+    const c = minhas.find((x) => x.id === partes[1]);
+    if (!c) return erro(404, "Conversa não encontrada.");
+    if (partes.length === 2 && metodo === "GET") return json(conversa(c));
+    if (partes[2] === "messages" && metodo === "GET") {
+      const lista = [...c.mensagens].reverse();
+      const antes = query.get("before");
+      const inicio = antes ? lista.findIndex((m) => m.id === antes) + 1 : 0;
+      const limite = Number(query.get("limit") ?? 50);
+      const pagina = lista.slice(inicio, inicio + limite);
+      return json({ items: pagina.map((m) => msg(c, m)), next_cursor: inicio + limite < lista.length ? pagina.at(-1)!.id : null });
+    }
+    if (partes[2] === "messages" && metodo === "POST") {
+      const texto = String(corpo.content ?? "").trim();
+      if (!texto) return erro(422, "Escreva alguma coisa.");
+      const id = (corpo.id as string | undefined) ?? novoId("m");
+      const existente = c.mensagens.find((m) => m.id === id);
+      if (existente) return json(msg(c, existente));
+      const m = { id, author_id: eu, content: texto, created_at: agora() };
+      c.mensagens.push(m);
+      c.lida[eu] = m.created_at;
+      setTimeout(() => emitir({ type: "message", message: msg(c, m) }), 0);
+      return json(msg(c, m), 201);
+    }
+    if (partes[2] === "read" && metodo === "POST") {
+      c.lida[eu] = agora();
+      return json(null, 204);
+    }
+    return null;
+  },
+
+  // --------------------------------------------------------------- gente
+  // Seguir e mural (ADR 0013), com as mesmas regras da API.
+  ({ metodo, partes, query, corpo, userId }) => {
+    const social =
+      partes[0] === "profiles" ||
+      partes[0] === "feed" ||
+      partes[0] === "posts" ||
+      (partes[0] === "suggestions" && partes[1] === "people") ||
+      (partes[0] === "users" && ["follow", "followers", "following"].includes(partes[2] ?? ""));
+    if (!social) return null;
+    const db = carregar();
+    if (!db.posts) Object.assign(db, genteDeExemplo());
+    const seguindo = db.seguindo!;
+    const posts = db.posts!;
+    const comentarios = db.comentarios!;
+    const eu = userId!;
+    const pessoa = (id: string) => db.usuarios.find((u) => u.id === id);
+    const publicacao = (p: PostDemo) => {
+      const s = p.song_id ? db.musicas.find((m) => m.id === p.song_id) : undefined;
+      return {
+        id: p.id,
+        author: publico(pessoa(p.author_id)!),
+        content: p.content,
+        song: s && s.visibility !== "PRIVATE" && !s.deleted_at ? { id: s.id, title: s.title, status: s.status } : null,
+        like_count: p.curtidas.length,
+        comment_count: comentarios.filter((c) => c.post_id === p.id).length,
+        liked_by_me: p.curtidas.includes(eu),
+        created_at: p.created_at,
+      };
+    };
+
+    if (partes[0] === "profiles" && metodo === "GET") {
+      const u = db.usuarios.find((x) => x.username === partes[1]);
+      if (!u) return erro(404, "Pessoa não encontrada.");
+      return json({
+        ...publico(u),
+        followers_count: seguindo.filter((f) => f.followed_id === u.id).length,
+        following_count: seguindo.filter((f) => f.follower_id === u.id).length,
+        followed_by_me: seguindo.some((f) => f.follower_id === eu && f.followed_id === u.id),
+        follows_me: seguindo.some((f) => f.follower_id === u.id && f.followed_id === eu),
+      });
+    }
+    if (partes[0] === "users") {
+      const alvo = partes[1]!;
+      if (!pessoa(alvo)) return erro(404, "Pessoa não encontrada.");
+      if (partes[2] === "follow") {
+        if (alvo === eu) return erro(422, "Você não pode seguir a si mesma.");
+        const i = seguindo.findIndex((f) => f.follower_id === eu && f.followed_id === alvo);
+        if (metodo === "PUT" && i < 0) seguindo.push({ follower_id: eu, followed_id: alvo, created_at: agora() });
+        if (metodo === "DELETE" && i >= 0) seguindo.splice(i, 1);
+        return json(null, 204);
+      }
+      const ids =
+        partes[2] === "followers"
+          ? seguindo.filter((f) => f.followed_id === alvo).map((f) => f.follower_id)
+          : seguindo.filter((f) => f.follower_id === alvo).map((f) => f.followed_id);
+      return json(ids.map((id) => publico(pessoa(id)!)));
+    }
+    if (partes[0] === "suggestions") {
+      const parceiras = new Set(
+        db.musicas.filter((m) => podeVer(m, eu)).flatMap((m) => [m.owner_id, ...m.collaborators.map((c) => c.user_id)]),
+      );
+      return json(
+        [...parceiras]
+          .filter((id) => id !== eu && !seguindo.some((f) => f.follower_id === eu && f.followed_id === id))
+          .map((id) => publico(pessoa(id)!)),
+      );
+    }
+    if (partes[0] === "feed") {
+      const autora = query.get("author_id");
+      const sigo = new Set([eu, ...seguindo.filter((f) => f.follower_id === eu).map((f) => f.followed_id)]);
+      const lista = posts
+        .filter((p) => (autora ? p.author_id === autora : sigo.has(p.author_id)))
+        .sort((a, b) => b.created_at.localeCompare(a.created_at));
+      const antes = query.get("before");
+      const inicio = antes ? lista.findIndex((p) => p.id === antes) + 1 : 0;
+      const limite = Number(query.get("limit") ?? 20);
+      const pagina = lista.slice(inicio, inicio + limite);
+      const temMais = inicio + limite < lista.length;
+      return json({ items: pagina.map(publicacao), next_cursor: temMais ? pagina.at(-1)!.id : null });
+    }
+
+    // /posts
+    if (partes.length === 1 && metodo === "POST") {
+      const texto = String(corpo.content ?? "").trim();
+      if (!texto) return erro(422, "Escreva alguma coisa.");
+      const id = (corpo.id as string | undefined) ?? novoId("post");
+      const existente = posts.find((p) => p.id === id);
+      if (existente) return existente.author_id === eu ? json(publicacao(existente)) : erro(409, "Já existe uma publicação com este id.");
+      const songId = (corpo.song_id as string | null | undefined) ?? null;
+      if (songId) {
+        const s = db.musicas.find((m) => m.id === songId);
+        if (!s || !podeVer(s, eu)) return erro(404, "Canção não encontrada.");
+        if (s.visibility === "PRIVATE") return erro(422, "Só dá para citar uma canção que não seja privada.");
+      }
+      const p: PostDemo = { id, author_id: eu, content: texto, song_id: songId, created_at: agora(), curtidas: [] };
+      posts.push(p);
+      return json(publicacao(p), 201);
+    }
+    const p = posts.find((x) => x.id === partes[1]);
+    if (!p) return metodo === "DELETE" ? json(null, 204) : erro(404, "Publicação não encontrada.");
+    if (partes.length === 2 && metodo === "GET") return json(publicacao(p));
+    if (partes.length === 2 && metodo === "DELETE") {
+      if (p.author_id !== eu) return erro(403, "Só quem publicou pode apagar.");
+      posts.splice(posts.indexOf(p), 1);
+      return json(null, 204);
+    }
+    if (partes[2] === "like") {
+      p.curtidas = p.curtidas.filter((id) => id !== eu);
+      if (metodo === "PUT") p.curtidas.push(eu);
+      return json(publicacao(p));
+    }
+    if (partes[2] === "comments") {
+      if (metodo === "GET") {
+        return json(
+          comentarios
+            .filter((c) => c.post_id === p.id)
+            .sort((a, b) => a.created_at.localeCompare(b.created_at))
+            .map((c) => ({ id: c.id, post_id: c.post_id, author: publico(pessoa(c.author_id)!), content: c.content, created_at: c.created_at })),
+        );
+      }
+      if (metodo === "POST") {
+        const texto = String(corpo.content ?? "").trim();
+        if (!texto) return erro(422, "Escreva alguma coisa.");
+        const c = { id: (corpo.id as string | undefined) ?? novoId("com"), post_id: p.id, author_id: eu, content: texto, created_at: agora() };
+        comentarios.push(c);
+        return json({ ...c, author: publico(pessoa(eu)!) }, 201);
+      }
+      if (metodo === "DELETE") {
+        const c = comentarios.find((x) => x.id === partes[3] && x.post_id === p.id);
+        if (c && c.author_id !== eu && p.author_id !== eu) return erro(403, "Só quem comentou ou quem publicou pode apagar.");
+        if (c) comentarios.splice(comentarios.indexOf(c), 1);
+        return json(null, 204);
+      }
+    }
+    return null;
+  },
+
   // ------------------------------------------------------------ usuários
   ({ metodo, partes, query, corpo, userId }) => {
     if (partes[0] !== "users") return null;
@@ -371,6 +584,56 @@ const rotasPrivadas: Rota[] = [
     if (metodo === "POST" && partes[2] === "decline") {
       c!.declined_at = agora();
       gravar();
+      return json(null, 204);
+    }
+    return null;
+  },
+
+  // ------------------------------------------------------------- memos
+  // ADR 0012. O áudio vai para o IndexedDB, que aguenta bytes; o resto, para
+  // o banco da demonstração como as outras coisas.
+  async ({ metodo, partes, query, corpo, bruto, userId }) => {
+    if (partes[0] !== "songs" || partes[2] !== "memos") return null;
+    const db = carregar();
+    db.memos ??= [];
+    const s = db.musicas.find((x) => x.id === partes[1]);
+    if (!s || !podeVer(s, userId!)) return erro(404, "Canção não encontrada.");
+    const chaveDoAudio = (id: string) => `compoze.demo.memo:${id}`;
+    if (partes.length === 3 && metodo === "GET") {
+      return json(db.memos.filter((m) => m.song_id === s.id).sort((a, b) => b.created_at.localeCompare(a.created_at)));
+    }
+    const id = partes[3]!;
+    const m = db.memos.find((x) => x.id === id && x.song_id === s.id);
+    if (metodo === "PUT" && partes.length === 4) {
+      if (m) return json(m);
+      if (!bruto || bruto.size === 0) return erro(422, "O áudio veio vazio.");
+      const novo: ApiVoiceMemo = {
+        id,
+        song_id: s.id,
+        author_id: userId,
+        title: query.get("title") ?? "",
+        duration_ms: Number(query.get("duration_ms") ?? 0),
+        mime_type: bruto.type.split(";")[0]!,
+        size_bytes: bruto.size,
+        created_at: agora(),
+      };
+      await guardarAudio(chaveDoAudio(id), bruto);
+      db.memos.push(novo);
+      return json(novo, 201);
+    }
+    if (!m) return erro(404, "Memo não encontrado.");
+    if (metodo === "GET" && partes[4] === "audio") {
+      const som = await lerAudio<Blob>(chaveDoAudio(id));
+      return som ? new Response(som, { headers: { "content-type": m.mime_type } }) : erro(404, "Memo não encontrado.");
+    }
+    if (m.author_id !== userId && s.owner_id !== userId) return erro(403, "Só quem gravou ou a dona da canção mexe neste memo.");
+    if (metodo === "PATCH") {
+      m.title = String(corpo.title ?? "").trim();
+      return json(m);
+    }
+    if (metodo === "DELETE") {
+      db.memos = db.memos.filter((x) => x.id !== id);
+      await apagarAudio(chaveDoAudio(id));
       return json(null, 204);
     }
     return null;
@@ -778,7 +1041,7 @@ async function guardarVersao(
 /** Ponto de entrada: recebe o que `fetch` receberia e devolve uma `Response`. */
 export async function responder(
   caminho: string,
-  init: { method?: string; headers?: Record<string, string>; body?: string },
+  init: { method?: string; headers?: Record<string, string>; body?: string | Blob },
 ): Promise<Response> {
   await esperar();
   const url = new URL(caminho, "http://demo");
@@ -786,7 +1049,8 @@ export async function responder(
     metodo: init.method ?? "GET",
     partes: url.pathname.split("/").filter(Boolean),
     query: url.searchParams,
-    corpo: init.body ? (JSON.parse(init.body) as Record<string, unknown>) : {},
+    corpo: typeof init.body === "string" && init.body ? (JSON.parse(init.body) as Record<string, unknown>) : {},
+    bruto: init.body instanceof Blob ? init.body : null,
     userId: usuarioDoToken(init.headers?.Authorization ?? null),
   };
 

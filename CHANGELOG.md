@@ -9,6 +9,37 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Fase 4b, conversas (ADR 0014): a tela de Conversas deixa de ser prévia.
+  - "Conversar" no perfil abre (ou cria) a conversa com a pessoa.
+  - A mensagem chega na hora, nos dois lados e em todos os aparelhos. Fora
+    da conversa, aparece um aviso com "Abrir"; o menu mostra quantas não
+    foram lidas.
+  - API: `/conversations`, `/conversations/{id}/messages`, `.../read` e o
+    fluxo ao vivo `GET /events` (Server-Sent Events); tabelas
+    `conversations`, `conversation_members`, `messages` (migração 0011).
+- Fase 4a, gente (ADR 0013): o Mural deixa de ser prévia.
+  - Seguir e deixar de seguir pelo perfil; o perfil mostra seguidores, quem a
+    pessoa segue e se ela segue você.
+  - Publicar no mural, citando uma canção que não seja privada. Curtir,
+    comentar, apagar a própria publicação.
+  - O mural mostra você e quem você segue, em páginas; o perfil mostra o mural
+    da pessoa. Sugestões de quem seguir: quem escreve com você.
+  - A Mesa mostra as três publicações mais novas em "Na roda".
+  - API: `/profiles`, `/users/{id}/follow`, `/feed`, `/posts`; tabelas
+    `follows`, `posts`, `post_likes`, `post_comments` (migração 0010).
+- Fase 3c, memos de voz (ADR 0012): botão "Memos" no editor. Grava a
+  melodia ou o riff (até 10 minutos), dá nome, toca, apaga. Funciona sem
+  internet: o áudio fica no aparelho e sobe quando a rede volta. Os coautores
+  ouvem; quem só vê a canção também.
+  - API: `/songs/{id}/memos` (PUT com o áudio cru, id do aparelho), tabelas
+    `song_memos` e `song_memo_audio` (migração 0009).
+  - App Android pede o microfone na primeira gravação.
+- Fase 3b, app Android:
+  - "Compartilhar para o Compoze": texto de outro app (bloco de notas,
+    mensagem, link) vira uma canção nova no estágio "ideia", aberta no
+    editor. Funciona offline. Na PWA instalada, pelo `share_target`.
+  - O app avisa quando sai versão nova do APK e oferece baixar. Em Ajustes →
+    Aplicativo, a versão instalada e "Procurar atualização".
 - App Android (Fase 3, ADR 0011): o Compoze vira um APK, publicado nos
   Releases do GitHub, sem passar pela loja. Link fixo para a versão mais nova:
   `releases/latest/download/Compoze.apk`.

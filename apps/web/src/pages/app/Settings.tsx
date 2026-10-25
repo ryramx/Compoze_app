@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Cabecalho } from "@/components/compoze/Cabecalho";
@@ -7,12 +7,52 @@ import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { AreaDeTexto, Campo, Entrada } from "@/components/ui/Campo";
 import { MODO_DEMO } from "@/lib/api";
+import { baixarVersaoNova, maisNova, ultimaVersao, versaoInstalada } from "@/lib/atualizacao";
 import { cn } from "@/lib/cn";
+import { NATIVO } from "@/lib/nativo";
 import { definirTema, useTema, type Tema } from "@/lib/tema";
 import { useAuth } from "@/store/authStore";
 import { useCompoze } from "@/store/compozeStore";
 
 const BIO_MAX = 280;
+
+/** Versão do APK e busca por atualização (Fase 3b, só no app Android). */
+function VersaoDoApp() {
+  const [instalada, setInstalada] = useState<string | null>(null);
+  const [estado, setEstado] = useState<"parado" | "procurando" | "em-dia" | "sem-rede" | string>("parado");
+
+  useEffect(() => {
+    void versaoInstalada().then(setInstalada);
+  }, []);
+
+  async function procurar() {
+    setEstado("procurando");
+    const nova = await ultimaVersao();
+    if (!nova || !instalada) setEstado("sem-rede");
+    else setEstado(maisNova(nova, instalada) ? nova : "em-dia");
+  }
+
+  const novaVersao = !["parado", "procurando", "em-dia", "sem-rede"].includes(estado);
+  return (
+    <>
+      <p className="mb-4 text-[14px] text-tinta-2">
+        Versão instalada: <span className="font-mono">{instalada ?? "…"}</span>
+        {estado === "em-dia" && " · é a mais nova."}
+        {estado === "sem-rede" && " · sem conexão para conferir agora."}
+        {novaVersao && ` · a ${estado} já saiu.`}
+      </p>
+      {novaVersao ? (
+        <Botao variante="tinta" onClick={baixarVersaoNova}>
+          Baixar a versão {estado}
+        </Botao>
+      ) : (
+        <Botao onClick={() => void procurar()} disabled={estado === "procurando"}>
+          {estado === "procurando" ? "Procurando…" : "Procurar atualização"}
+        </Botao>
+      )}
+    </>
+  );
+}
 
 function Bloco({ titulo, descricao, children }: { titulo: string; descricao: string; children: React.ReactNode }) {
   return (
@@ -118,6 +158,12 @@ export default function Settings() {
           <Botao variante="perigo" onClick={() => setRestaurando(true)}>
             Restaurar dados de exemplo
           </Botao>
+        </Bloco>
+      )}
+
+      {NATIVO && (
+        <Bloco titulo="Aplicativo" descricao="O app Android não se atualiza sozinho; a versão nova é um APK novo.">
+          <VersaoDoApp />
         </Bloco>
       )}
 

@@ -1,10 +1,16 @@
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router";
 import { TituloDeSecao, Vazio } from "@/components/compoze/Cabecalho";
 import { Estagio } from "@/components/compoze/Estagio";
 import { Monograma } from "@/components/compoze/Monograma";
+import { BotaoDeSeguir } from "@/components/gente/BotaoDeSeguir";
+import { Publicacao } from "@/components/gente/Publicacao";
 import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { quando } from "@/lib/datas";
+import { useOnline } from "@/lib/rede";
+import { usuarioDaApi } from "@/services/api/adapters";
+import * as gente from "@/services/api/genteService";
 import { listActive } from "@/services/mock/songService";
 import { useCompoze } from "@/store/compozeStore";
 
@@ -13,13 +19,26 @@ export default function Profile() {
   const pessoas = useCompoze((s) => s.users);
   const euId = useCompoze((s) => s.currentUserId);
   const musicas = listActive(useCompoze((s) => s.songs));
-  const seguindo = useCompoze((s) => s.followingIds);
-  const seguir = useCompoze((s) => s.toggleFollow);
   const getUser = useCompoze((s) => s.getUser);
+  const online = useOnline();
 
-  const pessoa = username ? pessoas.find((u) => u.username === username) : pessoas.find((u) => u.id === euId);
+  const local = username ? pessoas.find((u) => u.username === username) : pessoas.find((u) => u.id === euId);
+  const arroba = username ?? local?.username ?? "";
+  // Seguidores e mural vêm da API (ADR 0013); o resto do perfil, do caderno,
+  // para abrir offline quem já aparece nas minhas obras.
+  const perfil = useQuery({ queryKey: ["perfil", arroba], queryFn: () => gente.perfil(arroba), enabled: online && !!arroba });
+  const pessoa = perfil.data ? { ...usuarioDaApi(perfil.data), ...(local ? { authorColor: local.authorColor } : {}) } : local;
+  const mural = useInfiniteQuery({
+    queryKey: ["mural", "autora", pessoa?.id],
+    queryFn: ({ pageParam }) => gente.mural({ autora: pessoa!.id, antes: pageParam }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (ultima) => ultima.next_cursor ?? undefined,
+    enabled: online && !!pessoa?.id,
+  });
+  const posts = mural.data?.pages.flatMap((p) => p.items) ?? [];
 
   if (!pessoa) {
+    if (perfil.isPending && online) return <Pagina estreita>{null}</Pagina>;
     return (
       <Pagina estreita>
         <p className="font-serif text-xl text-tinta-2 italic">Ninguém com esse nome por aqui.</p>
@@ -32,7 +51,6 @@ export default function Profile() {
   // deixou visível e que eu consigo ver (as obras em comum).
   const obras = musicas.filter((m) => m.collaborators.some((c) => c.userId === pessoa.id) && (souEu || !m.hidden));
   const parcerias = [...new Set(obras.flatMap((m) => m.collaborators.map((c) => c.userId)))].filter((id) => id !== pessoa.id);
-  const sigo = seguindo.includes(pessoa.id);
 
   return (
     <Pagina>
@@ -41,6 +59,7 @@ export default function Profile() {
         <div>
           <div className="rotulo mb-3">
             @{pessoa.username}
+            {perfil.data?.follows_me && " · segue você"}
             {pessoa.location.city && ` · ${pessoa.location.city}${pessoa.location.country ? `, ${pessoa.location.country}` : ""}`}
           </div>
           <h1 className="titulo-pagina">{pessoa.name}</h1>
@@ -53,10 +72,8 @@ export default function Profile() {
             </Link>
           ) : (
             <>
-              <Botao variante={sigo ? "contorno" : "tinta"} onClick={() => seguir(pessoa.id)}>
-                {sigo ? "Seguindo" : "Seguir"}
-              </Botao>
-              <Link to="/messages">
+              <BotaoDeSeguir pessoaId={pessoa.id} username={pessoa.username} sigo={perfil.data?.followed_by_me ?? false} />
+              <Link to={`/messages?com=${pessoa.id}`}>
                 <Botao variante="texto">Conversar</Botao>
               </Link>
             </>
@@ -64,11 +81,12 @@ export default function Profile() {
         </div>
       </header>
 
-      <dl className="grid grid-cols-3 border-b border-linha">
+      <dl className="grid grid-cols-2 border-b border-linha sm:grid-cols-4">
         {[
           { rotulo: "Obras", valor: obras.length },
           { rotulo: "Parcerias", valor: parcerias.length },
-          { rotulo: "Seguidores", valor: pessoa.followers },
+          { rotulo: "Seguidores", valor: perfil.data?.followers_count ?? "—" },
+          { rotulo: "Seguindo", valor: perfil.data?.following_count ?? "—" },
         ].map((d) => (
           <div key={d.rotulo} className="border-r border-linha py-5 pl-1 last:border-r-0 sm:pl-0">
             <dt className="rotulo">{d.rotulo}</dt>
@@ -78,6 +96,7 @@ export default function Profile() {
       </dl>
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="space-y-14">
         <section>
           <TituloDeSecao>{souEu ? "Suas obras" : "Obras"}</TituloDeSecao>
           {obras.length === 0 ? (
@@ -96,6 +115,28 @@ export default function Profile() {
             </ul>
           )}
         </section>
+          <section>
+            <TituloDeSecao>Mural</TituloDeSecao>
+            {!online ? (
+              <p className="font-serif text-tinta-3 italic">O mural precisa de internet.</p>
+            ) : posts.length === 0 ? (
+              <p className="font-serif text-tinta-3 italic">{mural.isPending ? "Abrindo…" : "Nada publicado ainda."}</p>
+            ) : (
+              <>
+                <ol className="-mt-7">
+                  {posts.map((p) => (
+                    <Publicacao key={p.id} post={p} />
+                  ))}
+                </ol>
+                {mural.hasNextPage && (
+                  <Botao className="mt-6" onClick={() => void mural.fetchNextPage()} disabled={mural.isFetchingNextPage}>
+                    Mais antigas
+                  </Botao>
+                )}
+              </>
+            )}
+          </section>
+        </div>
         <aside>
           <TituloDeSecao>Escreve com</TituloDeSecao>
           {parcerias.length === 0 ? (

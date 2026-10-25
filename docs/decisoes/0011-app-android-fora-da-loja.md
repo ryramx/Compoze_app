@@ -68,8 +68,8 @@ site, e não a origem do app.
 - Perder a chave significa que quem já instalou precisa desinstalar e
   instalar de novo, perdendo o que estiver só no aparelho. A chave tem cópia
   de segurança fora do GitHub.
-- Atualizar não é automático: a pessoa baixa o APK novo. Um aviso "há versão
-  nova" no app fica para depois.
+- Atualizar não é automático: a pessoa baixa o APK novo. Desde a Fase 3b o app
+  avisa quando há versão nova (consulta diária ao último Release no GitHub).
 - Tokens continuam no `localStorage` do WebView. Levar para o Keystore do
   Android (ADR 0005) fica para quando o app for para a loja.
 - Abrir links do Compoze direto no app (App Links) exige domínio próprio; por

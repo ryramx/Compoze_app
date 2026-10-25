@@ -71,7 +71,10 @@ export type Metodo = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 
 type RequestOptions = {
   method?: Metodo;
+  /** JSON, ou um `Blob` que vai cru com o tipo dele (áudio dos memos). */
   body?: unknown;
+  /** Resposta em bytes em vez de JSON. */
+  binaria?: boolean;
   signal?: AbortSignal;
   /** Reenviar com a mesma chave não repete a escrita (ADR 0008). */
   idempotencyKey?: string;
@@ -87,11 +90,19 @@ export function definirRenovador(fn: () => Promise<boolean>): void {
   renovador = fn;
 }
 
+/** Renova a sessão por fora de `request` (o fluxo ao vivo, que usa fetch direto). */
+export const renovarSessao = (): Promise<boolean> => renovador?.() ?? Promise.resolve(false);
+
+/** Endereço da API, para quem fala com ela sem passar por `request`. */
+export const URL_DA_API = BASE_URL;
+
 async function request<T>(path: string, options: RequestOptions = {}, repetida = false): Promise<T> {
-  const { method = "GET", body, signal, idempotencyKey } = options;
+  const { method = "GET", body, signal, idempotencyKey, binaria } = options;
+  const crua = body instanceof Blob;
 
   const headers: Record<string, string> = {};
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (crua) headers["Content-Type"] = body.type || "application/octet-stream";
+  else if (body !== undefined) headers["Content-Type"] = "application/json";
   if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
 
   const token = getAccessToken();
@@ -102,7 +113,7 @@ async function request<T>(path: string, options: RequestOptions = {}, repetida =
     const init = {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: crua ? body : body === undefined ? undefined : JSON.stringify(body),
       signal,
     };
     response = MODO_DEMO
@@ -115,6 +126,7 @@ async function request<T>(path: string, options: RequestOptions = {}, repetida =
   }
 
   if (response.status === 204) return undefined as T;
+  if (binaria && response.ok) return (await response.blob()) as T;
 
   const isJson = response.headers.get("content-type")?.includes("application/json");
   const payload = isJson ? await response.json().catch(() => null) : null;
@@ -142,6 +154,9 @@ export const api = {
   put: <T>(path: string, body?: unknown) => request<T>(path, { method: "PUT", body }),
   patch: <T>(path: string, body?: unknown) => request<T>(path, { method: "PATCH", body }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  /** Bytes crus de ida (PUT com Blob) ou de volta (GET binário). */
+  subir: <T>(path: string, corpo: Blob) => request<T>(path, { method: "PUT", body: corpo }),
+  baixar: (path: string, signal?: AbortSignal) => request<Blob>(path, { signal, binaria: true }),
   /** Escrita da fila do aparelho, com chave de idempotência. */
   enviar: <T>(method: Metodo, path: string, body: unknown, idempotencyKey: string) =>
     request<T>(path, { method, body, idempotencyKey }),

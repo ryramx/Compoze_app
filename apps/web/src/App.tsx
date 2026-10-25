@@ -1,10 +1,11 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { lazy } from "react";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { lazy, useEffect } from "react";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router";
 import { Toaster } from "sonner";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import AppLayout from "@/components/layout/AppLayout";
 import { ProvedorDeDicas } from "@/components/ui/Dica";
+import { ouvirCompartilhamento } from "@/lib/nativo";
 import { queryClient } from "@/lib/queryClient";
 import { useTema } from "@/lib/tema";
 import Dashboard from "@/pages/app/Dashboard";
@@ -26,6 +27,7 @@ const paginas = {
   Trash: () => import("@/pages/app/Trash"),
   Settings: () => import("@/pages/app/Settings"),
   Convite: () => import("@/pages/app/Convite"),
+  Compartilhar: () => import("@/pages/app/Compartilhar"),
   // Não é página, mas criar canção offline precisa dele (ADR 0008).
   folhaInicial: () => import("@/lib/folhaInicial"),
 };
@@ -41,6 +43,7 @@ const Profile = lazy(paginas.Profile);
 const Trash = lazy(paginas.Trash);
 const Settings = lazy(paginas.Settings);
 const Convite = lazy(paginas.Convite);
+const Compartilhar = lazy(paginas.Compartilhar);
 
 // Com rede, baixa o resto do app logo depois de abrir: se a rede cair depois,
 // as telas ainda não visitadas continuam abrindo. Em produção o service worker
@@ -52,6 +55,21 @@ if (typeof window !== "undefined") {
   };
   if ("requestIdleCallback" in window) window.requestIdleCallback(baixar, { timeout: 5000 });
   else setTimeout(baixar, 3000);
+}
+
+/** Texto compartilhado de outro app no Android vai para /compartilhar (Fase 3b). */
+function RecebeCompartilhamento() {
+  const navegar = useNavigate();
+  useEffect(
+    () =>
+      ouvirCompartilhamento(({ titulo, texto }) => {
+        const busca = new URLSearchParams({ text: texto });
+        if (titulo) busca.set("title", titulo);
+        navegar(`/compartilhar?${busca}`);
+      }),
+    [navegar],
+  );
+  return null;
 }
 
 function Avisos() {
@@ -79,6 +97,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ProvedorDeDicas>
         <BrowserRouter>
+          <RecebeCompartilhamento />
           <Routes>
             {/* Rotas públicas: quem não entrou não vê navegação nem busca. */}
             <Route path="/login" element={<Login />} />
@@ -97,12 +116,14 @@ export default function App() {
                 <Route path="/projects/:id" element={<ProjectDetail />} />
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/messages" element={<Messages />} />
+                <Route path="/messages/:id" element={<Messages />} />
                 <Route path="/map" element={<MapPage />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/profile/:username" element={<Profile />} />
                 <Route path="/trash" element={<Trash />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/convite/:token" element={<Convite />} />
+                <Route path="/compartilhar" element={<Compartilhar />} />
               </Route>
             </Route>
             <Route path="*" element={<NotFound />} />

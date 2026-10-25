@@ -27,6 +27,13 @@ export default defineConfig({
         orientation: "any",
         background_color: "#f3efe6",
         theme_color: "#f3efe6",
+        // "Compartilhar para o Compoze" na PWA instalada (Fase 3b). O mesmo
+        // destino recebe o texto do app Android.
+        share_target: {
+          action: "/compartilhar",
+          method: "GET",
+          params: { title: "title", text: "text", url: "url" },
+        },
         icons: [
           { src: "pwa-192.png", sizes: "192x192", type: "image/png" },
           { src: "pwa-512.png", sizes: "512x512", type: "image/png" },

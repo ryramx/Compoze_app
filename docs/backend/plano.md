@@ -142,6 +142,8 @@ song_versions      id, song_id, number, snapshot jsonb, sha256, created_by,
                    — imutável: base da prova de autoria
 
 song_documents     song_id pk, ydoc bytea, updated_at        (Yjs; fonte do conteúdo a partir da Fase 2)
+song_memos         id, song_id, author_id, title, duration_ms, mime_type, size_bytes, created_at (ADR 0012)
+song_memo_audio    memo_id pk, bytes bytea                   (áudio à parte; vai para o S3 quando houver)
 
 projects           id, owner_id, name, description, type, status, style,
                    release_date date, cover_url, estimated_cost int,
@@ -157,8 +159,9 @@ id definitivo (ADR 0005). Toda tabela que sincroniza tem ainda `version int`
 (incrementada a cada escrita), `updated_at` definido pelo servidor e exclusão
 lógica (`deleted_at`), para que o delta consiga informar o que foi apagado.
 
-Fase 4 acrescenta `follows`, `posts`, `post_likes`, `comments`,
-`conversations`, `conversation_members`, `messages`, `notifications`.
+Fase 4 acrescenta `follows`, `posts`, `post_likes`, `post_comments` (4a, feitas),
+`conversations`, `conversation_members`, `messages` (4b, feitas) e, mais
+tarde, `notifications`.
 
 **Onde cada regra vive**
 
@@ -237,3 +240,16 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
 8. ~~Fase 2d: histórico de versões e registro com hash (ADR 0009); convites
    pela conta, por link e por e-mail (ADR 0010).~~ Feito. O e-mail fica
    desligado até haver um domínio verificado no Resend.
+9. ~~Fase 3a: app Android pelo Capacitor, APK nos Releases, sem loja
+   (ADR 0011).~~ Feito; v0.1.0 publicada em 2026-10-25.
+10. ~~Fase 3b: aviso de versão nova no app e "Compartilhar para o Compoze"
+    (Android e PWA).~~ Feito.
+11. ~~Fase 3c: memos de voz na canção, gravados offline (ADR 0012).~~ Feito.
+    O que resta da Fase 3 depende de conta paga ou de serviço externo: lojas
+    (Play US$ 25, Apple US$ 99/ano), notificações push (projeto no Firebase),
+    tokens no Keystore e SQLite nativo (só com a loja).
+12. ~~Fase 4a: seguir pessoas e mural, com curtidas e comentários
+    (ADR 0013).~~ Feito.
+13. ~~Fase 4b: conversas a dois com entrega ao vivo por SSE (ADR 0014).~~
+    Feito. O que falta da Fase 4: uploads (avatar, capa, áudio no S3/R2) e
+    financiamento (PIX), os dois com conta externa e decisão do Ryan.
