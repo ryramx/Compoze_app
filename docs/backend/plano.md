@@ -260,3 +260,6 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
     (ADR 0016).~~ Feito. O push no APK pelo Firebase também está pronto no
     código; liga quando o Ryan criar o projeto e os segredos
     (docs/mobile/android.md).
+16. ~~E-mail dos convites também por SMTP, para usar o Gmail sem domínio
+    (ADR 0017).~~ Feito no código; liga com `SMTP_USER` e `SMTP_PASS` no
+    Render (docs/backend/deploy.md).

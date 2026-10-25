@@ -28,7 +28,10 @@ app.log.info(
   { android: app.avisador.androidLigado },
   app.avisador.androidLigado ? "push no Android ligado (Firebase)" : "push só no navegador: falta FIREBASE_SERVICE_ACCOUNT",
 );
-app.log.info({ email: app.carteiro.habilitado }, app.carteiro.habilitado ? "e-mail ligado (Resend)" : "e-mail desligado: convites só por link");
+app.log.info(
+  { email: app.carteiro.habilitado },
+  app.carteiro.habilitado ? `e-mail ligado (${app.carteiro.via})` : "e-mail desligado: convites só por link",
+);
 
 for (const sinal of ["SIGINT", "SIGTERM"] as const) {
   process.once(sinal, async () => {

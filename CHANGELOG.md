@@ -9,6 +9,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Convites por e-mail pelo Gmail, sem domínio (ADR 0017): com `SMTP_USER` e
+  `SMTP_PASS` (senha de app) no Render, o e-mail do convite sai pelo SMTP.
+  O Resend continua valendo quando houver domínio. Passos em
+  docs/backend/deploy.md.
 - Fase 3d, avisos por push (ADR 0016): Ajustes → Avisos liga, neste
   aparelho, o aviso do sistema para mensagem nova e convite para canção, mesmo
   com o Compoze fechado. Navegador e PWA; no iPhone, só instalado na tela de

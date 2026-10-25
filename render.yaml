@@ -52,6 +52,11 @@ services:
       # aqui. Os links dos e-mails usam a primeira origem de CORS_ORIGINS.
       - key: RESEND_API_KEY
         sync: false
+      # Ou pelo Gmail (ADR 0017): o endereço e a senha de app, só no painel.
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
       # Push no app Android (ADR 0016): o JSON da conta de serviço do Firebase,
       # colado inteiro no painel do Render. Sem ele, push só no navegador.
       - key: FIREBASE_SERVICE_ACCOUNT

@@ -261,8 +261,9 @@ Sai em mensagem nova (para os outros da conversa) e em convite pela conta
 - **Expurgo da lixeira (RN08):** job diário apaga canções e projetos com
   `deleted_at` há mais de 30 dias. O mesmo job apaga imagens que nenhum perfil
   nem projeto aponta há mais de um dia (ADR 0015).
-- **E-mail (ADR 0010):** com `RESEND_API_KEY`, os convites por link com
-  e-mail viram jobs do pg-boss (fila `enviar-email`, até 5 novas tentativas).
+- **E-mail (ADR 0010, 0017):** com `RESEND_API_KEY` ou com `SMTP_USER` e
+  `SMTP_PASS` (o Gmail), os convites por link com e-mail viram jobs do
+  pg-boss (fila `enviar-email`, até 5 novas tentativas).
 
 ## Pendências (melhorias de contrato)
 

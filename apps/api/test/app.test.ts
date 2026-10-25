@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { construirApp, type App } from "../src/app";
 import { lerConfig } from "../src/config";
+import { remetenteDaConfig } from "../src/lib/correio";
 import { configDeTeste } from "./ajuda";
 
 let banco: Conexao;
@@ -92,5 +93,25 @@ describe("configuração", () => {
     expect(lerConfig({ ...base, FIREBASE_SERVICE_ACCOUNT: JSON.stringify(conta) }).FIREBASE_SERVICE_ACCOUNT).toMatchObject({ project_id: "p" });
     expect(() => lerConfig({ ...base, FIREBASE_SERVICE_ACCOUNT: "{colado pela metade" })).toThrow(/FIREBASE_SERVICE_ACCOUNT/);
     expect(lerConfig(base).FIREBASE_SERVICE_ACCOUNT).toBeUndefined();
+  });
+});
+
+describe("por onde sai o e-mail (ADR 0017)", () => {
+  const base = { DATABASE_URL: "postgres://x@y/z", JWT_SECRET: "x".repeat(32) };
+
+  it("sem chave nem SMTP, desligado", () => {
+    expect(remetenteDaConfig(lerConfig(base))).toBeNull();
+  });
+
+  it("Gmail: usuário e senha de app bastam; o remetente vira Compoze <usuário>", () => {
+    const c = lerConfig({ ...base, SMTP_USER: "ryan@gmail.com", SMTP_PASS: "abcdabcdabcdabcd" });
+    expect(c.EMAIL_FROM).toBe("Compoze <ryan@gmail.com>");
+    expect(remetenteDaConfig(c)?.nome).toBe("SMTP (smtp.gmail.com)");
+  });
+
+  it("com as duas, vale o Resend; EMAIL_FROM manda no remetente", () => {
+    const c = lerConfig({ ...base, RESEND_API_KEY: "re_x", SMTP_USER: "a@b", SMTP_PASS: "s", EMAIL_FROM: "Compoze <convites@compoze.com.br>" });
+    expect(remetenteDaConfig(c)?.nome).toBe("Resend");
+    expect(c.EMAIL_FROM).toBe("Compoze <convites@compoze.com.br>");
   });
 });

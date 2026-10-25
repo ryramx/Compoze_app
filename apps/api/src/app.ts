@@ -16,7 +16,7 @@ import type { Config } from "./config";
 import { criarAoVivo, type AoVivo } from "./lib/aoVivo";
 import { criarAvisador, type Avisador, type Entregar } from "./lib/avisador";
 import { criarFcm, type EntregarFcm } from "./lib/fcm";
-import { criarCarteiro, remetenteResend, type Carteiro, type Remetente } from "./lib/correio";
+import { criarCarteiro, remetenteDaConfig, type Carteiro, type Remetente } from "./lib/correio";
 import { rotasDeAutenticacao } from "./modules/auth/rotas";
 import { rotasDeAvisos } from "./modules/avisos/rotas";
 import { rotasDeConversas } from "./modules/conversas/rotas";
@@ -83,7 +83,7 @@ export async function construirApp({ config, banco, logger, remetente, entregarP
   app.decorate("colab", criarColaboracao({ db: banco.db, segredo: config.JWT_SECRET, log: app.log }));
   anexarColaboracao(app, app.colab);
   const quemEntrega =
-    remetente !== undefined ? remetente : config.RESEND_API_KEY ? remetenteResend(config.RESEND_API_KEY, config.EMAIL_FROM) : null;
+    remetente !== undefined ? remetente : remetenteDaConfig(config);
   app.decorate("carteiro", criarCarteiro(quemEntrega, app.log));
   app.decorate("aoVivo", criarAoVivo());
   app.decorate("aoVivoFechar", new Set<() => void>());
