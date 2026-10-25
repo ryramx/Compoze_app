@@ -182,3 +182,15 @@ Vitest + Testing Library (`pnpm test`). Cobrem adapters, transporte, store,
 fila offline, guarda de rota e o servidor de demonstração. A fusão de edições do documento é
 testada em `packages/documento`, e a edição em tempo real com dois editores,
 em `apps/api/test/colaboracao.test.ts`.
+
+## Memos de voz (Fase 3c, ADR 0012)
+
+| Peça | O que faz |
+| --- | --- |
+| `components/editor/Memos.tsx` | Diálogo do botão "Memos" no editor: gravar (`MediaRecorder`, até 10 min), tocar, renomear, apagar |
+| `lib/memos.ts` | Memos no aparelho (IndexedDB, banco `compoze-memos`): grava pendente, sobe com `enviarPendentes` (ao gravar, ao abrir o app, ao voltar a rede, ao abrir o diálogo), junta a lista do servidor com os pendentes |
+| `services/api/memoService.ts` | Rotas `/songs/{id}/memos`; o áudio vai cru (`api.subir`) e volta como `Blob` (`api.baixar`) |
+
+O formato de gravação é o primeiro que o aparelho aceita entre Opus (WebM,
+Ogg) e AAC (`audio/mp4`, o do Safari). Na demonstração, o áudio fica no
+IndexedDB e os dados no banco da demo.

@@ -29,7 +29,9 @@ import type {
   ApiUserMe,
   ApiUserPublic,
   ApiVersion,
+  ApiVoiceMemo,
 } from "@/services/api/dto";
+import { del as apagarAudio, get as lerAudio, set as guardarAudio } from "idb-keyval";
 
 const CHAVE = "compoze.demo.v1";
 const RETENCAO_DIAS = 30;
@@ -150,6 +152,8 @@ type Contexto = {
   partes: string[];
   query: URLSearchParams;
   corpo: Record<string, unknown>;
+  /** Corpo binário (áudio dos memos). */
+  bruto: Blob | null;
   userId: string | null;
 };
 
@@ -371,6 +375,56 @@ const rotasPrivadas: Rota[] = [
     if (metodo === "POST" && partes[2] === "decline") {
       c!.declined_at = agora();
       gravar();
+      return json(null, 204);
+    }
+    return null;
+  },
+
+  // ------------------------------------------------------------- memos
+  // ADR 0012. O áudio vai para o IndexedDB, que aguenta bytes; o resto, para
+  // o banco da demonstração como as outras coisas.
+  async ({ metodo, partes, query, corpo, bruto, userId }) => {
+    if (partes[0] !== "songs" || partes[2] !== "memos") return null;
+    const db = carregar();
+    db.memos ??= [];
+    const s = db.musicas.find((x) => x.id === partes[1]);
+    if (!s || !podeVer(s, userId!)) return erro(404, "Canção não encontrada.");
+    const chaveDoAudio = (id: string) => `compoze.demo.memo:${id}`;
+    if (partes.length === 3 && metodo === "GET") {
+      return json(db.memos.filter((m) => m.song_id === s.id).sort((a, b) => b.created_at.localeCompare(a.created_at)));
+    }
+    const id = partes[3]!;
+    const m = db.memos.find((x) => x.id === id && x.song_id === s.id);
+    if (metodo === "PUT" && partes.length === 4) {
+      if (m) return json(m);
+      if (!bruto || bruto.size === 0) return erro(422, "O áudio veio vazio.");
+      const novo: ApiVoiceMemo = {
+        id,
+        song_id: s.id,
+        author_id: userId,
+        title: query.get("title") ?? "",
+        duration_ms: Number(query.get("duration_ms") ?? 0),
+        mime_type: bruto.type.split(";")[0]!,
+        size_bytes: bruto.size,
+        created_at: agora(),
+      };
+      await guardarAudio(chaveDoAudio(id), bruto);
+      db.memos.push(novo);
+      return json(novo, 201);
+    }
+    if (!m) return erro(404, "Memo não encontrado.");
+    if (metodo === "GET" && partes[4] === "audio") {
+      const som = await lerAudio<Blob>(chaveDoAudio(id));
+      return som ? new Response(som, { headers: { "content-type": m.mime_type } }) : erro(404, "Memo não encontrado.");
+    }
+    if (m.author_id !== userId && s.owner_id !== userId) return erro(403, "Só quem gravou ou a dona da canção mexe neste memo.");
+    if (metodo === "PATCH") {
+      m.title = String(corpo.title ?? "").trim();
+      return json(m);
+    }
+    if (metodo === "DELETE") {
+      db.memos = db.memos.filter((x) => x.id !== id);
+      await apagarAudio(chaveDoAudio(id));
       return json(null, 204);
     }
     return null;
@@ -778,7 +832,7 @@ async function guardarVersao(
 /** Ponto de entrada: recebe o que `fetch` receberia e devolve uma `Response`. */
 export async function responder(
   caminho: string,
-  init: { method?: string; headers?: Record<string, string>; body?: string },
+  init: { method?: string; headers?: Record<string, string>; body?: string | Blob },
 ): Promise<Response> {
   await esperar();
   const url = new URL(caminho, "http://demo");
@@ -786,7 +840,8 @@ export async function responder(
     metodo: init.method ?? "GET",
     partes: url.pathname.split("/").filter(Boolean),
     query: url.searchParams,
-    corpo: init.body ? (JSON.parse(init.body) as Record<string, unknown>) : {},
+    corpo: typeof init.body === "string" && init.body ? (JSON.parse(init.body) as Record<string, unknown>) : {},
+    bruto: init.body instanceof Blob ? init.body : null,
     userId: usuarioDoToken(init.headers?.Authorization ?? null),
   };
 

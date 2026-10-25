@@ -8,3 +8,4 @@ export * from "./projects";
 export * from "./versoes";
 export * from "./canonico";
 export * from "./convites";
+export * from "./memos";

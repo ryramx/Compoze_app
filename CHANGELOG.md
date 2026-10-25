@@ -9,6 +9,13 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Fase 3c, memos de voz (ADR 0012): botão "Memos" no editor. Grava a
+  melodia ou o riff (até 10 minutos), dá nome, toca, apaga. Funciona sem
+  internet: o áudio fica no aparelho e sobe quando a rede volta. Os coautores
+  ouvem; quem só vê a canção também.
+  - API: `/songs/{id}/memos` (PUT com o áudio cru, id do aparelho), tabelas
+    `song_memos` e `song_memo_audio` (migração 0009).
+  - App Android pede o microfone na primeira gravação.
 - Fase 3b, app Android:
   - "Compartilhar para o Compoze": texto de outro app (bloco de notas,
     mensagem, link) vira uma canção nova no estágio "ideia", aberta no

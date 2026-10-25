@@ -18,6 +18,7 @@ import { rotasDeAutenticacao } from "./modules/auth/rotas";
 import { rotasDeConvites } from "./modules/convites/rotas";
 import { anexarColaboracao, criarColaboracao, type Colaboracao } from "./modules/colab/servidor";
 import { rotasDePastas } from "./modules/folders/rotas";
+import { rotasDeMemos } from "./modules/memos/rotas";
 import { rotasDeSaude } from "./modules/health/rotas";
 import { rotasDeProjetos } from "./modules/projects/rotas";
 import { rotasDeCancoes } from "./modules/songs/rotas";
@@ -113,6 +114,7 @@ export async function construirApp({ config, banco, logger, remetente }: Depende
   await app.register(rotasDePessoas);
   await app.register(rotasDeCancoes);
   await app.register(rotasDeVersoes);
+  await app.register(rotasDeMemos);
   await app.register(rotasDeConvites);
   await app.register(rotasDePastas);
   await app.register(rotasDeProjetos);

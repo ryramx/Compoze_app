@@ -16,6 +16,7 @@ import type {
   ApiSongDetail,
   ApiUserMe,
   ApiVersion,
+  ApiVoiceMemo,
 } from "@/services/api/dto";
 
 export interface BancoDemo {
@@ -29,6 +30,8 @@ export interface BancoDemo {
   versoes?: ApiVersion[];
   /** Convites (ADR 0010). O token fica guardado em claro: é só demonstração. */
   convites?: ConviteDemo[];
+  /** Memos de voz (ADR 0012): só os dados; o áudio fica no IndexedDB. */
+  memos?: ApiVoiceMemo[];
 }
 
 export const SENHA_DEMO = "compoze";

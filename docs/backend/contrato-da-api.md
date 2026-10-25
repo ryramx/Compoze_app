@@ -155,6 +155,19 @@ e com strings como `JSON.stringify` as escreve. A função de referência é
 `textoDaVersao` em `packages/contracts/src/canonico.ts`. Versões são
 imutáveis: o banco recusa UPDATE.
 
+### Memos de voz (ADR 0012)
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/songs/{id}/memos` | `VoiceMemo[]`, do mais novo ao mais antigo. Quem vê a canção vê os memos |
+| PUT | `/songs/{id}/memos/{memo_id}?duration_ms=&title=` | Corpo: o áudio cru, `Content-Type: audio/webm\|ogg\|mp4\|aac\|mpeg\|x-m4a\|wav` (parâmetros como `;codecs=opus` são ignorados). `201 VoiceMemo`; o mesmo id da mesma pessoa de novo → `200` com o que já está lá. `VIEWER` → `403`; outro formato → `415`; mais de 8 MB → `413` |
+| GET | `/songs/{id}/memos/{memo_id}/audio` | Os bytes, com o `Content-Type` gravado. Cache `immutable` |
+| PATCH | `/songs/{id}/memos/{memo_id}` | `{ title }` → `VoiceMemo`. Quem gravou ou a dona (`403`) |
+| DELETE | `/songs/{id}/memos/{memo_id}` | `204`, apaga de vez com o áudio. Quem gravou ou a dona |
+
+`VoiceMemo = { id, song_id, author_id, title, duration_ms, mime_type, size_bytes, created_at }`.
+O id é gerado no aparelho (UUID v7), como o das canções.
+
 ## Pastas
 
 | Método | Rota | Corpo / regra |

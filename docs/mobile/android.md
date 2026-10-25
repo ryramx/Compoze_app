@@ -123,6 +123,9 @@ para qualquer app fora da loja: "Instalar mesmo assim".
   "ideia" com o texto como letra (uma estrofe por bloco) e abre no editor.
   Funciona offline. A PWA instalada faz o mesmo pelo `share_target` do
   manifesto.
+- **Memos de voz** (ADR 0012): gravados pelo `MediaRecorder` do WebView. O
+  manifesto declara `RECORD_AUDIO`; o Capacitor pede a permissão na primeira
+  gravação. A gravação para se a tela bloquear.
 - Ícone e tela de abertura foram gerados do `favicon.svg` com
   `@capacitor/assets` (fundo tinta, nota em lápis vermelho; abertura clara e
   escura conforme o tema do sistema).

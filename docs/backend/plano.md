@@ -142,6 +142,8 @@ song_versions      id, song_id, number, snapshot jsonb, sha256, created_by,
                    — imutável: base da prova de autoria
 
 song_documents     song_id pk, ydoc bytea, updated_at        (Yjs; fonte do conteúdo a partir da Fase 2)
+song_memos         id, song_id, author_id, title, duration_ms, mime_type, size_bytes, created_at (ADR 0012)
+song_memo_audio    memo_id pk, bytes bytea                   (áudio à parte; vai para o S3 quando houver)
 
 projects           id, owner_id, name, description, type, status, style,
                    release_date date, cover_url, estimated_cost int,
@@ -241,3 +243,7 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
    (ADR 0011).~~ Feito; v0.1.0 publicada em 2026-10-25.
 10. ~~Fase 3b: aviso de versão nova no app e "Compartilhar para o Compoze"
     (Android e PWA).~~ Feito.
+11. ~~Fase 3c: memos de voz na canção, gravados offline (ADR 0012).~~ Feito.
+    O que resta da Fase 3 depende de conta paga ou de serviço externo: lojas
+    (Play US$ 25, Apple US$ 99/ano), notificações push (projeto no Firebase),
+    tokens no Keystore e SQLite nativo (só com a loja).
