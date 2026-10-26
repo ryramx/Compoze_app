@@ -112,7 +112,7 @@ export const TOPICOS: TopicoDeAjuda[] = [
     titulo: "Conversas",
     resumo: "Conversas a dois, com mensagens que chegam na hora.",
     itens: [
-      { titulo: "Começar uma conversa", texto: "Abra o perfil de alguém e toque em Conversar, ou use Mensagem na lista de seguidores." },
+      { titulo: "Começar uma conversa", texto: "Toque em Nova conversa e procure a pessoa pelo nome ou @. Também dá pelo Conversar do perfil ou pelo Mensagem na lista de seguidores." },
       { titulo: "Não lidas", texto: "O número vermelho em Conversas, no menu, conta as mensagens que você ainda não viu." },
       { titulo: "Avisos", texto: "Ligue os avisos em Ajustes para saber de mensagem nova com o Compoze fechado." },
     ],

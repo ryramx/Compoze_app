@@ -38,6 +38,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Botão "Nova conversa" na tela Conversas: procura qualquer pessoa do Compoze
+  pelo nome ou pelo @ (com o campo vazio, mostra quem você segue) e abre a
+  conversa com ela, sem precisar passar pelo perfil.
 - Número da faixa à mão (ADR 0021): ao adicionar uma faixa dá para escrever o
   número (a 7, por exemplo) ou deixar vazio para seguir a ordem. Tocar no
   número de uma faixa muda o número; se outra faixa já tinha, as duas trocam.
