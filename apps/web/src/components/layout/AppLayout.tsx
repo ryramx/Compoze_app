@@ -1,13 +1,16 @@
-import { CloudOff, Menu as IconeMenu, Moon, RefreshCw, Search, Sun, X } from "lucide-react";
+import { CircleHelp, CloudOff, Menu as IconeMenu, Moon, RefreshCw, Search, Sun, X } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
+import { PainelDeAjuda } from "@/components/ajuda/PainelDeAjuda";
+import { PrimeirosPassos } from "@/components/ajuda/PrimeirosPassos";
 import { BuscaGlobal } from "@/components/compoze/BuscaGlobal";
 import { Marca } from "@/components/compoze/Marca";
 import { Monograma } from "@/components/compoze/Monograma";
 import { AoVivo } from "@/components/gente/AoVivo";
 import { useNaoLidas } from "@/components/gente/conversas";
 import { ESCRITA, GENTE, RODAPE, type ItemDeNavegacao } from "@/components/layout/navegacao";
+import { jaViuPrimeirosPassos, ROTAS_SEM_TOUR, useAjuda } from "@/lib/ajuda";
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { quandoRecusar, usePendentes } from "@/lib/fila";
@@ -15,6 +18,7 @@ import { ligarAvisos, ligarAvisosAoAbrir, ouvirToqueNoAviso, renovarAvisos } fro
 import { pedirArmazenamentoPersistente } from "@/lib/pwa";
 import { useOnline } from "@/lib/rede";
 import { definirTema, useTema } from "@/lib/tema";
+import { useAuth } from "@/store/authStore";
 import { useCompoze } from "@/store/compozeStore";
 
 function ItemDoTrilho({ item, aoClicar, contador = 0 }: { item: ItemDeNavegacao; aoClicar?: () => void; contador?: number }) {
@@ -105,6 +109,7 @@ function Trilho({ aoNavegar, aoBuscar }: { aoNavegar?: () => void; aoBuscar: () 
   const eu = useCompoze((s) => s.users.find((u) => u.id === s.currentUserId));
   const [, escuro] = useTema();
   const naoLidas = useNaoLidas();
+  const abrirAjuda = useAjuda((s) => s.abrirPainel);
 
   return (
     <div className="flex h-full flex-col">
@@ -140,6 +145,17 @@ function Trilho({ aoNavegar, aoBuscar }: { aoNavegar?: () => void; aoBuscar: () 
           {RODAPE.map((i) => (
             <ItemDoTrilho key={i.url} item={i} aoClicar={aoNavegar} />
           ))}
+          <button
+            onClick={() => {
+              aoNavegar?.();
+              abrirAjuda();
+            }}
+            className="flex w-full items-center gap-3 py-[7px] pr-3 pl-5 text-left text-[14px] text-tinta-2 transition-colors hover:text-tinta"
+          >
+            <CircleHelp aria-hidden className="size-4 shrink-0 text-tinta-3" strokeWidth={1.5} />
+            <span>Ajuda desta tela</span>
+            <kbd className="numeral ml-auto text-[10px] tracking-wider text-tinta-3">?</kbd>
+          </button>
         </div>
       </nav>
 
@@ -186,17 +202,34 @@ export default function AppLayout() {
   const local = useLocation();
   const navegar = useNavigate();
   const noEditor = /^\/songs\/[^/]+\/edit/.test(local.pathname);
+  const usuarioId = useAuth((s) => s.user?.id);
+  const abrirAjuda = useAjuda((s) => s.abrirPainel);
+  const abrirTour = useAjuda((s) => s.abrirTour);
+
+  // Primeiros passos: abre sozinho uma vez por conta neste aparelho (ADR 0020),
+  // menos em quem chegou por link de convite, de apoio ou de compartilhamento.
+  useEffect(() => {
+    if (usuarioId && !ROTAS_SEM_TOUR.test(local.pathname) && !jaViuPrimeirosPassos(usuarioId)) abrirTour();
+  }, [usuarioId, local.pathname, abrirTour]);
 
   useEffect(() => {
     const aoTeclar = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setBuscaAberta((v) => !v);
+        return;
+      }
+      // "?" abre a ajuda, menos enquanto se escreve (a letra pode ter "?").
+      const alvo = e.target as HTMLElement | null;
+      const escrevendo = alvo?.isContentEditable || alvo?.closest("input, textarea, select");
+      if (e.key === "?" && !e.metaKey && !e.ctrlKey && !e.altKey && !escrevendo) {
+        e.preventDefault();
+        abrirAjuda();
       }
     };
     window.addEventListener("keydown", aoTeclar);
     return () => window.removeEventListener("keydown", aoTeclar);
-  }, []);
+  }, [abrirAjuda]);
 
   useEffect(() => setGavetaAberta(false), [local.pathname]);
 
@@ -242,6 +275,9 @@ export default function AppLayout() {
           <Marca className="text-[16px]" />
         </Link>
         <div className="flex items-center gap-1">
+          <button onClick={abrirAjuda} className="grid size-9 place-items-center text-tinta-2" aria-label="Ajuda desta tela">
+            <CircleHelp className="size-[18px]" />
+          </button>
           <button onClick={() => setBuscaAberta(true)} className="grid size-9 place-items-center text-tinta-2" aria-label="Buscar">
             <Search className="size-[18px]" />
           </button>
@@ -303,6 +339,8 @@ export default function AppLayout() {
       )}
 
       <BuscaGlobal aberta={buscaAberta} aoMudar={setBuscaAberta} />
+      <PainelDeAjuda />
+      <PrimeirosPassos />
       <AoVivo />
     </div>
   );

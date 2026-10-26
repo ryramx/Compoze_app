@@ -33,6 +33,7 @@ quê e com qual percentual.
 | Perfil e parcerias | Pronto | `/profile` |
 | Mapa de quem compõe (RN11) | Pronto no front, rota nova no contrato | `/map` |
 | Busca global (⌘K) | Pronto | qualquer tela |
+| Primeiros passos no primeiro acesso e ajuda de cada tela (ADR 0020) | Pronto | qualquer tela, Ajustes |
 | Mural e seguidores | Pronto (Fase 4a, ADR 0013): seguir, publicar, citar canção, curtir, comentar | `/feed`, `/profile` |
 | Conversas | Pronto (Fase 4b, ADR 0014): conversa a dois, mensagens ao vivo, não lidas no menu | `/messages` |
 | Edição simultânea em tempo real | Planejado (Fase 2 do backend) | — |

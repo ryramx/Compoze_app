@@ -8,6 +8,7 @@ import { Monograma } from "@/components/compoze/Monograma";
 import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { AreaDeTexto, Campo, Entrada } from "@/components/ui/Campo";
+import { useAjuda } from "@/lib/ajuda";
 import { MODO_DEMO } from "@/lib/api";
 import { baixarVersaoNova, maisNova, ultimaVersao, versaoInstalada } from "@/lib/atualizacao";
 import { desligarAvisos, estadoDosAvisos, ligarAvisos, suportaAvisos, type EstadoDosAvisos } from "@/lib/avisos";
@@ -165,6 +166,8 @@ export default function Settings() {
   const limpar = useCompoze((s) => s.limpar);
   const sair = useAuth((s) => s.logout);
   const navegar = useNavigate();
+  const abrirTour = useAjuda((s) => s.abrirTour);
+  const abrirAjuda = useAjuda((s) => s.abrirPainel);
   const [tema] = useTema();
   const [nome, setNome] = useState(eu?.name ?? "");
   const [bio, setBio] = useState(eu?.bio ?? "");
@@ -274,6 +277,15 @@ export default function Settings() {
           <RedefinirSenha />
         </Bloco>
       )}
+
+      <Bloco titulo="Ajuda" descricao="O passeio do primeiro acesso e a explicação de cada tela.">
+        <div className="flex flex-wrap gap-2">
+          <Botao onClick={abrirTour}>Rever os primeiros passos</Botao>
+          <Botao variante="texto" onClick={abrirAjuda}>
+            Ajuda desta tela
+          </Botao>
+        </div>
+      </Bloco>
 
       <Bloco titulo="Sessão" descricao="Sair deste navegador.">
         <Botao

@@ -72,6 +72,10 @@ Utilitários próprios: `rotulo` (versalete 10.5px espaçado), `numeral`
   cor dela e o nome na margem.
 - **Campos de linha.** Entradas só com a régua de baixo, como numa ficha
   preenchida à mão.
+- **Primeiros passos e ajuda.** O tour é uma sequência de folhas, com o
+  progresso numa pauta de fios (o atual em vermelho) e cada folha explicada por
+  um pedaço do produto. A ajuda é uma folha lateral: título em serifa, resumo
+  em itálico e itens separados por réguas. Texto em `lib/ajuda.ts` (ADR 0020).
 - **Botões retos.** Canto de 2px. A pílula é a marca mais reconhecível de
   interface gerada.
 
