@@ -32,6 +32,7 @@ implementa. O backend novo deve cumprir este documento; o que estiver em
 | POST | `/auth/register` | `{ name, username, email, password }` | `201` `TokenPair` |
 | POST | `/auth/login` | `{ email, password }` | `TokenPair` · `401` credenciais |
 | POST | `/auth/refresh` | `{ refresh_token }` | `TokenPair` (refresh rotacionado) · `401` |
+| POST | `/auth/password` | `{ new_password }` (8 a 200), com login | `TokenPair` novo para este aparelho; todas as outras sessões caem (ADR 0019) · `401` · `422` |
 
 `TokenPair = { access_token, refresh_token, token_type: "bearer" }`.
 Access token de 30 min; refresh de 30 dias, de uso único (rotação com detecção

@@ -26,6 +26,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   - API: `/users/{id}/followers` e `/users/{id}/following` passam a trazer
     `followed_by_me` e `follows_me` de cada pessoa.
   - O botão de seguir do perfil também mostra "Seguir de volta".
+- Ajustes → Senha (ADR 0019): escolher uma senha nova, sem precisar da atual.
+  Este aparelho continua dentro; nos outros, é preciso entrar de novo.
+  API: `POST /auth/password`.
 - Fase 4d, apoio por PIX (ADR 0018): no detalhe do projeto, a dona cadastra
   a chave PIX e copia o link de apoio. Quem abre o link escolhe o valor e
   paga pelo QR ou pelo copia e cola, direto para a chave dela, sem taxa.
