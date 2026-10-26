@@ -12,6 +12,7 @@ import {
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
+import { avisoDeSeguidor } from "../avisos/servico";
 import * as s from "./servico";
 
 const ParamPessoa = z.object({ id: Id });
@@ -42,7 +43,9 @@ export const rotasDeGente: FastifyPluginAsyncZod = async (app) => {
     "/users/:id/follow",
     { schema: { tags: pessoas, summary: "Seguir (de novo não faz nada)", params: ParamPessoa } },
     async (req, reply) => {
-      await s.seguir(db, req.usuarioId, req.params.id);
+      if (await s.seguir(db, req.usuarioId, req.params.id)) {
+        void app.avisador.avisarDepois(avisoDeSeguidor(db, req.usuarioId, req.params.id));
+      }
       return reply.status(204).send();
     },
   );

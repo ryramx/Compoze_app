@@ -44,10 +44,16 @@ export async function perfil(db: Banco, username: string, euId: string): Promise
 }
 
 /** Seguir de novo quem já sigo não faz nada (e não é erro). */
-export async function seguir(db: Banco, euId: string, alvoId: string): Promise<void> {
+/** Devolve se o seguir é novo (seguir de novo não avisa ninguém). */
+export async function seguir(db: Banco, euId: string, alvoId: string): Promise<boolean> {
   if (alvoId === euId) throw new ErroDaApi(422, "Você não pode seguir a si mesma.");
   await pessoa(db, alvoId);
-  await db.insert(follows).values({ followerId: euId, followedId: alvoId }).onConflictDoNothing();
+  const novo = await db
+    .insert(follows)
+    .values({ followerId: euId, followedId: alvoId })
+    .onConflictDoNothing()
+    .returning({ id: follows.followerId });
+  return novo.length > 0;
 }
 
 export async function deixarDeSeguir(db: Banco, euId: string, alvoId: string): Promise<void> {

@@ -5,6 +5,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Corrigido
+- Avisos no celular: com o Compoze em segundo plano, a mensagem nova não
+  virava aviso, porque o navegador mantinha a conexão ao vivo aberta e o
+  servidor achava que a pessoa estava olhando. Agora o app fecha a conexão ao
+  sair da tela e reabre ao voltar. Seguidor novo também passa a avisar.
 - Entrar e criar conta com a API dormindo (Render grátis) não parece mais
   travado: a tela acorda a API ao abrir e, se o envio demorar, explica que o
   servidor está acordando e que leva até um minuto.
