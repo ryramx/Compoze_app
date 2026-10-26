@@ -17,6 +17,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Ajustes → Senha (ADR 0019): escolher uma senha nova, sem precisar da atual.
+  Este aparelho continua dentro; nos outros, é preciso entrar de novo.
+  API: `POST /auth/password`.
 - Fase 4d, apoio por PIX (ADR 0018): no detalhe do projeto, a dona cadastra
   a chave PIX e copia o link de apoio. Quem abre o link escolhe o valor e
   paga pelo QR ou pelo copia e cola, direto para a chave dela, sem taxa.

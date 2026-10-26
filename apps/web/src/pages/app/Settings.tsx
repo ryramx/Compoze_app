@@ -13,6 +13,7 @@ import { baixarVersaoNova, maisNova, ultimaVersao, versaoInstalada } from "@/lib
 import { desligarAvisos, estadoDosAvisos, ligarAvisos, suportaAvisos, type EstadoDosAvisos } from "@/lib/avisos";
 import { cn } from "@/lib/cn";
 import { NATIVO } from "@/lib/nativo";
+import { trocarSenha } from "@/services/api/authService";
 import { definirTema, useTema, type Tema } from "@/lib/tema";
 import { useAuth } from "@/store/authStore";
 import { useCompoze } from "@/store/compozeStore";
@@ -101,6 +102,46 @@ function AvisosDoAparelho() {
         </Botao>
       )}
     </>
+  );
+}
+
+/** Senha nova sem a atual (ADR 0019): as outras sessões caem. */
+function RedefinirSenha() {
+  const [nova, setNova] = useState("");
+  const [repetida, setRepetida] = useState("");
+  const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+
+  async function enviar(e: FormEvent) {
+    e.preventDefault();
+    if (nova.length < 8) return setErro("A senha precisa de pelo menos 8 caracteres.");
+    if (nova !== repetida) return setErro("As duas senhas não são iguais.");
+    setErro(null);
+    setEnviando(true);
+    try {
+      await trocarSenha(nova);
+      setNova("");
+      setRepetida("");
+      toast("Senha redefinida. Nos outros aparelhos, entre de novo com a senha nova.");
+    } catch {
+      toast.error("Não deu para redefinir a senha agora. Confira a internet e tente de novo.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <form onSubmit={(e) => void enviar(e)} className="space-y-6" noValidate>
+      <Campo rotulo="Senha nova" dica="Pelo menos 8 caracteres.">
+        {(id) => <Entrada id={id} type="password" autoComplete="new-password" value={nova} onChange={(e) => setNova(e.target.value)} />}
+      </Campo>
+      <Campo rotulo="Repita a senha nova" erro={erro}>
+        {(id) => <Entrada id={id} type="password" autoComplete="new-password" value={repetida} onChange={(e) => setRepetida(e.target.value)} />}
+      </Campo>
+      <Botao type="submit" variante="tinta" disabled={enviando || !nova}>
+        {enviando ? "Redefinindo…" : "Redefinir senha"}
+      </Botao>
+    </form>
   );
 }
 
@@ -225,6 +266,12 @@ export default function Settings() {
       {NATIVO && (
         <Bloco titulo="Aplicativo" descricao="O app Android não se atualiza sozinho; a versão nova é um APK novo.">
           <VersaoDoApp />
+        </Bloco>
+      )}
+
+      {!MODO_DEMO && (
+        <Bloco titulo="Senha" descricao="Escolha uma senha nova. Este aparelho continua dentro; nos outros, é preciso entrar de novo.">
+          <RedefinirSenha />
         </Bloco>
       )}
 

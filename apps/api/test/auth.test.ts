@@ -108,6 +108,43 @@ describe("refresh", () => {
   });
 });
 
+describe("senha nova", () => {
+  const trocar = (token: string | null, new_password: string) =>
+    ctx.app.inject({
+      method: "POST",
+      url: "/auth/password",
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+      payload: { new_password },
+    });
+  const entrarCom = (email: string, password: string) =>
+    ctx.app.inject({ method: "POST", url: "/auth/login", payload: { email, password } });
+  const renovar = (refresh_token: string) =>
+    ctx.app.inject({ method: "POST", url: "/auth/refresh", payload: { refresh_token } });
+
+  it("troca a senha sem pedir a atual: a velha deixa de entrar e a nova entra", async () => {
+    const p = await novaPessoa(ctx.app);
+    const r = await trocar(p.token, "senha-nova-456");
+    expect(r.statusCode).toBe(200);
+    expect((await entrarCom(p.email, "senha-boa-123")).statusCode).toBe(401);
+    expect((await entrarCom(p.email, "senha-nova-456")).statusCode).toBe(200);
+  });
+
+  it("derruba as outras sessões e devolve um par novo para este aparelho", async () => {
+    const p = await novaPessoa(ctx.app);
+    const outro = (await entrarCom(p.email, "senha-boa-123")).json().refresh_token as string;
+    const novo = (await trocar(p.token, "senha-nova-456")).json();
+    expect((await renovar(outro)).statusCode).toBe(401);
+    expect((await renovar(p.refresh)).statusCode).toBe(401);
+    expect((await renovar(novo.refresh_token)).statusCode).toBe(200);
+  });
+
+  it("pede login e senha com pelo menos 8 caracteres", async () => {
+    const p = await novaPessoa(ctx.app);
+    expect((await trocar(null, "senha-nova-456")).statusCode).toBe(401);
+    expect((await trocar(p.token, "curta")).statusCode).toBe(422);
+  });
+});
+
 describe("rotas privadas", () => {
   it("sem token é 401 com `detail`", async () => {
     const r = await ctx.app.inject({ method: "GET", url: "/songs" });
