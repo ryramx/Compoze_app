@@ -4,6 +4,12 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Não lançado]
 
+### Documentação
+- Documentação completa em `docs/`: uma página por tela em `docs/telas/`
+  (com imagens), catálogo de funcionalidades, arquitetura do sistema, linha
+  do tempo do projeto, funcionalidades futuras (lojas, assinaturas, Mercado
+  Pago) e glossário. `docs/README.md` diz por onde começar.
+
 ### Corrigido
 - Avisos no celular: com o Compoze em segundo plano, a mensagem nova não
   virava aviso, porque o navegador mantinha a conexão ao vivo aberta e o

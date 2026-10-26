@@ -67,4 +67,15 @@ Os comandos da raiz rodam pelo Turborepo, em todos os pacotes.
 
 ## Documentação
 
-Comece por [docs/README.md](docs/README.md).
+Comece por [docs/README.md](docs/README.md). Atalhos:
+
+- [Visão geral](docs/produto/visao-geral.md): para que o Compoze existe.
+- [Telas](docs/telas/README.md): cada tela, como foi feita e por quê.
+- [Funcionalidades](docs/produto/funcionalidades.md) e
+  [arquitetura](docs/arquitetura.md).
+- [Futuro](docs/produto/futuro.md): lojas, assinaturas, Mercado Pago.
+
+## No ar
+
+- Site (staging): https://compoze-web-staging.onrender.com
+- App Android: [Compoze.apk](https://github.com/ryramx/Compoze_app/releases/latest/download/Compoze.apk)
