@@ -7,6 +7,12 @@ import { getAccessToken, MODO_DEMO, renovarSessao, URL_DA_API } from "./api";
  * Caiu, reconecta com espera crescente (1 s, 2 s, 4 s… até 30 s); quem ouve
  * relê o que pode ter perdido em `aoReconectar`.
  *
+ * Com o app em segundo plano (outra aba, outro app, tela apagada), o fluxo
+ * fecha e reabre ao voltar. Enquanto ele está aberto o servidor entende que a
+ * pessoa está olhando e não manda push (ADR 0016); no celular o navegador
+ * mantém a conexão viva por minutos depois de sair do app, e o aviso nunca
+ * chegava.
+ *
  * Na demonstração não há servidor para empurrar nada: o próprio servidor da
  * demo chama `emitir` quando algo muda.
  */
@@ -52,31 +58,36 @@ export function conectarAoVivo({ aoEvento, aoReconectar }: Ouvintes): () => void
   }
 
   let parado = false;
+  let escondido = typeof document !== "undefined" && document.hidden;
   let controle: AbortController | null = null;
   let espera = 1000;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let primeira = true;
 
   const agendar = () => {
-    if (parado) return;
+    if (parado || escondido) return;
     timer = setTimeout(() => void abrir(), espera);
     espera = Math.min(espera * 2, 30_000);
   };
 
   async function abrir() {
-    if (parado) return;
+    if (parado || escondido) return;
     if (!navigator.onLine) {
       window.addEventListener("online", () => void abrir(), { once: true });
       return;
     }
-    controle = new AbortController();
+    // Uma conexão por vez: a anterior (se houver) é descartada, e só a mais
+    // nova reagenda quando cair.
+    controle?.abort();
+    const meu = new AbortController();
+    controle = meu;
     try {
       const r = await fetch(`${URL_DA_API}/events`, {
         headers: { Authorization: `Bearer ${getAccessToken() ?? ""}`, Accept: "text/event-stream" },
-        signal: controle.signal,
+        signal: meu.signal,
       });
       if (r.status === 401 && (await renovarSessao())) return void abrir();
-      if (!r.ok || !r.body) return agendar();
+      if (!r.ok || !r.body) return void (controle === meu && agendar());
       espera = 1000;
       if (!primeira) aoReconectar?.();
       primeira = false;
@@ -93,12 +104,25 @@ export function conectarAoVivo({ aoEvento, aoReconectar }: Ouvintes): () => void
     } catch {
       // Rede caiu ou a conexão foi abortada.
     }
-    agendar();
+    if (controle === meu) agendar();
   }
 
+  function aoMudarVisibilidade() {
+    escondido = document.hidden;
+    clearTimeout(timer);
+    if (escondido) {
+      controle?.abort();
+      return;
+    }
+    espera = 1000;
+    void abrir();
+  }
+
+  document.addEventListener("visibilitychange", aoMudarVisibilidade);
   void abrir();
   return () => {
     parado = true;
+    document.removeEventListener("visibilitychange", aoMudarVisibilidade);
     clearTimeout(timer);
     controle?.abort();
   };

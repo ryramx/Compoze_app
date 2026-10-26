@@ -279,8 +279,10 @@ O `pix_code` é o BR Code estático com o valor e o `txid`, o mesmo do QR.
 | DELETE | `/push/subscriptions` | `{ endpoint }` (no APK, o token) → `204`; só apaga a inscrição da própria conta |
 
 O push leva `{ title, body, url, tag }` (o `Aviso` de `packages/contracts`).
-Sai em mensagem nova (para os outros da conversa) e em convite pela conta
-(para a convidada), só para quem não está com um fluxo `/events` aberto.
+Sai em mensagem nova (para os outros da conversa), em convite pela conta
+(para a convidada) e em seguidor novo (para quem foi seguida), só para quem
+não está com um fluxo `/events` aberto. O app fecha o fluxo quando sai da
+tela, então "aberto" quer dizer "olhando o Compoze agora".
 
 ## Processos do servidor
 
