@@ -132,7 +132,7 @@ export const TOPICOS: TopicoDeAjuda[] = [
     resumo: "Como você aparece para quem escreve com você, e onde você conhece outras pessoas.",
     itens: [
       { titulo: "Editar perfil", texto: "Leva a Ajustes › Perfil: foto, capa, nome artístico, cidade e um pouco sobre você." },
-      { titulo: "Capa", texto: "No seu perfil, Pôr uma capa coloca uma foto larga no topo. Sem foto, fica o papel pardo com a pauta." },
+      { titulo: "Capa", texto: "No seu perfil, Pôr uma capa coloca uma foto larga no topo. Antes de enviar, você arrasta e aproxima a foto para escolher o recorte. Sem foto, fica o papel pardo com a pauta." },
       { titulo: "Obras", texto: "Aparecem as canções visíveis no perfil. As privadas ficam só entre os coautores." },
       { titulo: "Seguidores e Seguindo", texto: "Toque nos números para ver a lista de pessoas." },
       { titulo: "Perfil de outra pessoa", texto: "Seguir põe as publicações dela no seu mural; Conversar abre uma conversa a dois." },

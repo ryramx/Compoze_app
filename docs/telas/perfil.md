@@ -13,11 +13,16 @@ escreve e o que publica. O próprio perfil é o mesmo, visto por dentro.
 
 ## O que aparece
 
-- **Capa**: uma faixa larga no topo, com a foto de capa da pessoa. Sem foto,
-  papel kraft com a pauta de cinco linhas. No próprio perfil, **Pôr uma capa**
-  / **Trocar capa** / **Tirar** ficam sobre a capa. A imagem é reduzida no
-  aparelho para 1600 px e sobe por `PUT /users/me/cover`
-  ([ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md)).
+- **Capa**: uma faixa larga no topo, sempre em 3:1, com a foto de capa da
+  pessoa. Sem foto, papel kraft com a pauta de cinco linhas. No próprio
+  perfil, **Pôr uma capa** / **Trocar capa** / **Tirar** ficam sobre a capa.
+  A foto escolhida abre a **janela de recorte** (arrastar posiciona; o
+  controle, a roda ou dois dedos aproximam), sai em 1600×533 px e sobe por
+  `PUT /users/me/cover` ([ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md),
+  [ADR 0022](../decisoes/0022-recorte-de-imagens.md)). Depois da troca, a
+  consulta do perfil é invalidada para a capa nova aparecer na hora.
+
+![Janela de recorte da capa](imagens/recorte-capa.webp)
 - **Cabeçalho**: monograma ou foto, subindo sobre a capa, `@usuario`, "segue
   você" (se for o caso), cidade e país, nome e bio.
 - **Ações**: no próprio perfil, **Editar perfil** (leva a Ajustes). No de outra

@@ -4,6 +4,15 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Não lançado]
 
+### Adicionado
+- Janela de recorte ao escolher foto de perfil, capa do perfil ou capa de
+  projeto: arrastar posiciona, o controle, a roda do mouse ou dois dedos
+  aproximam. A foto sai num círculo; a capa do perfil, em 3:1 (ADR 0022).
+
+### Corrigido
+- A capa do perfil trocada no próprio perfil não aparecia até recarregar a
+  página (a consulta do perfil não era invalidada).
+
 ### Melhorado (ajustes do primeiro teste, ADR 0021)
 - Mesa: a Esteira ganhou um cartão em papel kraft, com um traço do lápis nos
   estágios que têm obra, para não sumir no papel. "Na roda" fica num quadro
