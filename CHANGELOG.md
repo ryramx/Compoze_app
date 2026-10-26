@@ -4,6 +4,11 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Não lançado]
 
+### Adicionado
+- Botão "Nova conversa" na tela Conversas: procura qualquer pessoa do Compoze
+  pelo nome ou pelo @ (com o campo vazio, mostra quem você segue) e abre a
+  conversa com ela, sem precisar passar pelo perfil.
+
 ### Documentação
 - Documentação completa em `docs/`: uma página por tela em `docs/telas/`
   (com imagens), catálogo de funcionalidades, arquitetura do sistema, linha

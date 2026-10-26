@@ -1,7 +1,7 @@
 # Conversas
 
 `/messages` e `/messages/:id` · `apps/web/src/pages/app/Messages.tsx`,
-`components/gente/conversas.ts`, `AoVivo.tsx`, `lib/aoVivo.ts`,
+`components/gente/conversas.ts`, `NovaConversa.tsx`, `AoVivo.tsx`, `lib/aoVivo.ts`,
 `apps/api/src/lib/aoVivo.ts`
 
 ![Conversas](imagens/conversas.webp)
@@ -21,9 +21,17 @@ divisão.
   mensagens ficam à direita, em tinta; as da outra pessoa, à esquerda, em
   papel.
 - **Mensagens anteriores**, em páginas.
-- **Começar uma conversa** pelo "Conversar" do perfil de alguém ou pelo
-  "Mensagem" da lista de seguidores: o endereço `/messages?com=<id>` abre a
-  conversa que já existe ou cria uma.
+- **Nova conversa**, no alto da tela: abre uma janela para procurar a pessoa
+  pelo nome ou pelo @, em todas as contas do Compoze (a mesma busca do
+  convite, `GET /users?q=`). Com o campo vazio, a janela mostra quem você
+  segue. Quem já tem conversa com você aparece com "já conversam"; escolher
+  essa pessoa só abre a conversa que existe.
+
+  ![Nova conversa](imagens/conversas-nova.webp)
+
+- **Começar uma conversa** também pelo "Conversar" do perfil de alguém ou pelo
+  "Mensagem" da lista de seguidores. Os três caminhos levam ao mesmo endereço,
+  `/messages?com=<id>`, que abre a conversa que já existe ou cria uma.
 - No computador, a conversa mais recente abre sozinha; no celular, a lista e a
   conversa são telas separadas, com ← para voltar.
 
@@ -57,6 +65,8 @@ divisão.
 | Só conversas a dois | Cobre o uso principal (combinar com a parceria). Grupos pedem moderação, papéis e outra interface ([ADR 0014](../decisoes/0014-conversas-ao-vivo.md)) |
 | SSE em vez de WebSocket | É só do servidor para o aparelho, passa por qualquer proxy, reconecta sozinho e não precisa de outra peça; o envio continua sendo um `POST` normal |
 | Hub em memória, sem Redis | Uma instância só no plano grátis. Com mais de uma, o hub passa a precisar de um canal entre elas (Postgres `LISTEN/NOTIFY` ou Redis) |
+| "Nova conversa" na própria tela | Antes só dava para começar pelo perfil, o que obrigava a sair de Conversas e achar a pessoa antes. A janela reaproveita a busca de pessoas e o `?com=`, sem rota nova na API |
+| Sugestões são quem você segue | É a lista de gente mais provável para conversar e já existe (`GET /users/{id}/following`); evita uma janela vazia |
 | Mensagens não têm cópia offline | Conversa é tempo real; mandar uma mensagem que só sai horas depois confunde mais do que ajuda |
 
 ## Sem internet

@@ -1,11 +1,12 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Plus, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import { Cabecalho } from "@/components/compoze/Cabecalho";
 import { Monograma } from "@/components/compoze/Monograma";
 import { guardarMensagem, useConversas } from "@/components/gente/conversas";
+import { NovaConversa } from "@/components/gente/NovaConversa";
 import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
 import { ApiError } from "@/lib/api";
@@ -142,6 +143,7 @@ export default function Messages() {
   const online = useOnline();
   const { data: lista, isPending, isError, refetch } = useConversas();
   const atual = lista?.find((c) => c.id === id);
+  const [nova, setNova] = useState(false);
 
   // /messages?com=<id da pessoa>: o "Conversar" do perfil abre (ou cria) a conversa.
   const com = busca.get("com");
@@ -163,7 +165,16 @@ export default function Messages() {
 
   return (
     <Pagina>
-      <Cabecalho secao="Gente" titulo="Conversas" />
+      <Cabecalho
+        secao="Gente"
+        titulo="Conversas"
+        acoes={
+          <Botao variante="tinta" onClick={() => setNova(true)}>
+            <Plus /> Nova conversa
+          </Botao>
+        }
+      />
+      <NovaConversa aberta={nova} aoMudar={setNova} />
 
       <div className="mt-8 grid min-h-[60vh] border-y border-linha md:grid-cols-[300px_minmax(0,1fr)]">
         <ul className={cn("border-linha md:border-r", atual && "hidden md:block")}>
@@ -177,7 +188,7 @@ export default function Messages() {
             </li>
           )}
           {lista?.length === 0 && (
-            <li className="px-4 py-6 font-serif text-tinta-3 italic">Nenhuma conversa ainda. Comece pelo perfil de alguém.</li>
+            <li className="px-4 py-6 font-serif text-tinta-3 italic">Nenhuma conversa ainda. Toque em Nova conversa para começar.</li>
           )}
           {lista?.map((c) => {
             const ultima = c.last_message;
