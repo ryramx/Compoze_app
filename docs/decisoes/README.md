@@ -25,3 +25,4 @@ duas apontam uma para a outra.
 | [0017](0017-email-por-smtp.md) | E-mail dos convites também por SMTP, para usar o Gmail sem domínio | Aceita |
 | [0018](0018-apoio-por-pix.md) | Apoio a projetos por PIX, direto na chave da dona | Aceita |
 | [0019](0019-senha-nova-sem-a-atual.md) | Senha nova em Ajustes, sem pedir a atual | Aceita |
+| [0020](0020-primeiros-passos-e-ajuda.md) | Primeiros passos no primeiro acesso e ajuda de cada tela | Aceita |

@@ -1,10 +1,12 @@
 import * as D from "@radix-ui/react-dialog";
 import { Command } from "cmdk";
+import { BookOpen, CircleHelp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Estagio } from "@/components/compoze/Estagio";
 import { Monograma } from "@/components/compoze/Monograma";
 import { TODAS } from "@/components/layout/navegacao";
+import { useAjuda } from "@/lib/ajuda";
 import { useOnline } from "@/lib/rede";
 import { TIPOS_DE_PROJETO } from "@/lib/rotulos";
 import * as pessoasApi from "@/services/api/userService";
@@ -61,6 +63,13 @@ export function BuscaGlobal({ aberta, aoMudar }: { aberta: boolean; aoMudar: (v:
 
   const conhecidas = pessoas.filter((u) => u.id !== euId);
   const novas = achados.filter((u) => u.id !== euId && !conhecidas.some((c) => c.id === u.id));
+
+  const abrirAjuda = useAjuda((s) => s.abrirPainel);
+  const abrirTour = useAjuda((s) => s.abrirTour);
+  const ajudar = (abrir: () => void) => {
+    aoMudar(false);
+    abrir();
+  };
 
   const ir = (url: string) => {
     aoMudar(false);
@@ -140,6 +149,16 @@ export function BuscaGlobal({ aberta, aoMudar }: { aberta: boolean; aoMudar: (v:
                     <span>{p.titulo}</span>
                   </Command.Item>
                 ))}
+              </Command.Group>
+              <Command.Group heading="Ajuda" className={grupo}>
+                <Command.Item value="ajuda desta tela duvida" onSelect={() => ajudar(abrirAjuda)} className={item}>
+                  <CircleHelp aria-hidden className="size-4 shrink-0 text-tinta-3" strokeWidth={1.5} />
+                  <span>Ajuda desta tela</span>
+                </Command.Item>
+                <Command.Item value="ajuda primeiros passos tutorial tour" onSelect={() => ajudar(abrirTour)} className={item}>
+                  <BookOpen aria-hidden className="size-4 shrink-0 text-tinta-3" strokeWidth={1.5} />
+                  <span>Primeiros passos</span>
+                </Command.Item>
               </Command.Group>
             </Command.List>
           </Command>

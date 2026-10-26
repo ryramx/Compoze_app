@@ -21,6 +21,15 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Primeiros passos e ajuda (ADR 0020): no primeiro acesso, sete folhas
+  explicam para que serve o Compoze e como usar a folha, a parceria e a
+  coautoria, os estágios, pastas e projetos, o mural, as conversas e o mapa.
+  Abre uma vez por conta em cada aparelho e pode ser pulado.
+  - Botão de ajuda em todas as telas (ícone no topo, no celular; "Ajuda desta
+    tela" no menu, no computador; tecla `?`): explica a tela aberta e leva à
+    ajuda das outras.
+  - Rever os primeiros passos em Ajustes → Ajuda, no painel de ajuda ou pela
+    busca (⌘K).
 - Lista de seguidores e de quem a pessoa segue (ADR 0013): os números
   "Seguidores" e "Seguindo" do perfil abrem a lista de pessoas, como no
   Instagram, com abas para trocar entre as duas. Cada pessoa tem
