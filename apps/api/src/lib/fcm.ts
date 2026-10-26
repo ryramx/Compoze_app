@@ -25,6 +25,10 @@ const TOKEN_URL = "https://oauth2.googleapis.com/token";
 
 /** O canal de notificação que o app cria ao abrir (Android 8+). */
 export const CANAL_ANDROID = "avisos";
+/** drawable/ic_aviso.xml do APK: a nota em branco, que o Android pinta com a cor. */
+export const ICONE_ANDROID = "ic_aviso";
+/** O vermelho-lápis da marca, o mesmo de values/avisos.xml. */
+export const COR_ANDROID = "#B4412B";
 
 export function criarFcm(conta: ContaDeServico, buscar: typeof fetch = fetch): EntregarFcm {
   let acesso: { valor: string; vence: number } | null = null;
@@ -62,7 +66,13 @@ export function criarFcm(conta: ContaDeServico, buscar: typeof fetch = fetch): E
           token,
           notification: { title: aviso.title, body: aviso.body },
           data: { url: aviso.url, tag: aviso.tag },
-          android: { priority: "HIGH", ttl: "86400s", collapse_key: tag, notification: { tag, channel_id: CANAL_ANDROID } },
+          android: {
+            priority: "HIGH",
+            ttl: "86400s",
+            collapse_key: tag,
+            // Ícone e cor também no manifest; aqui valem mesmo se o aparelho não ler o meta-data.
+            notification: { tag, channel_id: CANAL_ANDROID, icon: ICONE_ANDROID, color: COR_ANDROID },
+          },
         },
       }),
     });

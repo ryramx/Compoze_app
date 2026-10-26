@@ -1,7 +1,7 @@
 import { exportPKCS8, generateKeyPair } from "jose";
 import { describe, expect, it } from "vitest";
 
-import { CANAL_ANDROID, criarFcm } from "../src/lib/fcm";
+import { CANAL_ANDROID, COR_ANDROID, ICONE_ANDROID, criarFcm } from "../src/lib/fcm";
 
 const aviso = { title: "Ana", body: "oi", url: "/messages/c1", tag: "conversa-c1" };
 
@@ -40,7 +40,7 @@ describe("FCM HTTP v1 (ADR 0016)", () => {
       token: "token-do-aparelho",
       notification: { title: "Ana", body: "oi" },
       data: { url: "/messages/c1", tag: "conversa-c1" },
-      android: { priority: "HIGH", notification: { channel_id: CANAL_ANDROID } },
+      android: { priority: "HIGH", notification: { channel_id: CANAL_ANDROID, icon: ICONE_ANDROID, color: COR_ANDROID } },
     });
   });
 

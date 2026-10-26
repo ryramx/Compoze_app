@@ -18,7 +18,9 @@ self.addEventListener("push", (evento) => {
       // Mesma conversa: o aviso novo substitui o anterior, mas avisa de novo.
       renotify: true,
       icon: "/pwa-192.png",
-      badge: "/pwa-192.png",
+      // O selo vai na barra de status do Android, que usa só a transparência
+      // da imagem: o pwa-192.png é todo opaco e virava um quadrado branco.
+      badge: "/aviso-badge.png",
       lang: "pt-BR",
       data: { url: aviso.url },
     }),
