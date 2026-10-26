@@ -97,6 +97,11 @@ grátis (Spark) basta e não pede cartão. **Situação:** já configurado (proj
 passos abaixo servem para refazer do zero. Sem estes passos o APK continua
 funcionando, só sem a opção de avisos em Ajustes.
 
+O ícone pequeno do aviso é `res/drawable/ic_aviso.xml`: a nota em branco
+sobre transparente, que o Android pinta com o vermelho da marca
+(`values/avisos.xml`). Ícone colorido ali vira um quadrado branco (ADR 0016,
+item 8). Para trocar o desenho, mude o vetor e gere um APK novo.
+
 1. Em [console.firebase.google.com](https://console.firebase.google.com),
    **Adicionar projeto** → nome "Compoze" → pode desligar o Google Analytics.
 2. Na página do projeto, **Adicionar app → Android**. Nome do pacote:

@@ -86,6 +86,21 @@ APK só liga o push quando foi feito com o `google-services.json`
 cria o canal "Mensagens e convites", e o aviso usa um ícone de um traço só,
 como o Android pede.
 
+**8. O ícone pequeno do aviso é só a nota, em branco sobre transparente.** O
+Android desenha o ícone da barra de status usando apenas a transparência da
+imagem: o que é opaco vira branco (ou a cor do aviso). Um ícone colorido e
+cheio, como o do app, vira um quadrado branco. Por isso:
+
+- APK: `res/drawable/ic_aviso.xml` (a nota do favicon, só o traço), ligado no
+  `AndroidManifest.xml` (`default_notification_icon` e `_color`) e também
+  mandado em cada envio pelo servidor (`android.notification.icon` e `color`
+  em `lib/fcm.ts`), para valer mesmo em aparelho que ignora o meta-data.
+- Web Push: `badge` é `public/aviso-badge.png` (96×96, nota branca sobre
+  transparente). O `icon` continua o `pwa-192.png` colorido, que aparece
+  grande dentro do aviso. Até 26/10/2026 o `badge` também era o
+  `pwa-192.png`, todo opaco, e o Chrome do Android mostrava um quadrado
+  branco.
+
 ## Consequências
 
 - Push precisa do service worker: só funciona no build (`vite build` +

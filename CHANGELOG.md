@@ -22,6 +22,11 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   Pago) e glossário. `docs/README.md` diz por onde começar.
 
 ### Corrigido
+- Avisos por push mostram a nota do Compoze no lugar de um quadrado branco.
+  No navegador e na PWA, o selo da barra de status (`badge`) passou a ser
+  uma nota branca sobre transparente (`aviso-badge.png`); no APK, o servidor
+  manda o ícone e a cor do aviso em cada envio, além do que já estava no
+  manifest.
 - Avisos no celular: com o Compoze em segundo plano, a mensagem nova não
   virava aviso, porque o navegador mantinha a conexão ao vivo aberta e o
   servidor achava que a pessoa estava olhando. Agora o app fecha a conexão ao
