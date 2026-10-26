@@ -64,6 +64,7 @@ export default function Profile() {
           // Sobre a foto, numa tira de papel, para ler em qualquer imagem.
           <div className="absolute right-2 bottom-2 bg-papel/90 p-1 sm:right-3 sm:bottom-3">
             <EscolherImagem
+              formato="capa-do-perfil"
               temImagem={!!pessoa.cover}
               rotuloTrocar={pessoa.cover ? "Trocar capa" : "Pôr uma capa"}
               rotuloTirar="Tirar"

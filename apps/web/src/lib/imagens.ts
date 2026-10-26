@@ -21,20 +21,52 @@ export function medidas(largura: number, altura: number, lado: number): { largur
   return { largura: Math.max(1, Math.round(largura * escala)), altura: Math.max(1, Math.round(altura * escala)) };
 }
 
+/** Retângulo em pixels da imagem original (já com a orientação EXIF). */
+export interface Recorte {
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+}
+
 /**
- * Reduz e recomprime. WebP onde o navegador sabe gerar; JPEG no resto (o
- * Safari antigo devolve PNG quando não conhece o tipo pedido, e PNG de foto
- * pesa demais). A orientação EXIF já vem aplicada por `createImageBitmap`.
+ * Parte da imagem que cabe numa moldura de `proporcao` (largura/altura),
+ * centrada em (`cx`, `cy`) e ampliada `zoom` vezes além do mínimo que cobre a
+ * moldura. O centro é empurrado para dentro: a moldura nunca mostra vazio.
  */
-export async function reduzirImagem(arquivo: Blob, lado: number): Promise<Blob> {
+export function areaDoRecorte(
+  imagem: { largura: number; altura: number },
+  proporcao: number,
+  zoom: number,
+  cx: number,
+  cy: number,
+): Recorte {
+  // Com zoom 1, a maior moldura de `proporcao` que cabe inteira na imagem.
+  const largura0 = Math.min(imagem.largura, imagem.altura * proporcao);
+  const largura = largura0 / Math.max(1, zoom);
+  const altura = largura / proporcao;
+  const x = Math.min(Math.max(cx - largura / 2, 0), imagem.largura - largura);
+  const y = Math.min(Math.max(cy - altura / 2, 0), imagem.altura - altura);
+  return { x, y, largura, altura };
+}
+
+/**
+ * Recorta, reduz e recomprime. WebP onde o navegador sabe gerar; JPEG no
+ * resto (o Safari antigo devolve PNG quando não conhece o tipo pedido, e PNG
+ * de foto pesa demais). A orientação EXIF já vem aplicada por
+ * `createImageBitmap`. Sem `recorte`, vai a imagem inteira.
+ */
+export async function recortarImagem(arquivo: Blob, lado: number, recorte?: Recorte): Promise<Blob> {
   const bitmap = await createImageBitmap(arquivo, { imageOrientation: "from-image" });
-  const { largura, altura } = medidas(bitmap.width, bitmap.height, lado);
+  const r = recorte ?? { x: 0, y: 0, largura: bitmap.width, altura: bitmap.height };
+  const { largura, altura } = medidas(r.largura, r.altura, lado);
   const tela = document.createElement("canvas");
   tela.width = largura;
   tela.height = altura;
   const ctx = tela.getContext("2d");
   if (!ctx) throw new Error("Este navegador não desenha imagens.");
-  ctx.drawImage(bitmap, 0, 0, largura, altura);
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bitmap, r.x, r.y, r.largura, r.altura, 0, 0, largura, altura);
   bitmap.close();
 
   const gerar = (tipo: string) => new Promise<Blob | null>((ok) => tela.toBlob(ok, tipo, 0.85));

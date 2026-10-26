@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { AVATAR_LADO_PX, CAPA_DO_PERFIL_LADO_PX, CAPA_LADO_PX } from "@compoze/contracts/imagens";
 
 import type {
   Folder,
@@ -14,7 +13,7 @@ import { ApiError } from "@/lib/api";
 import { lerCopia, salvarCopia } from "@/lib/copiaLocal";
 import { comFaixa, renumerar, semFaixa } from "@/lib/faixas";
 import { abrirFila, enfileirar, esvaziar } from "@/lib/fila";
-import { reduzirImagem } from "@/lib/imagens";
+import { queryClient } from "@/lib/queryClient";
 import { uuidv7 } from "@/lib/uuidv7";
 import { patchDeMusicaParaApi } from "@/services/api/adapters";
 import type { ApiReceivedInvite, ApiVersion } from "@/services/api/dto";
@@ -138,12 +137,13 @@ interface CompozeState {
 
   /**
    * Foto de perfil e capa (ADR 0015). Pedem rede, como o lado social: imagem
-   * não entra na fila do aparelho. Reduzem antes de subir; null tira a imagem.
+   * não entra na fila do aparelho. Recebem a imagem já recortada e reduzida
+   * pela janela de recorte (ADR 0022); null tira a imagem.
    */
-  trocarFoto: (arquivo: Blob | null) => Promise<void>;
-  trocarCapa: (projetoId: string, arquivo: Blob | null) => Promise<void>;
+  trocarFoto: (imagem: Blob | null) => Promise<void>;
+  trocarCapa: (projetoId: string, imagem: Blob | null) => Promise<void>;
   /** Capa do perfil (ADR 0021). */
-  trocarCapaDoPerfil: (arquivo: Blob | null) => Promise<void>;
+  trocarCapaDoPerfil: (imagem: Blob | null) => Promise<void>;
 }
 
 /**
@@ -633,20 +633,21 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     );
   },
 
-  trocarFoto: async (arquivo) => {
-    const imagem = arquivo ? await reduzirImagem(arquivo, AVATAR_LADO_PX) : null;
+  // O perfil aberto vem da API por React Query (ADR 0013) e tem precedência
+  // sobre o caderno; sem invalidar, a foto nova só aparecia ao recarregar.
+  trocarFoto: async (imagem) => {
     const eu = await userApi.trocarFoto(imagem);
     set({ users: get().users.map((u) => (u.id === eu.id ? { ...u, avatar: eu.avatar } : u)) });
+    void queryClient.invalidateQueries({ queryKey: ["perfil"] });
   },
 
-  trocarCapaDoPerfil: async (arquivo) => {
-    const imagem = arquivo ? await reduzirImagem(arquivo, CAPA_DO_PERFIL_LADO_PX) : null;
+  trocarCapaDoPerfil: async (imagem) => {
     const eu = await userApi.trocarCapaDoPerfil(imagem);
     set({ users: get().users.map((u) => (u.id === eu.id ? { ...u, cover: eu.cover } : u)) });
+    void queryClient.invalidateQueries({ queryKey: ["perfil"] });
   },
 
-  trocarCapa: async (projetoId, arquivo) => {
-    const imagem = arquivo ? await reduzirImagem(arquivo, CAPA_LADO_PX) : null;
+  trocarCapa: async (projetoId, imagem) => {
     const p = await projectApi.trocarCapa(projetoId, imagem);
     set({ projects: get().projects.map((x) => (x.id === projetoId ? { ...x, cover: p.cover } : x)) });
   },

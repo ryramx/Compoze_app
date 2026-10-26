@@ -14,6 +14,11 @@ export const AVATAR_LADO_PX = 512;
 export const CAPA_LADO_PX = 1200;
 /** A capa do perfil é uma faixa larga no topo da página. */
 export const CAPA_DO_PERFIL_LADO_PX = 1600;
+/**
+ * Largura sobre altura da capa do perfil, igual no celular e no PC: a pessoa
+ * recorta uma vez e vê o mesmo corte em todo lugar (ADR 0022).
+ */
+export const CAPA_DO_PERFIL_PROPORCAO = 3;
 
 /** Caminho que vai em `avatar_url` e `cover_url`. Relativo à API. */
 export const caminhoDaImagem = (id: string) => `/images/${id}`;

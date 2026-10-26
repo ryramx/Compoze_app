@@ -43,8 +43,9 @@ arte já parece um disco de verdade ([ADR 0002](../decisoes/0002-reescrita-do-fr
 ![Detalhe do projeto](imagens/projeto.webp)
 
 - **Capa**, com "Pôr uma capa" / "Trocar capa" e "Voltar à capa tipográfica".
-  A imagem é reduzida no aparelho para 1200 px antes de subir
-  ([ADR 0015](../decisoes/0015-imagens-no-postgres.md)).
+  A imagem passa pela janela de recorte (quadrada) e sai em 1200×1200 px
+  ([ADR 0015](../decisoes/0015-imagens-no-postgres.md),
+  [ADR 0022](../decisoes/0022-recorte-de-imagens.md)).
 - **Formato · estilo**, nome e descrição.
 - Quatro números: **Faixas** (quantas estão prontas, isto é, finalizadas,
   registradas ou gravadas), **Lançamento**, **Arrecadado** (percentual e "R$ X

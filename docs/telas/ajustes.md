@@ -41,10 +41,15 @@ A frase muda conforme o aparelho:
 ## Como foi feita
 
 - **Perfil**: `updateCurrentUser` no store, pela fila offline
-  (`PATCH /users/me`). A foto é reduzida no aparelho para 512 px e sobe por
-  `PUT /users/me/avatar`; a capa, para 1600 px, por `PUT /users/me/cover`.
-  As duas pedem rede ([ADR 0015](../decisoes/0015-imagens-no-postgres.md),
-  [ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md)).
+  (`PATCH /users/me`). Foto e capa passam antes pela janela de recorte
+  (`Recortar.tsx`): a foto num círculo, saindo em 512×512 px por
+  `PUT /users/me/avatar`; a capa em 3:1, saindo em 1600×533 px por
+  `PUT /users/me/cover`. As duas pedem rede
+  ([ADR 0015](../decisoes/0015-imagens-no-postgres.md),
+  [ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md),
+  [ADR 0022](../decisoes/0022-recorte-de-imagens.md)).
+
+![Janela de recorte da foto, no celular](imagens/recorte-foto.webp)
 - **Tema**: `lib/tema.ts` guarda a escolha no navegador e aplica a classe no
   `<html>`; "Sistema" segue `prefers-color-scheme`.
 - **Avisos**: `lib/avisos.ts` tem dois caminhos. No navegador e na PWA, **Web

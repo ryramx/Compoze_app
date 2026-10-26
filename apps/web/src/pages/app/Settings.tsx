@@ -209,13 +209,13 @@ export default function Settings() {
       <Bloco titulo="Perfil" descricao="Como você aparece nos créditos, no mapa e para quem escreve com você.">
         <div className="mb-6 flex items-center gap-5">
           <Monograma usuario={eu} tamanho="lg" />
-          <EscolherImagem temImagem={!!eu?.avatar} rotuloTrocar={eu?.avatar ? "Trocar foto" : "Pôr uma foto"} rotuloTirar="Tirar foto" trocar={trocarFoto} />
+          <EscolherImagem formato="avatar" temImagem={!!eu?.avatar} rotuloTrocar={eu?.avatar ? "Trocar foto" : "Pôr uma foto"} rotuloTirar="Tirar foto" trocar={trocarFoto} />
         </div>
         <div className="mb-8">
           <span className="rotulo mb-2 block">Capa do perfil</span>
           <CapaDoPerfil imagem={eu?.cover} className="max-w-md" />
           <div className="mt-2">
-            <EscolherImagem temImagem={!!eu?.cover} rotuloTrocar={eu?.cover ? "Trocar capa" : "Pôr uma capa"} rotuloTirar="Tirar capa" trocar={trocarCapa} />
+            <EscolherImagem formato="capa-do-perfil" temImagem={!!eu?.cover} rotuloTrocar={eu?.cover ? "Trocar capa" : "Pôr uma capa"} rotuloTirar="Tirar capa" trocar={trocarCapa} />
           </div>
         </div>
         <form onSubmit={salvar} className="space-y-6">

@@ -105,6 +105,7 @@ export default function ProjectDetail() {
           <Capa projeto={projeto} className="shadow-folha" />
           <div className="mt-4">
             <EscolherImagem
+              formato="capa-de-projeto"
               temImagem={!!projeto.cover}
               rotuloTrocar={projeto.cover ? "Trocar capa" : "Pôr uma capa"}
               rotuloTirar="Voltar à capa tipográfica"
