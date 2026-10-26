@@ -4,6 +4,11 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Não lançado]
 
+### Corrigido
+- A busca do topo (Buscar / ⌘K) acha qualquer pessoa do Compoze pelo nome ou
+  pelo @, sem acento. Antes ela só via quem já estava no seu caderno
+  (coautores e contatos), e "Nada encontrado" aparecia para todo o resto.
+
 ### Removido
 - `POST /songs/{id}/collaborators`: ninguém entra numa canção sem aceitar um
   convite (ADR 0010).
