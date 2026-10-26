@@ -23,7 +23,9 @@ abrir no editor.
     estágio, tom, andamento e compasso, autores e quando foi editada. No
     celular as colunas menos importantes somem.
   - Fichas são cartões pautados, como fichas de arquivo, com as três
-    primeiras linhas da letra.
+    primeiras linhas da letra. **Duas por linha já no celular**, mais
+    compactas; três no computador e quatro nas telas largas
+    ([ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md)).
 - **Nova canção**, que abre direto no editor.
 - **Mover para a lixeira** pelo menu `…` de cada linha, com "Desfazer" no
   aviso que aparece.

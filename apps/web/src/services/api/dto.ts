@@ -24,6 +24,9 @@ import type {
   PessoaNaLista,
   Publicacao,
   AtualizarBloco,
+  AtualizarLancamento,
+  Lancamento,
+  NovoLancamento,
   AtualizarCancao,
   AtualizarEu,
   AtualizarPasta,
@@ -84,6 +87,9 @@ export type ApiTrashItem = ItemDaLixeira;
 export type ApiFolder = Pasta;
 export type ApiProject = Projeto;
 export type ApiProjectDetail = DetalheDoProjeto;
+export type ApiEntry = Lancamento;
+export type ApiNewEntry = NovoLancamento;
+export type ApiEntryPatch = AtualizarLancamento;
 export type ApiVersionSummary = ResumoDaVersao;
 export type ApiVersion = Versao;
 export type ApiVoiceMemo = MemoDeVoz;

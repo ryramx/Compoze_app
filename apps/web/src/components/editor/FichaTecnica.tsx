@@ -1,5 +1,6 @@
 import { Check, Plus, X } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router";
 import { toast } from "sonner";
 import { Monograma } from "@/components/compoze/Monograma";
 import { Botao } from "@/components/ui/Botao";
@@ -8,6 +9,7 @@ import { Dialogo } from "@/components/ui/Dialogo";
 import { Convidar } from "./Convidar";
 import { ApiError } from "@/lib/api";
 import { cn } from "@/lib/cn";
+import { numeroDaFaixa, proximaFaixa } from "@/lib/faixas";
 import { PRECISA_DE_REDE, useOnline } from "@/lib/rede";
 import { COMPASSOS, ESTAGIOS, posicaoDoEstagio, TONS } from "@/lib/rotulos";
 import { useCompoze } from "@/store/compozeStore";
@@ -29,6 +31,9 @@ function Linha({ rotulo, children }: { rotulo: string; children: React.ReactNode
 export function FichaTecnica({ musica }: { musica: Song }) {
   const atualizar = useCompoze((s) => s.updateSong);
   const pastas = useCompoze((s) => s.folders);
+  const projetos = useCompoze((s) => s.projects);
+  const porNoProjeto = useCompoze((s) => s.addSongToProject);
+  const numerar = useCompoze((s) => s.setTrackNumber);
   const getUser = useCompoze((s) => s.getUser);
   const euId = useCompoze((s) => s.currentUserId);
   const definirParte = useCompoze((s) => s.setContribution);
@@ -160,6 +165,57 @@ export function FichaTecnica({ musica }: { musica: Song }) {
               ))}
             </Seletor>
           </Linha>
+          {/* Faixa nos projetos (ADR 0021): o número é editável aqui também. */}
+          {projetos
+            .filter((p) => p.songIds.includes(musica.id))
+            .map((p) => (
+              <Linha key={p.id} rotulo="Faixa">
+                <span className="flex items-baseline gap-1.5 text-sm">
+                  <input
+                    key={numeroDaFaixa(p, musica.id)}
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={999}
+                    defaultValue={numeroDaFaixa(p, musica.id)}
+                    onBlur={(e) => {
+                      const n = Number(e.target.value);
+                      if (Number.isInteger(n) && n >= 1 && n <= 999 && n !== numeroDaFaixa(p, musica.id)) numerar(p.id, musica.id, n);
+                      else e.target.value = String(numeroDaFaixa(p, musica.id));
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+                    className="numeral w-9 bg-transparent focus:outline-none [&::-webkit-inner-spin-button]:appearance-none"
+                    aria-label={`Número da faixa em ${p.name}`}
+                  />
+                  <Link to={`/projects/${p.id}`} className="link-sublinhado truncate text-tinta-2">
+                    de {p.name}
+                  </Link>
+                </span>
+              </Linha>
+            ))}
+          {projetos.some((p) => !p.songIds.includes(musica.id)) && (
+            <Linha rotulo="Projeto">
+              <Seletor
+                value=""
+                onChange={(e) => {
+                  const p = projetos.find((x) => x.id === e.target.value);
+                  if (!p) return;
+                  void porNoProjeto(p.id, musica.id);
+                  toast(`Entrou em “${p.name}” como faixa ${proximaFaixa(p)}. Mude o número ao lado, se quiser.`);
+                }}
+                className="border-0 py-0.5 text-sm"
+              >
+                <option value="">Pôr num projeto…</option>
+                {projetos
+                  .filter((p) => !p.songIds.includes(musica.id))
+                  .map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+              </Seletor>
+            </Linha>
+          )}
           <Linha rotulo="Perfil">
             <button onClick={() => patch({ hidden: !musica.hidden })} className="link-sublinhado text-left text-sm" aria-pressed={!musica.hidden}>
               {musica.hidden ? "Privada — só coautores veem" : "Visível no seu perfil"}

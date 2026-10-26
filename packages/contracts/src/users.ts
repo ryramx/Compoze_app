@@ -10,6 +10,8 @@ export const UsuarioPublico = z.object({
   username: z.string(),
   bio: z.string().nullable(),
   avatar_url: z.string().nullable(),
+  /** Foto de capa do perfil (ADR 0021), no mesmo formato de `avatar_url`. */
+  cover_url: z.string().nullable(),
   city: z.string().nullable(),
   state: z.string().nullable(),
   country: z.string().nullable(),

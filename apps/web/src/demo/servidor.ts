@@ -22,6 +22,7 @@ import { emitir } from "@/lib/aoVivo";
 import { apagarDocumentosLocais } from "@/lib/colaboracao";
 import type {
   ApiBlock,
+  ApiEntry,
   ApiFolder,
   ApiProject,
   ApiProjectDetail,
@@ -203,6 +204,7 @@ const rotasPublicas: Rota[] = [
         email,
         bio: null,
         avatar_url: null,
+        cover_url: null,
         city: null,
         state: null,
         country: null,
@@ -452,10 +454,11 @@ const rotasPrivadas: Rota[] = [
 
     if (partes[1] === "me") {
       const eu = db.usuarios.find((u) => u.id === userId)!;
-      if (partes[2] === "avatar") {
+      if (partes[2] === "avatar" || partes[2] === "cover") {
+        const campo = partes[2] === "avatar" ? "avatar_url" : "cover_url";
         if (metodo === "PUT" && !bruto?.size) return erro(422, "A imagem veio vazia.");
-        if (metodo === "PUT") eu.avatar_url = await comoDataUrl(bruto!);
-        if (metodo === "DELETE") eu.avatar_url = null;
+        if (metodo === "PUT") eu[campo] = await comoDataUrl(bruto!);
+        if (metodo === "DELETE") eu[campo] = null;
         return json(eu);
       }
       if (metodo === "GET") return json(eu);
@@ -943,18 +946,78 @@ const rotasPrivadas: Rota[] = [
       p.deleted_at = null;
       return json(projetoCompleto(p));
     }
+    if (partes[2] === "entries") {
+      // Entradas e custos (ADR 0021): entrada soma no arrecadado.
+      db.lancamentos ??= [];
+      const somar = (l: ApiEntry, sinal: 1 | -1) => {
+        if (l.kind === "ENTRADA") p.funding_current = Math.max(0, p.funding_current + sinal * l.amount);
+      };
+      if (partes.length === 3 && metodo === "GET") {
+        return json(
+          db.lancamentos
+            .filter((l) => l.project_id === p.id)
+            .sort((a, b) => (b.occurred_on ?? "").localeCompare(a.occurred_on ?? "") || a.created_at.localeCompare(b.created_at)),
+        );
+      }
+      if (partes.length === 3 && metodo === "POST") {
+        const ja = db.lancamentos.find((l) => l.id === corpo.id);
+        if (ja) return json(ja, 201);
+        const descricao = String(corpo.description ?? "").trim();
+        const valor = Number(corpo.amount);
+        if (!descricao || !Number.isInteger(valor) || valor < 1) return erro(422, "Dê um nome e um valor maior que zero.");
+        const l: ApiEntry = {
+          id: (corpo.id as string | undefined) ?? novoId("l"),
+          project_id: p.id,
+          kind: corpo.kind === "ENTRADA" ? "ENTRADA" : "CUSTO",
+          description: descricao,
+          category: (corpo.category as string | null | undefined) || null,
+          amount: valor,
+          occurred_on: (corpo.occurred_on as string | null | undefined) ?? null,
+          created_at: agora(),
+          updated_at: agora(),
+        };
+        db.lancamentos.push(l);
+        somar(l, 1);
+        return json(l, 201);
+      }
+      const l = db.lancamentos.find((x) => x.id === partes[3] && x.project_id === p.id);
+      if (!l) return erro(404, "Lançamento não encontrado.");
+      if (metodo === "PATCH") {
+        somar(l, -1);
+        Object.assign(l, corpo, { updated_at: agora() });
+        somar(l, 1);
+        return json(l);
+      }
+      if (metodo === "DELETE") {
+        somar(l, -1);
+        db.lancamentos = db.lancamentos.filter((x) => x !== l);
+        return json(null, 204);
+      }
+    }
     if (partes[2] === "songs") {
+      const doProjeto = db.faixas.filter((f) => f.project_id === p.id);
       if (metodo === "POST") {
         const songId = String(corpo.song_id);
-        if (!db.faixas.some((f) => f.project_id === p.id && f.song_id === songId)) {
-          const total = db.faixas.filter((f) => f.project_id === p.id).length;
-          db.faixas.push({
-            project_id: p.id,
-            song_id: songId,
-            track_number: (corpo.track_number as number | undefined) ?? total + 1,
-          });
+        const numero = corpo.track_number as number | undefined;
+        if (!doProjeto.some((f) => f.song_id === songId)) {
+          // Número à mão pode pular, mas não repetir (ADR 0021).
+          if (numero !== undefined && doProjeto.some((f) => f.track_number === numero)) {
+            return erro(409, `Já existe uma faixa ${numero} neste projeto.`);
+          }
+          const maior = doProjeto.reduce((m, f) => Math.max(m, f.track_number ?? 0), 0);
+          db.faixas.push({ project_id: p.id, song_id: songId, track_number: numero ?? maior + 1 });
         }
         return json(projetoCompleto(p), 201);
+      }
+      if (metodo === "PATCH") {
+        const faixa = doProjeto.find((f) => f.song_id === partes[3]);
+        if (!faixa) return erro(404, "Essa canção não é faixa do projeto.");
+        const numero = Number(corpo.track_number);
+        // Número ocupado: as duas faixas trocam.
+        const outra = doProjeto.find((f) => f.track_number === numero);
+        if (outra) outra.track_number = faixa.track_number;
+        faixa.track_number = numero;
+        return json(projetoCompleto(p));
       }
       if (metodo === "DELETE") {
         db.faixas = db.faixas.filter((f) => !(f.project_id === p.id && f.song_id === partes[3]));

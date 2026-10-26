@@ -10,7 +10,10 @@
 "O que está saindo do caderno de quem você acompanha." Um mural curto, de
 quem compõe para quem compõe: no que cada um está trabalhando, que canção
 acabou de fechar, quem procura parceria. Mostra as publicações da própria
-pessoa e de quem ela segue.
+pessoa e de quem ela segue. Cada publicação fica no seu cartão, em folha
+mais clara que o papel, para separar quem disse o quê sem sombra
+([ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md)). O mesmo cartão
+aparece no perfil.
 
 ## O que dá para fazer
 

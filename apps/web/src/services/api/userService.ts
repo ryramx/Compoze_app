@@ -62,3 +62,9 @@ export async function trocarFoto(imagem: Blob | null): Promise<User> {
   const dados = imagem ? await api.subir<ApiUserMe>("/users/me/avatar", imagem) : await api.delete<ApiUserMe>("/users/me/avatar");
   return usuarioDaApi(dados);
 }
+
+/** Capa do perfil (ADR 0021): a imagem já reduzida, ou null para tirar. */
+export async function trocarCapaDoPerfil(imagem: Blob | null): Promise<User> {
+  const dados = imagem ? await api.subir<ApiUserMe>("/users/me/cover", imagem) : await api.delete<ApiUserMe>("/users/me/cover");
+  return usuarioDaApi(dados);
+}

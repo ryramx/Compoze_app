@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Cabecalho, Vazio } from "@/components/compoze/Cabecalho";
@@ -34,18 +34,20 @@ export default function Projects() {
             </Botao>
           </Vazio>
         ) : (
-          <ul className="grid gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+          // Grade de duas colunas já no celular: a capa inteira na largura da
+          // tela empurrava o segundo projeto para fora da vista.
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-9 sm:gap-x-8 sm:gap-y-12 lg:grid-cols-3 xl:grid-cols-4">
             {projetos.map((p) => (
-              <li key={p.id}>
-                <Link to={`/projects/${p.id}`} className="group block">
+              <li key={p.id} className="min-w-0">
+                <Link to={`/projects/${p.id}`} className="group block" aria-label={`Abrir ${p.name}`}>
                   <div className="transition-transform duration-300 group-hover:-translate-y-1">
                     <Capa projeto={p} className="shadow-folha" />
                   </div>
-                  <div className="mt-4 flex items-baseline justify-between gap-3">
-                    <h2 className="font-serif text-[1.45rem] leading-tight group-hover:text-lapis">{p.name}</h2>
-                    <span className="rotulo shrink-0">{TIPOS_DE_PROJETO[p.type]}</span>
+                  <div className="mt-3 sm:mt-4">
+                    <span className="rotulo">{TIPOS_DE_PROJETO[p.type]}</span>
+                    <h2 className="mt-0.5 line-clamp-2 font-serif text-[1.15rem] leading-tight group-hover:text-lapis sm:text-[1.4rem]">{p.name}</h2>
                   </div>
-                  <div className="mt-1 flex items-baseline justify-between text-[13px] text-tinta-3">
+                  <div className="mt-1 flex items-baseline justify-between gap-2 text-[12px] text-tinta-3 sm:text-[13px]">
                     <span>
                       {p.songIds.length} {p.songIds.length === 1 ? "faixa" : "faixas"} · {FASES_DE_PROJETO[p.status]}
                     </span>
@@ -56,6 +58,9 @@ export default function Projects() {
                       <span className="block h-px bg-tinta" style={{ width: `${p.fundingProgress}%` }} />
                     </span>
                   )}
+                  <span className="mt-2.5 inline-flex items-center gap-1 text-[12.5px] text-tinta-2 transition-colors group-hover:text-lapis">
+                    Abrir e editar <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
                 </Link>
               </li>
             ))}

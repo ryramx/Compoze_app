@@ -136,7 +136,7 @@ export default function Feed() {
         </div>
       ) : (
         <>
-          <ol>
+          <ol className="mt-6 space-y-3">
             {posts.map((p) => (
               <Publicacao key={p.id} post={p} />
             ))}

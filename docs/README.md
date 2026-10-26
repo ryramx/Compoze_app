@@ -54,7 +54,7 @@ entenda como ele funciona só lendo o repositório.
 | [backend/contrato-da-api.md](backend/contrato-da-api.md) | Todas as rotas, com formatos e regras |
 | [backend/deploy.md](backend/deploy.md) | Render + Neon (grátis): o que o Blueprint cria, como publicar, push, e-mail |
 | [mobile/android.md](mobile/android.md) | App Android: gerar, assinar e publicar o APK; Firebase; como funciona por dentro |
-| [decisoes/](decisoes/README.md) | Registros de decisão (ADRs 0001 a 0020), um por escolha relevante |
+| [decisoes/](decisoes/README.md) | Registros de decisão (ADRs 0001 a 0021), um por escolha relevante |
 | [../CHANGELOG.md](../CHANGELOG.md) | O que mudou, por versão |
 
 ## Como documentamos

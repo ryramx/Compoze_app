@@ -169,18 +169,23 @@ export default function Dashboard() {
               >
                 <span id="esteira">Esteira</span>
               </TituloDeSecao>
-              <ol className="grid grid-cols-3 gap-px border border-linha bg-linha sm:grid-cols-6 lg:grid-cols-3 xl:grid-cols-6">
+              {/* Cartão kraft: a Esteira é o painel de controle da Mesa e não pode sumir no papel. */}
+              <ol className="grid grid-cols-3 gap-px border border-kraft-linha bg-kraft-linha sm:grid-cols-6 lg:grid-cols-3 xl:grid-cols-6">
                 {ESTAGIOS.map((e, i) => {
                   const n = musicas.filter((m) => m.status === e.valor).length;
                   return (
                     <li key={e.valor}>
                       <Link
                         to={`/songs?estagio=${e.valor}`}
-                        className="flex h-full flex-col justify-between gap-5 bg-papel p-3 transition-colors hover:bg-folha"
+                        className="group flex h-full flex-col justify-between gap-5 bg-kraft p-3 transition-colors hover:bg-folha"
                       >
-                        <span className="numeral text-[10px] text-tinta-3">{String(i + 1).padStart(2, "0")}</span>
+                        <span className="flex items-center justify-between">
+                          <span className="numeral text-[10px] text-tinta-2/80">{String(i + 1).padStart(2, "0")}</span>
+                          {/* O lápis marca onde há obra parada; estágio vazio fica sem marca. */}
+                          {n > 0 && <span className="h-[2px] w-3 bg-lapis/70 transition-all group-hover:w-5" aria-hidden />}
+                        </span>
                         <span>
-                          <span className={cn("numeral block text-[1.65rem] leading-none", n === 0 && "text-tinta-3/60")}>{n}</span>
+                          <span className={cn("numeral block text-[1.65rem] leading-none", n === 0 && "text-tinta-3")}>{n}</span>
                           <span className="mt-1 block text-[12px] text-tinta-2">{e.rotulo}</span>
                         </span>
                       </Link>
@@ -239,14 +244,15 @@ export default function Dashboard() {
               >
                 <span id="mural">Na roda</span>
               </TituloDeSecao>
-              <ul className="space-y-5">
+              {/* Quadro em bege claro, não branco: é o recado pregado na mesa. */}
+              <ul className="space-y-4 border border-linha bg-bege p-4 sm:p-5">
                 {mural.length === 0 && (
                   <li className="font-serif text-[15px] text-tinta-3 italic">
                     {online ? "Quieto por aqui. Siga quem escreve com você." : "O mural precisa de internet."}
                   </li>
                 )}
                 {mural.map((f) => (
-                  <li key={f.id} className="flex gap-3">
+                  <li key={f.id} className="flex gap-3 border-b border-linha pb-4 last:border-b-0 last:pb-0">
                     <Monograma usuario={getUser(f.author.id) ?? usuarioDaApi(f.author)} tamanho="sm" />
                     <div className="min-w-0 flex-1 text-[14px]">
                       <div>

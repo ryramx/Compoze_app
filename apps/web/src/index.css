@@ -23,6 +23,11 @@
   --lapis: #b4412b;
   --lapis-tinta: #fbf3ee;
   --ok: #4c6b3c;
+  /* Papel kraft: o cartão pardo da Esteira, para ela não sumir no branco. */
+  --kraft: #e4d9c2;
+  --kraft-linha: #cbbd9f;
+  /* Bege claro: fundo de quadro (Na roda), mais quente que a folha branca. */
+  --bege: #f7f0e1;
 
   --autor-1: #2f4a7a;
   --autor-2: #6a7431;
@@ -46,6 +51,9 @@
   --lapis: #e2694f;
   --lapis-tinta: #2a1914;
   --ok: #9dbb84;
+  --kraft: #27241d;
+  --kraft-linha: #3b362b;
+  --bege: #1d1b17;
 
   --autor-1: #92a9d8;
   --autor-2: #b6bf78;
@@ -69,6 +77,9 @@
   --color-lapis: var(--lapis);
   --color-lapis-tinta: var(--lapis-tinta);
   --color-ok: var(--ok);
+  --color-kraft: var(--kraft);
+  --color-kraft-linha: var(--kraft-linha);
+  --color-bege: var(--bege);
   --color-autor-1: var(--autor-1);
   --color-autor-2: var(--autor-2);
   --color-autor-3: var(--autor-3);

@@ -226,21 +226,23 @@ export default function Songs() {
             </tbody>
           </table>
         ) : (
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          // Duas fichas por linha já no celular: a ficha é um cartão de arquivo,
+          // não um banner. No computador cabem três, quatro nas telas largas.
+          <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 2xl:grid-cols-4">
             {lista.map((m) => (
-              <li key={m.id}>
+              <li key={m.id} className="min-w-0">
                 <Link
                   to={`/songs/${m.id}/edit`}
-                  className="group flex h-full min-h-56 flex-col border border-linha bg-folha transition-colors hover:border-linha-forte"
+                  className="group flex h-full min-h-44 flex-col border border-linha bg-folha transition-colors hover:border-linha-forte sm:min-h-52"
                 >
                   {/* Ficha pautada: linhas finas como num cartão de arquivo. */}
-                  <div className="flex items-start justify-between gap-3 border-b-2 border-lapis/60 px-5 pt-5 pb-3">
-                    <h3 className="font-serif text-[1.35rem] leading-tight group-hover:text-lapis">{m.title}</h3>
-                    <Estagio status={m.status} semRotulo className="mt-2" />
+                  <div className="flex items-start justify-between gap-2 border-b-2 border-lapis/60 px-3 pt-3.5 pb-2.5 sm:gap-3 sm:px-5 sm:pt-5 sm:pb-3">
+                    <h3 className="line-clamp-2 font-serif text-[1.1rem] leading-tight group-hover:text-lapis sm:text-[1.3rem]">{m.title}</h3>
+                    <Estagio status={m.status} semRotulo className="mt-1.5 sm:mt-2" />
                   </div>
                   <div
-                    className="flex-1 px-5 pt-2 font-serif text-[15px] leading-[28px] text-tinta-2"
-                    style={{ backgroundImage: "repeating-linear-gradient(to bottom, transparent 0, transparent 27px, var(--linha) 27px, var(--linha) 28px)" }}
+                    className="flex-1 px-3 pt-1.5 font-serif text-[13.5px] leading-[26px] text-tinta-2 sm:px-5 sm:pt-2 sm:text-[15px]"
+                    style={{ backgroundImage: "repeating-linear-gradient(to bottom, transparent 0, transparent 25px, var(--linha) 25px, var(--linha) 26px)" }}
                   >
                     {m.blocks
                       .filter((b) => b.type === "lyric-line" && b.text.trim())
@@ -251,10 +253,10 @@ export default function Songs() {
                         </p>
                       ))}
                   </div>
-                  <div className="flex items-center justify-between px-5 py-3 text-[12px] text-tinta-3">
+                  <div className="flex items-center justify-between gap-2 px-3 py-2.5 text-[11.5px] text-tinta-3 sm:px-5 sm:py-3 sm:text-[12px]">
                     <PilhaDeMonogramas usuarios={m.collaborators.map((c) => getUser(c.userId))} />
-                    <span>
-                      {m.key && <span className="numeral mr-2">{m.key}</span>}
+                    <span className="truncate">
+                      {m.key && <span className="numeral mr-2 hidden sm:inline">{m.key}</span>}
                       {quando(m.updatedAt)}
                     </span>
                   </div>

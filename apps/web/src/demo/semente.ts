@@ -16,6 +16,7 @@ import type {
   ApiSongDetail,
   ApiUserMe,
   ApiVersion,
+  ApiEntry,
   ApiVoiceMemo,
 } from "@/services/api/dto";
 
@@ -38,6 +39,8 @@ export interface BancoDemo {
   comentarios?: ComentarioDemo[];
   /** Conversas (ADR 0014). */
   conversas?: ConversaDemo[];
+  /** Entradas e custos dos projetos (ADR 0021). */
+  lancamentos?: ApiEntry[];
 }
 
 export interface ConversaDemo {
@@ -151,6 +154,7 @@ export function semear(): BancoDemo {
     // Sem foto de banco de imagens: o monograma com a cor de autor é a
     // identidade visual padrão (docs/frontend/design-system.md).
     avatar_url: null,
+    cover_url: null,
     city: u.location.city,
     state: null,
     country: u.location.country,
@@ -245,7 +249,25 @@ export function semear(): BancoDemo {
 
   const senhas = Object.fromEntries(usuarios.map((u) => [u.id, SENHA_DEMO]));
 
-  return { usuarios, senhas, musicas, pastas, projetos, faixas, ...genteDeExemplo(), conversas: conversasDeExemplo() };
+  // Custos itemizados do EP, para a tela de projeto não abrir vazia.
+  const custo = (id: string, description: string, category: string, amount: number): ApiEntry => ({
+    id,
+    project_id: "p1",
+    kind: "CUSTO",
+    description,
+    category,
+    amount,
+    occurred_on: null,
+    created_at: criadoEm,
+    updated_at: criadoEm,
+  });
+  const lancamentos = [
+    custo("l1", "Cachê do violoncelo (3 faixas)", "Cachê", 1800),
+    custo("l2", "Diárias de estúdio", "Estúdio", 6400),
+    custo("l3", "Mixagem e masterização", "Mixagem", 4200),
+  ];
+
+  return { usuarios, senhas, musicas, pastas, projetos, faixas, lancamentos, ...genteDeExemplo(), conversas: conversasDeExemplo() };
 }
 
 export type ConviteDemo = ApiInvite & {

@@ -200,6 +200,18 @@ describe("projeto", () => {
   it("extrai os ids das musicas da relacao", () => {
     expect(projetoDaApi(projetoApi).songIds).toEqual(["s1"]);
   });
+
+  it("ordena as faixas pelo número e guarda o número (ADR 0021)", () => {
+    const p = projetoDaApi({
+      ...projetoApi,
+      songs: [
+        { song_id: "s7", track_number: 7 },
+        { song_id: "s1", track_number: 1 },
+      ],
+    });
+    expect(p.songIds).toEqual(["s1", "s7"]);
+    expect(p.trackNumbers).toEqual({ s1: 1, s7: 7 });
+  });
 });
 
 describe("usuario", () => {
@@ -209,6 +221,7 @@ describe("usuario", () => {
     username: "ryan",
     bio: null,
     avatar_url: null,
+    cover_url: null,
     city: "Salvador",
     state: "BA",
     country: "Brasil",
