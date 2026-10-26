@@ -6,6 +6,7 @@ import {
   NovoComentario,
   PaginaDoMural,
   PerfilPublico,
+  PessoaNaLista,
   Publicacao,
   UsuarioPublico,
 } from "@compoze/contracts";
@@ -54,14 +55,14 @@ export const rotasDeGente: FastifyPluginAsyncZod = async (app) => {
 
   app.get(
     "/users/:id/followers",
-    { schema: { tags: pessoas, params: ParamPessoa, response: { 200: z.array(UsuarioPublico) } } },
-    async (req) => s.lista(db, req.params.id, "seguidores"),
+    { schema: { tags: pessoas, summary: "Quem segue a pessoa, com se eu sigo e se me segue", params: ParamPessoa, response: { 200: z.array(PessoaNaLista) } } },
+    async (req) => s.lista(db, req.params.id, "seguidores", req.usuarioId),
   );
 
   app.get(
     "/users/:id/following",
-    { schema: { tags: pessoas, params: ParamPessoa, response: { 200: z.array(UsuarioPublico) } } },
-    async (req) => s.lista(db, req.params.id, "seguindo"),
+    { schema: { tags: pessoas, summary: "Quem a pessoa segue, com se eu sigo e se me segue", params: ParamPessoa, response: { 200: z.array(PessoaNaLista) } } },
+    async (req) => s.lista(db, req.params.id, "seguindo", req.usuarioId),
   );
 
   app.get(

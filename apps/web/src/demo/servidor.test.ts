@@ -126,6 +126,18 @@ describe("servidor de demonstração", () => {
     expect((await chamar("/songs/s1", { token: doIuri })).status).toBe(200);
   });
 
+  it("seguidores trazem se eu sigo e se a pessoa me segue (ADR 0013)", async () => {
+    const token = await entrar();
+    const eu = (await chamar("/users/me", { token })).corpo;
+    const seguidores = (await chamar(`/users/${eu.id}/followers`, { token })).corpo;
+    expect(seguidores.length).toBeGreaterThan(0);
+    expect(seguidores.every((p: { follows_me: boolean }) => p.follows_me)).toBe(true);
+    const alguem = seguidores.find((p: { followed_by_me: boolean }) => !p.followed_by_me) ?? seguidores[0];
+    await chamar(`/users/${alguem.id}/follow`, { method: alguem.followed_by_me ? "DELETE" : "PUT", token });
+    const depois = (await chamar(`/users/${eu.id}/followers`, { token })).corpo;
+    expect(depois.find((p: { id: string }) => p.id === alguem.id).followed_by_me).toBe(!alguem.followed_by_me);
+  });
+
   it("convite por link vale uma vez", async () => {
     const lara = await entrar();
     const { token } = (await chamar("/songs/s1/invites", { method: "POST", token: lara, body: { link: true } })).corpo;

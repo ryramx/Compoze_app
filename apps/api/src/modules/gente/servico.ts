@@ -1,4 +1,4 @@
-import type { Comentario, NovaPublicacao, PaginaDoMural, PerfilPublico, Publicacao, UsuarioPublico } from "@compoze/contracts";
+import type { Comentario, NovaPublicacao, PaginaDoMural, PerfilPublico, PessoaNaLista, Publicacao, UsuarioPublico } from "@compoze/contracts";
 import { follows, postComments, postLikes, posts, songs, users, type Banco } from "@compoze/db";
 import { and, asc, desc, eq, getTableColumns, inArray, lt, ne, or, sql, type SQL } from "drizzle-orm";
 
@@ -54,21 +54,29 @@ export async function deixarDeSeguir(db: Banco, euId: string, alvoId: string): P
   await db.delete(follows).where(and(eq(follows.followerId, euId), eq(follows.followedId, alvoId)));
 }
 
-/** Quem segue a pessoa (`seguidores`) ou quem ela segue (`seguindo`), mais recentes primeiro. */
-export async function lista(db: Banco, userId: string, lado: "seguidores" | "seguindo"): Promise<UsuarioPublico[]> {
+/**
+ * Quem segue a pessoa (`seguidores`) ou quem ela segue (`seguindo`), mais
+ * recentes primeiro, cada uma com se eu sigo e se ela me segue, para a lista
+ * mostrar "Seguir", "Seguir de volta" ou "Deixar de seguir".
+ */
+export async function lista(db: Banco, userId: string, lado: "seguidores" | "seguindo", euId: string): Promise<PessoaNaLista[]> {
   await pessoa(db, userId);
   const [filtro, junta] =
     lado === "seguidores"
       ? [eq(follows.followedId, userId), eq(users.id, follows.followerId)]
       : [eq(follows.followerId, userId), eq(users.id, follows.followedId)];
   const linhas = await db
-    .select(colunasPublicas)
+    .select({
+      pessoa: colunasPublicas,
+      sigo: sql<boolean>`EXISTS (SELECT 1 FROM follows f WHERE f.follower_id = ${euId} AND f.followed_id = ${users.id})`,
+      meSegue: sql<boolean>`EXISTS (SELECT 1 FROM follows f WHERE f.follower_id = ${users.id} AND f.followed_id = ${euId})`,
+    })
     .from(follows)
     .innerJoin(users, junta)
     .where(filtro)
     .orderBy(desc(follows.createdAt))
     .limit(500);
-  return linhas.map(usuarioPublico);
+  return linhas.map((l) => ({ ...usuarioPublico(l.pessoa), followed_by_me: l.sigo, follows_me: l.meSegue }));
 }
 
 // ------------------------------------------------------------------- mural

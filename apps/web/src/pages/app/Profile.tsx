@@ -7,6 +7,7 @@ import { BotaoDeSeguir } from "@/components/gente/BotaoDeSeguir";
 import { Publicacao } from "@/components/gente/Publicacao";
 import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
+import { cn } from "@/lib/cn";
 import { quando } from "@/lib/datas";
 import { useOnline } from "@/lib/rede";
 import { usuarioDaApi } from "@/services/api/adapters";
@@ -72,7 +73,7 @@ export default function Profile() {
             </Link>
           ) : (
             <>
-              <BotaoDeSeguir pessoaId={pessoa.id} username={pessoa.username} sigo={perfil.data?.followed_by_me ?? false} />
+              <BotaoDeSeguir pessoaId={pessoa.id} username={pessoa.username} sigo={perfil.data?.followed_by_me ?? false} meSegue={perfil.data?.follows_me} />
               <Link to={`/messages?com=${pessoa.id}`}>
                 <Botao variante="texto">Conversar</Botao>
               </Link>
@@ -85,12 +86,22 @@ export default function Profile() {
         {[
           { rotulo: "Obras", valor: obras.length },
           { rotulo: "Parcerias", valor: parcerias.length },
-          { rotulo: "Seguidores", valor: perfil.data?.followers_count ?? "—" },
-          { rotulo: "Seguindo", valor: perfil.data?.following_count ?? "—" },
+          { rotulo: "Seguidores", valor: perfil.data?.followers_count ?? "—", para: "seguidores" },
+          { rotulo: "Seguindo", valor: perfil.data?.following_count ?? "—", para: "seguindo" },
         ].map((d) => (
-          <div key={d.rotulo} className="border-r border-linha py-5 pl-1 last:border-r-0 sm:pl-0">
+          <div
+            key={d.rotulo}
+            className={cn(
+              "relative border-r border-linha py-5 pl-1 last:border-r-0 sm:pl-0",
+              d.para && perfil.data && "group transition-colors hover:bg-papel-2/60",
+            )}
+          >
             <dt className="rotulo">{d.rotulo}</dt>
-            <dd className="numeral mt-1 text-[1.6rem]">{d.valor}</dd>
+            <dd className="numeral mt-1 text-[1.6rem] group-hover:text-lapis">{d.valor}</dd>
+            {/* Seguidores e Seguindo abrem a lista de pessoas (como no Instagram). */}
+            {d.para && perfil.data && (
+              <Link to={`/profile/${pessoa.username}/${d.para}`} className="absolute inset-0" aria-label={`Ver ${d.rotulo.toLowerCase()}`} />
+            )}
           </div>
         ))}
       </dl>

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import type { ApiComment, ApiFeedPage, ApiPost, ApiProfile, ApiUserPublic } from "@/services/api/dto";
+import type { ApiComment, ApiFeedPage, ApiPersonInList, ApiPost, ApiProfile, ApiUserPublic } from "@/services/api/dto";
 
 /**
  * Seguir e mural (Fase 4a, ADR 0013). Exigem rede (ADR 0005): as telas usam
@@ -9,8 +9,8 @@ import type { ApiComment, ApiFeedPage, ApiPost, ApiProfile, ApiUserPublic } from
 export const perfil = (username: string) => api.get<ApiProfile>(`/profiles/${encodeURIComponent(username)}`);
 export const seguir = (userId: string) => api.put<void>(`/users/${userId}/follow`);
 export const deixarDeSeguir = (userId: string) => api.delete<void>(`/users/${userId}/follow`);
-export const seguidores = (userId: string) => api.get<ApiUserPublic[]>(`/users/${userId}/followers`);
-export const seguindo = (userId: string) => api.get<ApiUserPublic[]>(`/users/${userId}/following`);
+export const seguidores = (userId: string) => api.get<ApiPersonInList[]>(`/users/${userId}/followers`);
+export const seguindo = (userId: string) => api.get<ApiPersonInList[]>(`/users/${userId}/following`);
 export const sugestoes = () => api.get<ApiUserPublic[]>("/suggestions/people");
 
 export function mural(opcoes: { autora?: string; antes?: string; limite?: number } = {}) {

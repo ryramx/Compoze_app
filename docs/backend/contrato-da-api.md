@@ -188,7 +188,7 @@ O id é gerado no aparelho (UUID v7), como o das canções.
 | --- | --- | --- |
 | GET | `/profiles/{username}` | `Profile` = `UserPublic & { followers_count, following_count, followed_by_me, follows_me }` |
 | PUT / DELETE | `/users/{id}/follow` | `204`. Seguir de novo não faz nada. Seguir a si mesma → `422`; pessoa inexistente → `404` |
-| GET | `/users/{id}/followers`, `/users/{id}/following` | `UserPublic[]`, mais recentes primeiro |
+| GET | `/users/{id}/followers`, `/users/{id}/following` | `PersonInList[]` = `UserPublic & { followed_by_me, follows_me }` (em relação a quem pede), mais recentes primeiro, até 500 |
 | GET | `/suggestions/people` | `UserPublic[]`: quem escreve comigo e eu não sigo |
 | GET | `/feed?author_id=&before=&limit=` | `{ items: Post[], next_cursor }`. Sem `author_id`: eu e quem eu sigo. `before` é o `next_cursor` da página anterior; `limit` até 50 (padrão 20) |
 | POST | `/posts` | `{ id?, content, song_id? }` → `201 Post`; mesmo `id` de novo → `200`. Citar canção: só coautora, e canção não privada (`422`) |

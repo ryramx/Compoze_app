@@ -19,6 +19,15 @@ export const PerfilPublico = UsuarioPublico.extend({
 });
 export type PerfilPublico = z.infer<typeof PerfilPublico>;
 
+/** Alguém numa lista de seguidores ou de quem a pessoa segue, visto por mim. */
+export const PessoaNaLista = UsuarioPublico.extend({
+  /** Eu sigo esta pessoa. */
+  followed_by_me: z.boolean(),
+  /** Esta pessoa me segue. */
+  follows_me: z.boolean(),
+});
+export type PessoaNaLista = z.infer<typeof PessoaNaLista>;
+
 export const PUBLICACAO_MAX = 1000;
 export const COMENTARIO_MAX = 500;
 
