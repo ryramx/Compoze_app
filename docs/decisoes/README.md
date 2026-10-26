@@ -26,3 +26,4 @@ duas apontam uma para a outra.
 | [0018](0018-apoio-por-pix.md) | Apoio a projetos por PIX, direto na chave da dona | Aceita |
 | [0019](0019-senha-nova-sem-a-atual.md) | Senha nova em Ajustes, sem pedir a atual | Aceita |
 | [0020](0020-primeiros-passos-e-ajuda.md) | Primeiros passos no primeiro acesso e ajuda de cada tela | Aceita |
+| [0021](0021-ajustes-do-primeiro-teste.md) | Ajustes do primeiro teste: faixas numeradas à mão, entradas e custos do projeto, capa do perfil | Aceita |

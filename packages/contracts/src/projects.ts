@@ -51,3 +51,7 @@ export const NovaFaixa = z.object({
   track_number: z.number().int().min(1).max(999).optional(),
 });
 export type NovaFaixa = z.input<typeof NovaFaixa>;
+
+/** Trocar o número de uma faixa (ADR 0021). Se outra faixa já tem o número, as duas trocam. */
+export const AtualizarFaixa = z.object({ track_number: z.number().int().min(1).max(999) });
+export type AtualizarFaixa = z.infer<typeof AtualizarFaixa>;

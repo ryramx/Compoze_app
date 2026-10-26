@@ -6,7 +6,7 @@ import { Dialogo } from "@/components/ui/Dialogo";
 import { cn } from "@/lib/cn";
 import { ESTILOS_DE_PROJETO, TIPOS_DE_PROJETO } from "@/lib/rotulos";
 import { useCompoze } from "@/store/compozeStore";
-import type { ProjectStyle, ProjectType } from "@/types";
+import type { Project, ProjectStyle, ProjectType } from "@/types";
 
 function Opcoes<T extends string>({ valor, opcoes, aoMudar, rotulo }: { valor: T; opcoes: Record<T, string>; aoMudar: (v: T) => void; rotulo: string }) {
   return (
@@ -32,21 +32,42 @@ function Opcoes<T extends string>({ valor, opcoes, aoMudar, rotulo }: { valor: T
   );
 }
 
-export function NovoProjeto({ aberto, aoMudar }: { aberto: boolean; aoMudar: (v: boolean) => void }) {
+/**
+ * Ficha do projeto. Sem `projeto`, cria um novo; com ele, edita nome, formato,
+ * descrição, data, meta e custo estimado do projeto aberto.
+ */
+export function NovoProjeto({ aberto, aoMudar, projeto }: { aberto: boolean; aoMudar: (v: boolean) => void; projeto?: Project }) {
   const criar = useCompoze((s) => s.createProject);
+  const atualizar = useCompoze((s) => s.updateProject);
   const navegar = useNavigate();
-  const [nome, setNome] = useState("");
-  const [tipo, setTipo] = useState<ProjectType>("ep");
-  const [estilo, setEstilo] = useState<ProjectStyle>("banda");
-  const [descricao, setDescricao] = useState("");
-  const [lancamento, setLancamento] = useState("");
-  const [meta, setMeta] = useState("");
-  const [custo, setCusto] = useState("");
+  const [nome, setNome] = useState(projeto?.name ?? "");
+  const [tipo, setTipo] = useState<ProjectType>(projeto?.type ?? "ep");
+  const [estilo, setEstilo] = useState<ProjectStyle>(projeto?.style ?? "banda");
+  const [descricao, setDescricao] = useState(projeto?.description ?? "");
+  const [lancamento, setLancamento] = useState(projeto?.releaseDate ?? "");
+  const [meta, setMeta] = useState(projeto?.fundingGoal ? String(projeto.fundingGoal) : "");
+  const [custo, setCusto] = useState(projeto?.estimatedCost ? String(projeto.estimatedCost) : "");
   const [enviando, setEnviando] = useState(false);
 
   async function enviar(e: FormEvent) {
     e.preventDefault();
     if (!nome.trim()) return;
+    if (projeto) {
+      // Edição vai pela fila, como a fase: funciona offline.
+      atualizar(projeto.id, {
+        name: nome.trim(),
+        type: tipo,
+        style: estilo,
+        description: descricao.trim(),
+        releaseDate: lancamento,
+        fundingGoal: meta ? Number(meta) : 0,
+        // O percentual é da tela (adapters.ts); com meta nova, refaz a conta.
+        fundingProgress: meta && Number(meta) > 0 ? Math.min(100, Math.round(((projeto.fundingRaised ?? 0) / Number(meta)) * 100)) : 0,
+        estimatedCost: custo ? Number(custo) : 0,
+      });
+      aoMudar(false);
+      return;
+    }
     setEnviando(true);
     try {
       const id = await criar({
@@ -66,7 +87,13 @@ export function NovoProjeto({ aberto, aoMudar }: { aberto: boolean; aoMudar: (v:
   }
 
   return (
-    <Dialogo aberto={aberto} aoMudar={aoMudar} titulo="Novo projeto" descricao="Um single, EP ou álbum que reúne canções do seu caderno." largura="lg">
+    <Dialogo
+      aberto={aberto}
+      aoMudar={aoMudar}
+      titulo={projeto ? "Editar projeto" : "Novo projeto"}
+      descricao={projeto ? "Nome, formato, data de lançamento e o dinheiro planejado." : "Um single, EP ou álbum que reúne canções do seu caderno."}
+      largura="lg"
+    >
       <form onSubmit={enviar} className="space-y-6">
         <Campo rotulo="Nome do projeto">{(id) => <Entrada id={id} autoFocus value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex.: Madrugada" className="font-serif text-xl" />}</Campo>
         <div className="grid gap-6 sm:grid-cols-2">
@@ -84,7 +111,7 @@ export function NovoProjeto({ aberto, aoMudar }: { aberto: boolean; aoMudar: (v:
             Cancelar
           </Botao>
           <Botao type="submit" variante="tinta" disabled={!nome.trim() || enviando}>
-            {enviando ? "Criando…" : "Criar projeto"}
+            {projeto ? "Salvar" : enviando ? "Criando…" : "Criar projeto"}
           </Botao>
         </div>
       </form>

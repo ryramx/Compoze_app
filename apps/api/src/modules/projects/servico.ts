@@ -105,6 +105,15 @@ export async function adicionarFaixa(db: Banco, id: string, donaId: string, d: {
       .select({ ultima: sql<number>`coalesce(max(${projectSongs.trackNumber}), 0)::int` })
       .from(projectSongs)
       .where(and(eq(projectSongs.projectId, id), isNull(projectSongs.deletedAt)))) as [{ ultima: number }];
+    // Número escolhido à mão pode pular (faixa 7 num projeto de duas), mas
+    // não repetir: duas "faixa 3" no verso do disco não existem.
+    if (d.track_number !== undefined) {
+      const [ocupada] = await tx
+        .select({ songId: projectSongs.songId })
+        .from(projectSongs)
+        .where(and(eq(projectSongs.projectId, id), eq(projectSongs.trackNumber, d.track_number), isNull(projectSongs.deletedAt)));
+      if (ocupada) throw new ErroDaApi(409, `Já existe uma faixa ${d.track_number} neste projeto.`);
+    }
     const numero = d.track_number ?? ultima + 1;
 
     if (existente) {
@@ -115,6 +124,35 @@ export async function adicionarFaixa(db: Banco, id: string, donaId: string, d: {
     } else {
       await tx.insert(projectSongs).values({ projectId: id, songId: d.song_id, trackNumber: numero });
     }
+    await tx.update(projects).set({ updatedAt: sql`now()` }).where(eq(projects.id, id));
+  });
+  return obter(db, id, donaId);
+}
+
+/**
+ * Muda o número de uma faixa (ADR 0021). Se outra faixa já tinha o número,
+ * as duas trocam de lugar: é o gesto de reordenar, sem deixar número repetido.
+ */
+export async function numerarFaixa(db: Banco, id: string, donaId: string, songId: string, numero: number) {
+  const p = await daPessoa(db, id, donaId);
+  if (p.deletedAt) throw new ErroDaApi(409, "O projeto está na lixeira. Restaure antes de mexer nas faixas.");
+  await db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT 1 FROM ${projects} WHERE ${projects.id} = ${id} FOR UPDATE`);
+    const ativas = and(eq(projectSongs.projectId, id), isNull(projectSongs.deletedAt));
+    const [faixa] = await tx
+      .select({ trackNumber: projectSongs.trackNumber })
+      .from(projectSongs)
+      .where(and(ativas, eq(projectSongs.songId, songId)));
+    if (!faixa) throw new ErroDaApi(404, "Essa canção não é faixa do projeto.");
+    if (faixa.trackNumber === numero) return;
+    await tx
+      .update(projectSongs)
+      .set({ trackNumber: faixa.trackNumber })
+      .where(and(ativas, eq(projectSongs.trackNumber, numero)));
+    await tx
+      .update(projectSongs)
+      .set({ trackNumber: numero })
+      .where(and(ativas, eq(projectSongs.songId, songId)));
     await tx.update(projects).set({ updatedAt: sql`now()` }).where(eq(projects.id, id));
   });
   return obter(db, id, donaId);

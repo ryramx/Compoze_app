@@ -50,6 +50,23 @@ describe("imagens (ADR 0015)", () => {
     expect((await ctx.app.inject({ method: "GET", url: segunda })).statusCode).toBe(404);
   });
 
+  it("capa do perfil (ADR 0021): sobe, aparece no perfil, troca e sai sem mexer na foto", async () => {
+    const eu = await novaPessoa(ctx.app, "Com Capa");
+    const foto = (await subir(eu.token, "/users/me/avatar", png)).json().avatar_url as string;
+    const capa = (await subir(eu.token, "/users/me/cover", jpeg, "image/jpeg")).json();
+    expect(capa.cover_url).toMatch(/^\/images\/[0-9a-f-]{36}$/);
+    expect(capa.avatar_url).toBe(foto);
+
+    const outra = await novaPessoa(ctx.app, "Vê Capa");
+    expect((await como(ctx.app, outra.token).get(`/users/${eu.username}`)).json().cover_url).toBe(capa.cover_url);
+
+    const nova = (await subir(eu.token, "/users/me/cover", png)).json().cover_url as string;
+    expect((await ctx.app.inject({ method: "GET", url: capa.cover_url })).statusCode).toBe(404);
+    const sem = (await como(ctx.app, eu.token).delete("/users/me/cover")).json();
+    expect(sem).toMatchObject({ cover_url: null, avatar_url: foto });
+    expect((await ctx.app.inject({ method: "GET", url: nova })).statusCode).toBe(404);
+  });
+
   it("o tipo vem dos bytes: recusa o que não é imagem, vazio ou grande demais", async () => {
     const eu = await novaPessoa(ctx.app, "Tenta");
     expect((await subir(eu.token, "/users/me/avatar", Buffer.from("<svg onload=alert(1)>"), "image/svg+xml")).statusCode).toBe(415);

@@ -51,13 +51,15 @@ async function soltar(tx: Tx, urlAntiga: string | null) {
   if (antiga) await tx.delete(images).where(eq(images.id, antiga));
 }
 
-export async function trocarAvatar(db: Banco, usuarioId: string, bytes: Buffer | null) {
+/** Foto (`avatar`) ou capa do perfil (`capa`, ADR 0021). */
+export async function trocarImagemDoPerfil(db: Banco, usuarioId: string, qual: "avatar" | "capa", bytes: Buffer | null) {
+  const coluna = qual === "avatar" ? "avatarUrl" : "coverUrl";
   await db.transaction(async (tx) => {
-    const [u] = await tx.select({ avatarUrl: users.avatarUrl }).from(users).where(eq(users.id, usuarioId)).for("update");
+    const [u] = await tx.select({ url: users[coluna] }).from(users).where(eq(users.id, usuarioId)).for("update");
     if (!u) throw new ErroDaApi(401, "Sessão de uma conta que não existe mais.");
     const nova = bytes ? caminhoDaImagem(await inserir(tx, usuarioId, bytes)) : null;
-    await tx.update(users).set({ avatarUrl: nova }).where(eq(users.id, usuarioId));
-    await soltar(tx, u.avatarUrl);
+    await tx.update(users).set({ [coluna]: nova }).where(eq(users.id, usuarioId));
+    await soltar(tx, u.url);
   });
   return eu(db, usuarioId);
 }
@@ -84,7 +86,7 @@ export async function ler(db: Banco, id: string) {
 }
 
 /**
- * Imagens que nenhum perfil nem projeto aponta mais: trocadas por PATCH com
+ * Imagens que nenhuma foto, capa de perfil nem projeto aponta mais: trocadas por PATCH com
  * outra URL, ou de projeto expurgado da lixeira. Só as com mais de um dia,
  * para não pegar uma que acabou de subir.
  */
@@ -95,7 +97,7 @@ export async function expurgarImagensSoltas(db: Banco): Promise<number> {
     .where(
       and(
         lt(images.createdAt, sql`now() - interval '1 day'`),
-        sql`NOT EXISTS (SELECT 1 FROM ${users} WHERE ${users.avatarUrl} = ${caminho})`,
+        sql`NOT EXISTS (SELECT 1 FROM ${users} WHERE ${users.avatarUrl} = ${caminho} OR ${users.coverUrl} = ${caminho})`,
         sql`NOT EXISTS (SELECT 1 FROM ${projects} WHERE ${projects.coverUrl} = ${caminho})`,
       ),
     )

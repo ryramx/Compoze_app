@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { AVATAR_LADO_PX, CAPA_LADO_PX } from "@compoze/contracts/imagens";
+import { AVATAR_LADO_PX, CAPA_DO_PERFIL_LADO_PX, CAPA_LADO_PX } from "@compoze/contracts/imagens";
 
 import type {
   Folder,
@@ -12,6 +12,7 @@ import type {
 } from "@/types";
 import { ApiError } from "@/lib/api";
 import { lerCopia, salvarCopia } from "@/lib/copiaLocal";
+import { comFaixa, renumerar, semFaixa } from "@/lib/faixas";
 import { abrirFila, enfileirar, esvaziar } from "@/lib/fila";
 import { reduzirImagem } from "@/lib/imagens";
 import { uuidv7 } from "@/lib/uuidv7";
@@ -118,7 +119,10 @@ interface CompozeState {
   loadProject: (id: string) => Promise<void>;
   updateProject: (id: string, patch: Partial<Project>) => void;
   deleteProject: (id: string) => void;
-  addSongToProject: (projectId: string, songId: string) => Promise<void>;
+  /** Sem número, a faixa entra depois da maior (ADR 0021). */
+  addSongToProject: (projectId: string, songId: string, trackNumber?: number) => Promise<void>;
+  /** Número ocupado troca as duas faixas, como no servidor. */
+  setTrackNumber: (projectId: string, songId: string, trackNumber: number) => void;
   removeSongFromProject: (projectId: string, songId: string) => void;
   toggleSongHidden: (songId: string) => void;
   deleteSong: (songId: string) => void;
@@ -138,6 +142,8 @@ interface CompozeState {
    */
   trocarFoto: (arquivo: Blob | null) => Promise<void>;
   trocarCapa: (projetoId: string, arquivo: Blob | null) => Promise<void>;
+  /** Capa do perfil (ADR 0021). */
+  trocarCapaDoPerfil: (arquivo: Blob | null) => Promise<void>;
 }
 
 /**
@@ -334,7 +340,7 @@ export const useCompoze = create<CompozeState>((set, get) => ({
 
     if (projectId) {
       set({
-        projects: get().projects.map((p) => (p.id === projectId ? { ...p, songIds: [...p.songIds, id] } : p)),
+        projects: get().projects.map((p) => (p.id === projectId ? comFaixa(p, id) : p)),
       });
       void enfileirar({
         metodo: "POST",
@@ -373,6 +379,7 @@ export const useCompoze = create<CompozeState>((set, get) => ({
       fundingProgress: 0,
       status: "planejamento",
       songIds: [],
+      trackNumbers: {},
       collaboratorIds: [],
       ownerId: get().currentUserId,
     };
@@ -591,26 +598,28 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     void enfileirar({ metodo: "DELETE", caminho: `/projects/${id}`, rotulo: "a ida do projeto para a lixeira" });
   },
 
-  addSongToProject: async (projectId, songId) => {
-    set({
-      projects: get().projects.map((p) =>
-        p.id === projectId && !p.songIds.includes(songId) ? { ...p, songIds: [...p.songIds, songId] } : p,
-      ),
-    });
+  addSongToProject: async (projectId, songId, trackNumber) => {
+    set({ projects: get().projects.map((p) => (p.id === projectId ? comFaixa(p, songId, trackNumber) : p)) });
     void enfileirar({
       metodo: "POST",
       caminho: `/projects/${projectId}/songs`,
-      corpo: { song_id: songId },
+      corpo: { song_id: songId, ...(trackNumber === undefined ? {} : { track_number: trackNumber }) },
       rotulo: "a faixa nova do projeto",
     });
   },
 
-  removeSongFromProject: (projectId, songId) => {
-    set({
-      projects: get().projects.map((p) =>
-        p.id === projectId ? { ...p, songIds: p.songIds.filter((s) => s !== songId) } : p,
-      ),
+  setTrackNumber: (projectId, songId, trackNumber) => {
+    set({ projects: get().projects.map((p) => (p.id === projectId ? renumerar(p, songId, trackNumber) : p)) });
+    void enfileirar({
+      metodo: "PATCH",
+      caminho: `/projects/${projectId}/songs/${songId}`,
+      corpo: { track_number: trackNumber },
+      rotulo: "o número da faixa",
     });
+  },
+
+  removeSongFromProject: (projectId, songId) => {
+    set({ projects: get().projects.map((p) => (p.id === projectId ? semFaixa(p, songId) : p)) });
     void enfileirar({ metodo: "DELETE", caminho: `/projects/${projectId}/songs/${songId}`, rotulo: "a retirada da faixa" });
   },
 
@@ -628,6 +637,12 @@ export const useCompoze = create<CompozeState>((set, get) => ({
     const imagem = arquivo ? await reduzirImagem(arquivo, AVATAR_LADO_PX) : null;
     const eu = await userApi.trocarFoto(imagem);
     set({ users: get().users.map((u) => (u.id === eu.id ? { ...u, avatar: eu.avatar } : u)) });
+  },
+
+  trocarCapaDoPerfil: async (arquivo) => {
+    const imagem = arquivo ? await reduzirImagem(arquivo, CAPA_DO_PERFIL_LADO_PX) : null;
+    const eu = await userApi.trocarCapaDoPerfil(imagem);
+    set({ users: get().users.map((u) => (u.id === eu.id ? { ...u, cover: eu.cover } : u)) });
   },
 
   trocarCapa: async (projetoId, arquivo) => {

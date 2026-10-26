@@ -28,9 +28,9 @@ quê e com qual percentual.
 | Coautoria: percentuais, fechar divisão (RN05) | Pronto | editor |
 | Convites pela conta (busca por nome ou @, aceitar ou recusar) e por link (ADR 0010) | Pronto; e-mail espera domínio | editor, Mesa, `/convite/:token` |
 | Pastas com subpastas | Pronto | `/folders` |
-| Projetos: faixas, fase, financiamento, custo, lançamento | Pronto | `/projects` |
+| Projetos: faixas numeradas à mão, fase, entradas e custos, apoio por PIX, lançamento | Pronto | `/projects` |
 | Lixeira com retenção de 30 dias (RN07/RN08) | Pronto | `/trash` |
-| Perfil e parcerias | Pronto | `/profile` |
+| Perfil (foto e capa) e parcerias | Pronto | `/profile` |
 | Mapa de quem compõe (RN11) | Pronto no front, rota nova no contrato | `/map` |
 | Busca global (⌘K) | Pronto | qualquer tela |
 | Primeiros passos no primeiro acesso e ajuda de cada tela (ADR 0020) | Pronto | qualquer tela, Ajustes |

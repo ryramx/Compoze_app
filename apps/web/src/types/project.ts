@@ -15,7 +15,10 @@ export interface Project {
   /** Valor arrecadado em reais, quando a API diz (o percentual é arredondado). */
   fundingRaised?: number;
   status: "planejamento" | "producao" | "mixagem" | "lancado";
+  /** Faixas em ordem de número. */
   songIds: string[];
+  /** Número de cada faixa (pode pular: faixa 7 num projeto de duas). ADR 0021. */
+  trackNumbers?: Record<string, number>;
   collaboratorIds: string[];
   ownerId: string;
 }

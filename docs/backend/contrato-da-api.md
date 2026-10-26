@@ -61,6 +61,8 @@ O perfil público nunca inclui coordenadas nem e-mail.
 | --- | --- | --- |
 | PUT | `/users/me/avatar` | Corpo: a imagem crua (`Content-Type: image/jpeg|png|webp`, até 2 MB) → `UserMe` com `avatar_url = "/images/{id}"`; a foto anterior é apagada |
 | DELETE | `/users/me/avatar` | `UserMe` com `avatar_url = null` |
+| PUT | `/users/me/cover` | Capa do perfil (ADR 0021), mesmo formato → `UserMe` com `cover_url`; a capa anterior é apagada |
+| DELETE | `/users/me/cover` | `UserMe` com `cover_url = null` |
 | PUT | `/projects/{id}/cover` | Igual, para a capa (só a dona) → `ProjectDetail` |
 | DELETE | `/projects/{id}/cover` | `ProjectDetail` com `cover_url = null` |
 | GET | `/images/{id}` | Os bytes, **sem login**, `Cache-Control: immutable` · `404` |
@@ -237,13 +239,31 @@ O id é gerado no aparelho (UUID v7), como o das canções.
 | PATCH | `/projects/{id}` | mesmos campos + `status` |
 | DELETE | `/projects/{id}` | Lixeira; canções não vão junto → `204` |
 | POST | `/projects/{id}/restore` | `ProjectDetail` |
-| POST | `/projects/{id}/songs` | `{ song_id, track_number? }` — sem número, entra como última faixa |
+| POST | `/projects/{id}/songs` | `{ song_id, track_number? }` — sem número, entra depois da maior; com número, pode pular (faixa 7 num projeto de duas), mas número ocupado dá `409` |
+| PATCH | `/projects/{id}/songs/{song_id}` | `{ track_number }` (1–999) → `ProjectDetail`; se outra faixa tinha o número, as duas trocam (ADR 0021) |
 | DELETE | `/projects/{id}/songs/{song_id}` | Retira a faixa; a canção fica → `204` |
 
 `Project = { id, name, description, type: SINGLE|EP|ALBUM|OTHER, status: PLANEJAMENTO|PRODUCAO|MIXAGEM|LANCADO, style: ACUSTICO|BANDA|AO_VIVO|null, release_date, cover_url, estimated_cost, funding_target, funding_current, owner_id, deleted_at, created_at, updated_at }`
 `ProjectDetail = Project & { songs: [{ song_id, track_number }] }`
 
 Valores monetários em reais, inteiros (centavos não são usados na v1).
+
+### Entradas e custos (ADR 0021)
+
+Só a dona do projeto. Projeto na lixeira recusa escrita com `409`.
+
+| Método | Rota | Corpo / regra |
+| --- | --- | --- |
+| GET | `/projects/{id}/entries` | `Entry[]`, da data mais nova para a mais antiga |
+| POST | `/projects/{id}/entries` | `{ id?, kind: ENTRADA|CUSTO, description (1–160), category?, amount (1–1.000.000), occurred_on? }` → `201 Entry`. Com `id` repetido devolve o mesmo |
+| PATCH | `/projects/{id}/entries/{entry_id}` | `description`, `category`, `amount`, `occurred_on` → `Entry` |
+| DELETE | `/projects/{id}/entries/{entry_id}` | `204` |
+
+`Entry = { id, project_id, kind, description, category, amount, occurred_on, created_at, updated_at }`
+
+Entrada soma em `funding_current` (junto com os apoios por PIX confirmados) na
+mesma transação; corrigir o valor ou apagar acerta a soma. Custo não mexe no
+arrecadado: a tela soma os custos contra `estimated_cost`.
 
 ## Apoio por PIX (ADR 0018)
 

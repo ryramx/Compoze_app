@@ -4,6 +4,17 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Não lançado]
 
+### Melhorado (ajustes do primeiro teste, ADR 0021)
+- Mesa: a Esteira ganhou um cartão em papel kraft, com um traço do lápis nos
+  estágios que têm obra, para não sumir no papel. "Na roda" fica num quadro
+  bege claro em vez de solto no branco.
+- Canções: a vista em fichas mostra duas por linha já no celular, com fichas
+  mais compactas (três ou quatro por linha no computador).
+- Projetos: grade de duas colunas no celular, com "Abrir e editar" em cada
+  projeto.
+- Mural: cada publicação fica no seu cartão, em folha mais clara que o papel
+  (no mural, no perfil e na Mesa).
+
 ### Corrigido
 - Avisos no celular: com o Compoze em segundo plano, a mensagem nova não
   virava aviso, porque o navegador mantinha a conexão ao vivo aberta e o
@@ -21,6 +32,25 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Número da faixa à mão (ADR 0021): ao adicionar uma faixa dá para escrever o
+  número (a 7, por exemplo) ou deixar vazio para seguir a ordem. Tocar no
+  número de uma faixa muda o número; se outra faixa já tinha, as duas trocam.
+  O número também aparece e muda na ficha da canção, no editor, que ganhou
+  "Pôr num projeto".
+  - API: `PATCH /projects/{id}/songs/{song_id}`; `POST` com número ocupado
+    dá `409`.
+- Editar projeto: nome, formato, descrição, data de lançamento, meta e custo
+  estimado, que antes só se definiam na criação.
+- Entradas e custos do projeto (ADR 0021): lançar o que entrou (show, edital,
+  dinheiro da banda) e os custos de produção item a item (cachês, estúdio,
+  locação de espaço), com categoria e data. Entrada soma no arrecadado, junto
+  com os apoios por PIX; o resumo mostra entrou, custos e saldo, e a ficha do
+  projeto passa a mostrar o custo lançado ao lado do estimado.
+  - API: `/projects/{id}/entries` (GET, POST, PATCH, DELETE); tabela
+    `project_entries`, migração 0015.
+- Capa do perfil (ADR 0021): foto larga no topo do perfil, trocada no próprio
+  perfil ou em Ajustes › Perfil. Sem foto, papel kraft com a pauta.
+  - API: `PUT/DELETE /users/me/cover`; `cover_url` no perfil.
 - Primeiros passos e ajuda (ADR 0020): no primeiro acesso, sete folhas
   explicam para que serve o Compoze e como usar a folha, a parceria e a
   coautoria, os estágios, pastas e projetos, o mural, as conversas e o mapa.

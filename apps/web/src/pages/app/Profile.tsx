@@ -3,7 +3,9 @@ import { Link, useParams } from "react-router";
 import { TituloDeSecao, Vazio } from "@/components/compoze/Cabecalho";
 import { Estagio } from "@/components/compoze/Estagio";
 import { Monograma } from "@/components/compoze/Monograma";
+import { EscolherImagem } from "@/components/compoze/EscolherImagem";
 import { BotaoDeSeguir } from "@/components/gente/BotaoDeSeguir";
+import { CapaDoPerfil } from "@/components/gente/CapaDoPerfil";
 import { Publicacao } from "@/components/gente/Publicacao";
 import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
@@ -22,6 +24,7 @@ export default function Profile() {
   const musicas = listActive(useCompoze((s) => s.songs));
   const getUser = useCompoze((s) => s.getUser);
   const online = useOnline();
+  const trocarCapa = useCompoze((s) => s.trocarCapaDoPerfil);
 
   const local = username ? pessoas.find((u) => u.username === username) : pessoas.find((u) => u.id === euId);
   const arroba = username ?? local?.username ?? "";
@@ -55,8 +58,25 @@ export default function Profile() {
 
   return (
     <Pagina>
-      <header className="grid animate-[entrar_.35s_ease-out] gap-8 border-b border-linha pb-10 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-end">
-        <Monograma usuario={pessoa} tamanho="xl" />
+      <div className="relative animate-[entrar_.35s_ease-out]">
+        <CapaDoPerfil imagem={pessoa.cover} />
+        {souEu && (
+          // Sobre a foto, numa tira de papel, para ler em qualquer imagem.
+          <div className="absolute right-2 bottom-2 bg-papel/90 p-1 sm:right-3 sm:bottom-3">
+            <EscolherImagem
+              temImagem={!!pessoa.cover}
+              rotuloTrocar={pessoa.cover ? "Trocar capa" : "Pôr uma capa"}
+              rotuloTirar="Tirar"
+              trocar={trocarCapa}
+            />
+          </div>
+        )}
+      </div>
+      <header className="grid animate-[entrar_.35s_ease-out] gap-6 border-b border-linha pb-10 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-end md:gap-8">
+        {/* A foto sobe sobre a capa, com a borda do papel separando as duas. */}
+        <span className="relative z-10 -mt-14 ml-4 grid w-fit rounded-full bg-papel p-1 sm:-mt-16 sm:ml-6">
+          <Monograma usuario={pessoa} tamanho="xl" />
+        </span>
         <div>
           <div className="rotulo mb-3">
             @{pessoa.username}
@@ -134,7 +154,7 @@ export default function Profile() {
               <p className="font-serif text-tinta-3 italic">{mural.isPending ? "Abrindo…" : "Nada publicado ainda."}</p>
             ) : (
               <>
-                <ol className="-mt-7">
+                <ol className="space-y-3">
                   {posts.map((p) => (
                     <Publicacao key={p.id} post={p} />
                   ))}
