@@ -18,7 +18,9 @@ segue qualquer outra, e deixa de seguir quando quiser. A tabela `follows` tem
 a chave `(follower_id, followed_id)` e o banco recusa seguir a si mesma.
 Seguir de novo não é erro (`PUT` idempotente). O perfil
 (`GET /profiles/{username}`) traz quantos seguem, quantos a pessoa segue, se
-eu sigo e se ela me segue.
+eu sigo e se ela me segue. As listas (`/users/{id}/followers` e
+`/following`) trazem o mesmo par para cada pessoa, para a lista mostrar
+"Seguir", "Seguir de volta" ou "Deixar de seguir" sem uma chamada por linha.
 
 **2. O mural é público para quem tem conta; a canção continua privada.** Uma
 publicação é texto (até 1000 caracteres) e pode citar uma canção. Só cita quem

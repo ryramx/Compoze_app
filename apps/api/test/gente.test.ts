@@ -26,6 +26,27 @@ describe("seguir (ADR 0013)", () => {
     expect((await deAna.get(`/profiles/${bia.username}`)).json().followers_count).toBe(0);
   });
 
+  it("as listas dizem, para cada pessoa, se eu sigo e se ela me segue", async () => {
+    const { ana, bia, deAna, deBia } = await duas();
+    const cris = await novaPessoa(ctx.app, "Cris");
+    await deBia.put(`/users/${ana.id}/follow`);
+    await como(ctx.app, cris.token).put(`/users/${ana.id}/follow`);
+    await deAna.put(`/users/${cris.id}/follow`);
+
+    // Seguidores da Ana, vistos pela Ana: a Bia ganha "Seguir de volta", a Cris já é seguida.
+    const seguidores = (await deAna.get(`/users/${ana.id}/followers`)).json();
+    expect(seguidores).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: bia.id, followed_by_me: false, follows_me: true }),
+        expect.objectContaining({ id: cris.id, followed_by_me: true, follows_me: true }),
+      ]),
+    );
+    // A mesma lista vista pela Bia: ela mesma aparece, e a Cris não se relaciona com ela.
+    const vistaPelaBia = (await deBia.get(`/users/${ana.id}/followers`)).json();
+    expect(vistaPelaBia.find((u: { id: string }) => u.id === cris.id)).toMatchObject({ followed_by_me: false, follows_me: false });
+    expect((await deBia.get(`/users/${ana.id}/following`)).json()).toEqual([expect.objectContaining({ id: cris.id, followed_by_me: false })]);
+  });
+
   it("não segue a si mesma nem quem não existe", async () => {
     const { ana, deAna } = await duas();
     expect((await deAna.put(`/users/${ana.id}/follow`)).statusCode).toBe(422);

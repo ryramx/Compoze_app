@@ -64,6 +64,7 @@ projetos já com as faixas, numa ida cada.
 | `/projects`, `/projects/:id` | Projetos |
 | `/feed`, `/messages`, `/map` | Gente |
 | `/profile`, `/profile/:username` | Perfil |
+| `/profile/:username/seguidores`, `/profile/:username/seguindo` | Lista de seguidores / seguindo, com Mensagem e seguir |
 | `/trash`, `/settings` | Lixeira, Ajustes |
 
 `RequireAuth` restaura a sessão pelo refresh token e espera a carga inicial
@@ -204,7 +205,8 @@ cópia no aparelho. As telas leem da API com React Query.
 | --- | --- |
 | `services/api/genteService.ts` | Perfil, seguir, mural, publicações, curtidas, comentários |
 | `pages/app/Feed.tsx` | Mural (`useInfiniteQuery`, chave `["mural","meu"]`), caixa de publicar com canção citada, sugestões |
-| `pages/app/Profile.tsx` | Seguidores e "segue você" de `/profiles/{username}`; mural da pessoa (`["mural","autora",id]`) |
+| `pages/app/Profile.tsx` | Seguidores e "segue você" de `/profiles/{username}`; mural da pessoa (`["mural","autora",id]`). Os números Seguidores/Seguindo abrem a lista |
+| `pages/app/Seguidores.tsx` | Lista de seguidores e seguindo (`["lista-de-gente", lado, id]`). Seguir muda o botão no lugar, sem tirar a pessoa da lista |
 | `components/gente/Publicacao.tsx` | Uma publicação: curtir (muda na hora e volta se falhar), comentários, apagar |
 | `components/gente/BotaoDeSeguir.tsx` | Seguir/Seguindo, atualiza o perfil em cache e relê o mural |
 | `components/gente/cache.ts` | `trocarNoMural`: muda uma publicação em todas as páginas de mural em cache |

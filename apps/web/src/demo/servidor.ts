@@ -357,7 +357,13 @@ const rotasPrivadas: Rota[] = [
         partes[2] === "followers"
           ? seguindo.filter((f) => f.followed_id === alvo).map((f) => f.follower_id)
           : seguindo.filter((f) => f.follower_id === alvo).map((f) => f.followed_id);
-      return json(ids.map((id) => publico(pessoa(id)!)));
+      return json(
+        ids.map((id) => ({
+          ...publico(pessoa(id)!),
+          followed_by_me: seguindo.some((f) => f.follower_id === eu && f.followed_id === id),
+          follows_me: seguindo.some((f) => f.follower_id === id && f.followed_id === eu),
+        })),
+      );
     }
     if (partes[0] === "suggestions") {
       const parceiras = new Set(

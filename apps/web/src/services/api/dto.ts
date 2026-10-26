@@ -21,6 +21,7 @@ import type {
   MemoDeVoz,
   PaginaDoMural,
   PerfilPublico,
+  PessoaNaLista,
   Publicacao,
   AtualizarBloco,
   AtualizarCancao,
@@ -87,6 +88,7 @@ export type ApiVersionSummary = ResumoDaVersao;
 export type ApiVersion = Versao;
 export type ApiVoiceMemo = MemoDeVoz;
 export type ApiProfile = PerfilPublico;
+export type ApiPersonInList = PessoaNaLista;
 export type ApiPost = Publicacao;
 export type ApiFeedPage = PaginaDoMural;
 export type ApiComment = Comentario;

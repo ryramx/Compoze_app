@@ -24,6 +24,7 @@ const paginas = {
   Messages: () => import("@/pages/app/Messages"),
   Map: () => import("@/pages/app/Map"),
   Profile: () => import("@/pages/app/Profile"),
+  Seguidores: () => import("@/pages/app/Seguidores"),
   Trash: () => import("@/pages/app/Trash"),
   Settings: () => import("@/pages/app/Settings"),
   Convite: () => import("@/pages/app/Convite"),
@@ -41,6 +42,7 @@ const Feed = lazy(paginas.Feed);
 const Messages = lazy(paginas.Messages);
 const MapPage = lazy(paginas.Map);
 const Profile = lazy(paginas.Profile);
+const Seguidores = lazy(paginas.Seguidores);
 const Trash = lazy(paginas.Trash);
 const Settings = lazy(paginas.Settings);
 const Convite = lazy(paginas.Convite);
@@ -122,6 +124,8 @@ export default function App() {
                 <Route path="/map" element={<MapPage />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/profile/:username" element={<Profile />} />
+                <Route path="/profile/:username/seguidores" element={<Seguidores lado="seguidores" />} />
+                <Route path="/profile/:username/seguindo" element={<Seguidores lado="seguindo" />} />
                 <Route path="/trash" element={<Trash />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/convite/:token" element={<Convite />} />

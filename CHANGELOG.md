@@ -21,6 +21,15 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Lista de seguidores e de quem a pessoa segue (ADR 0013): os números
+  "Seguidores" e "Seguindo" do perfil abrem a lista de pessoas, como no
+  Instagram, com abas para trocar entre as duas. Cada pessoa tem
+  "Mensagem" (abre ou cria a conversa a dois) e o botão de seguir, que mostra
+  "Seguir", "Seguir de volta" (quem já segue você) ou "Deixar de seguir".
+  - Rotas `/profile/{username}/seguidores` e `/profile/{username}/seguindo`.
+  - API: `/users/{id}/followers` e `/users/{id}/following` passam a trazer
+    `followed_by_me` e `follows_me` de cada pessoa.
+  - O botão de seguir do perfil também mostra "Seguir de volta".
 - Ao abrir, o app já pede permissão para mandar avisos (navegador, app
   instalado e APK). Quem desligou em Ajustes não é perguntado de novo. No
   Safari e no Firefox, que só perguntam depois de um toque, aparece uma nota
