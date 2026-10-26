@@ -41,6 +41,12 @@ inscrição.
 `/events` aberto já viu a mensagem chegar ao vivo. Consequência aceita: com o
 Compoze aberto no computador, o celular não apita.
 
+*Ajuste em 2026-10-26:* "aberto" passou a ser "na tela". O fluxo `/events`
+fecha quando o app vai para segundo plano (`visibilitychange`) e reabre ao
+voltar. Antes, no celular, o navegador mantinha a conexão viva por minutos
+depois de a pessoa sair do app, o servidor achava que ela estava olhando e o
+push nunca saía.
+
 **5. O envio nunca segura a rota.** Mensagem e convite respondem na hora; o
 aviso sai depois, e falha só vira log. Avisos da mesma conversa usam o mesmo
 tópico (hash da tag): o serviço de push guarda só o último para quem está sem
@@ -48,8 +54,18 @@ rede, e o sistema mostra um aviso por conversa.
 
 **6. O que avisa, por enquanto:** mensagem nova (título = quem escreveu, texto
 = começo da mensagem, abre a conversa) e convite pela conta (abre a Mesa, onde
-se aceita). Curtida, comentário e novo seguidor não avisam: seriam barulho
-antes de haver uma tela de preferências.
+se aceita). Curtida e comentário não avisam: seriam barulho antes de haver
+uma tela de preferências. *Desde 2026-10-26, a pedido do Ryan:* nova pessoa
+seguindo também avisa (abre o perfil de quem seguiu; seguir de novo não
+repete o aviso).
+
+**7. Quando pedir a permissão.** *Mudança em 2026-10-26, a pedido do Ryan:*
+o app pede a permissão de avisos assim que abre, já dentro da conta (no
+`AppLayout`), uma vez por abertura. Não pede de novo quem desligou em Ajustes
+(fica guardado no aparelho) nem quem já respondeu ao pedido. No APK, o pedido
+é o do Android. Safari e Firefox só mostram o pedido depois de um toque; ali
+aparece uma nota com o botão "Ligar avisos". Antes, ligar ficava só em
+Ajustes → Avisos, e quase ninguém chegava lá.
 
 ## Alternativas
 

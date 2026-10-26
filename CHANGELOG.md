@@ -5,6 +5,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Corrigido
+- Avisos no celular: com o Compoze em segundo plano, a mensagem nova não
+  virava aviso, porque o navegador mantinha a conexão ao vivo aberta e o
+  servidor achava que a pessoa estava olhando. Agora o app fecha a conexão ao
+  sair da tela e reabre ao voltar. Seguidor novo também passa a avisar.
 - Entrar e criar conta com a API dormindo (Render grátis) não parece mais
   travado: a tela acorda a API ao abrir e, se o envio demorar, explica que o
   servidor está acordando e que leva até um minuto.
@@ -26,6 +30,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   - API: `/users/{id}/followers` e `/users/{id}/following` passam a trazer
     `followed_by_me` e `follows_me` de cada pessoa.
   - O botão de seguir do perfil também mostra "Seguir de volta".
+- Ao abrir, o app já pede permissão para mandar avisos (navegador, app
+  instalado e APK). Quem desligou em Ajustes não é perguntado de novo. No
+  Safari e no Firefox, que só perguntam depois de um toque, aparece uma nota
+  com o botão "Ligar avisos".
 - Ajustes → Senha (ADR 0019): escolher uma senha nova, sem precisar da atual.
   Este aparelho continua dentro; nos outros, é preciso entrar de novo.
   API: `POST /auth/password`.

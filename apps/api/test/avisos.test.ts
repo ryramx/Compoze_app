@@ -90,6 +90,18 @@ describe("avisos por push (ADR 0016)", () => {
     expect(entregues.find((e) => e.endpoint === dela.endpoint)!.aviso.body).toMatch(/Dona Convite .* “Valsa”/);
   });
 
+  it("seguir avisa quem foi seguida, só na primeira vez", async () => {
+    const { ana, bia, daBia } = await dupla();
+    await como(ctx.app, ana.token).put(`/users/${bia.id}/follow`);
+    await esperar(() => entregues.some((e) => e.endpoint === daBia.endpoint));
+    const avisos = () => entregues.filter((e) => e.endpoint === daBia.endpoint);
+    expect(avisos()[0]!.aviso).toMatchObject({ title: "Nova pessoa seguindo você", url: `/profile/${ana.username}` });
+    expect(avisos()[0]!.aviso.body).toMatch(/Ana Aviso/);
+    await como(ctx.app, ana.token).put(`/users/${bia.id}/follow`);
+    await new Promise((r) => setTimeout(r, 200));
+    expect(avisos()).toHaveLength(1);
+  });
+
   it("o mesmo aparelho em outra conta passa para ela; cancelar só a própria", async () => {
     const ana = await novaPessoa(ctx.app);
     const bia = await novaPessoa(ctx.app);

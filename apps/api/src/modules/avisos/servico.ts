@@ -45,6 +45,15 @@ export async function avisoDeMensagem(db: Banco, m: Mensagem): Promise<{ para: s
   };
 }
 
+export async function avisoDeSeguidor(db: Banco, seguidorId: string, seguidoId: string): Promise<{ para: string[]; aviso: Aviso } | null> {
+  const [u] = await db.select({ name: users.name, username: users.username }).from(users).where(eq(users.id, seguidorId));
+  if (!u) return null;
+  return {
+    para: [seguidoId],
+    aviso: { title: "Nova pessoa seguindo você", body: `${u.name} começou a seguir você.`, url: `/profile/${u.username}`, tag: `seguidor-${seguidorId}` },
+  };
+}
+
 export async function avisoDeConvite(db: Banco, c: Convite): Promise<{ para: string[]; aviso: Aviso } | null> {
   if (!c.invited_user_id) return null;
   const [s] = await db.select({ title: songs.title }).from(songs).where(eq(songs.id, c.song_id));
