@@ -21,6 +21,10 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   convite (ADR 0010).
 
 ### Adicionado
+- Ao abrir, o app já pede permissão para mandar avisos (navegador, app
+  instalado e APK). Quem desligou em Ajustes não é perguntado de novo. No
+  Safari e no Firefox, que só perguntam depois de um toque, aparece uma nota
+  com o botão "Ligar avisos".
 - Ajustes → Senha (ADR 0019): escolher uma senha nova, sem precisar da atual.
   Este aparelho continua dentro; nos outros, é preciso entrar de novo.
   API: `POST /auth/password`.

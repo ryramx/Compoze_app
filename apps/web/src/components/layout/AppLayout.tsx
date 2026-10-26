@@ -11,7 +11,7 @@ import { ESCRITA, GENTE, RODAPE, type ItemDeNavegacao } from "@/components/layou
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { quandoRecusar, usePendentes } from "@/lib/fila";
-import { ouvirToqueNoAviso, renovarAvisos } from "@/lib/avisos";
+import { ligarAvisos, ligarAvisosAoAbrir, ouvirToqueNoAviso, renovarAvisos } from "@/lib/avisos";
 import { pedirArmazenamentoPersistente } from "@/lib/pwa";
 import { useOnline } from "@/lib/rede";
 import { definirTema, useTema } from "@/lib/tema";
@@ -203,6 +203,19 @@ export default function AppLayout() {
   // Logada, a pessoa tem o que perder no aparelho: pede para não ser apagado.
   useEffect(pedirArmazenamentoPersistente, []);
   useEffect(renovarAvisos, []);
+  // Pede os avisos logo ao abrir. Onde o navegador exige um toque, oferece o botão.
+  useEffect(() => {
+    void ligarAvisosAoAbrir()
+      .then((r) => {
+        if (r !== "precisa-de-toque") return;
+        toast("Quer saber na hora quando chegar mensagem ou convite?", {
+          id: "pedir-avisos",
+          duration: 15_000,
+          action: { label: "Ligar avisos", onClick: () => void ligarAvisos().catch(() => undefined) },
+        });
+      })
+      .catch(() => undefined);
+  }, []);
   useEffect(() => ouvirToqueNoAviso((caminho) => void navegar(caminho)), [navegar]);
 
   // O servidor recusou algo feito offline (permissão mudou, canção apagada por

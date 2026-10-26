@@ -22,6 +22,8 @@ const PUSH_NATIVO = NATIVO && import.meta.env.VITE_PUSH_NATIVO === "1";
 const CANAL = "avisos";
 // Token do Firebase deste aparelho, para renovar e para cancelar ao sair.
 const CHAVE_TOKEN = "compoze.avisos.fcm";
+// A pessoa desligou os avisos em Ajustes: o app para de pedir ao abrir.
+const CHAVE_DESLIGADOS = "compoze.avisos.desligados";
 
 function suportaWebPush(): boolean {
   return (
@@ -127,12 +129,42 @@ export async function estadoDosAvisos(): Promise<EstadoDosAvisos> {
 /** Pede permissão, inscreve o aparelho e manda a inscrição para a API. */
 export async function ligarAvisos(): Promise<EstadoDosAvisos> {
   if (!suportaAvisos()) return "sem-suporte";
+  guardar(CHAVE_DESLIGADOS, null);
   return PUSH_NATIVO ? ligarFirebase() : ligarWebPush();
+}
+
+/**
+ * Ao abrir o app, já logada: liga os avisos sem esperar a pessoa ir a Ajustes.
+ * Pede a permissão só se ela nunca foi decidida (quem recusou não é perguntado
+ * de novo; quem desligou em Ajustes também não). Com a permissão já dada e o
+ * aparelho sem inscrição, inscreve em silêncio.
+ *
+ * Devolve "precisa-de-toque" quando o navegador só mostra o pedido depois de
+ * um toque (Safari, Firefox): a tela oferece um botão.
+ */
+let pedidoAoAbrir: Promise<"ok" | "precisa-de-toque"> | null = null;
+
+export function ligarAvisosAoAbrir(): Promise<"ok" | "precisa-de-toque"> {
+  // Uma vez por abertura do app, mesmo que a tela monte de novo.
+  pedidoAoAbrir ??= pedirAoAbrir();
+  return pedidoAoAbrir;
+}
+
+async function pedirAoAbrir(): Promise<"ok" | "precisa-de-toque"> {
+  if (!suportaAvisos() || ler(CHAVE_DESLIGADOS)) return "ok";
+  if ((await estadoDosAvisos()) !== "desligado") return "ok";
+  if (PUSH_NATIVO) {
+    await ligarFirebase();
+    return "ok";
+  }
+  const estado = await ligarWebPush();
+  return estado === "desligado" && Notification.permission === "default" ? "precisa-de-toque" : "ok";
 }
 
 /** Desinscreve aqui e avisa a API. Sem rede, o servidor descobre no próximo envio. */
 export async function desligarAvisos(): Promise<void> {
   if (!suportaAvisos()) return;
+  guardar(CHAVE_DESLIGADOS, "1");
   if (PUSH_NATIVO) {
     const token = ler(CHAVE_TOKEN);
     guardar(CHAVE_TOKEN, null);

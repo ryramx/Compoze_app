@@ -59,6 +59,14 @@ uma tela de preferências. *Desde 2026-10-26, a pedido do Ryan:* nova pessoa
 seguindo também avisa (abre o perfil de quem seguiu; seguir de novo não
 repete o aviso).
 
+**7. Quando pedir a permissão.** *Mudança em 2026-10-26, a pedido do Ryan:*
+o app pede a permissão de avisos assim que abre, já dentro da conta (no
+`AppLayout`), uma vez por abertura. Não pede de novo quem desligou em Ajustes
+(fica guardado no aparelho) nem quem já respondeu ao pedido. No APK, o pedido
+é o do Android. Safari e Firefox só mostram o pedido depois de um toque; ali
+aparece uma nota com o botão "Ligar avisos". Antes, ligar ficava só em
+Ajustes → Avisos, e quase ninguém chegava lá.
+
 ## Alternativas
 
 - **Chaves VAPID por variável de ambiente.** O padrão da biblioteca, mas
