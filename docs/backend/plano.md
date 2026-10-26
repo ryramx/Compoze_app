@@ -254,5 +254,14 @@ no [ADR 0008](../decisoes/0008-fila-offline-sobre-o-rest.md)):
     Feito.
 14. ~~Fase 4c: foto de perfil e capa de projeto, guardadas no Postgres
     (ADR 0015).~~ Feito. O áudio dos memos já estava no banco (ADR 0012); o
-    S3/R2 fica para quando o volume pedir. O que falta da Fase 4 é o
-    financiamento (PIX), que pede conta no Mercado Pago.
+    S3/R2 fica para quando o volume pedir. O financiamento veio na 4d.
+15. ~~Fase 3d: avisos por Web Push no navegador e na PWA, sem conta externa
+    (ADR 0016).~~ Feito. O push no APK pelo Firebase também está pronto no
+    código; liga quando o Ryan criar o projeto e os segredos
+    (docs/mobile/android.md).
+16. ~~E-mail dos convites também por SMTP, para usar o Gmail sem domínio
+    (ADR 0017).~~ Feito no código; liga com `SMTP_USER` e `SMTP_PASS` no
+    Render (docs/backend/deploy.md).
+17. ~~Fase 4d: apoio a projetos por PIX, direto na chave da dona, com
+    confirmação à mão (ADR 0018).~~ Feito. Sem Mercado Pago e sem taxa; a
+    confirmação automática por um PSP fica para quando houver conta.

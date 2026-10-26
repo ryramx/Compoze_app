@@ -14,8 +14,12 @@ import {
 
 import type { Config } from "./config";
 import { criarAoVivo, type AoVivo } from "./lib/aoVivo";
-import { criarCarteiro, remetenteResend, type Carteiro, type Remetente } from "./lib/correio";
+import { criarAvisador, type Avisador, type Entregar } from "./lib/avisador";
+import { criarFcm, type EntregarFcm } from "./lib/fcm";
+import { criarCarteiro, remetenteDaConfig, type Carteiro, type Remetente } from "./lib/correio";
+import { rotasDeApoios } from "./modules/apoios/rotas";
 import { rotasDeAutenticacao } from "./modules/auth/rotas";
+import { rotasDeAvisos } from "./modules/avisos/rotas";
 import { rotasDeConversas } from "./modules/conversas/rotas";
 import { rotasDeConvites } from "./modules/convites/rotas";
 import { anexarColaboracao, criarColaboracao, type Colaboracao } from "./modules/colab/servidor";
@@ -45,6 +49,8 @@ declare module "fastify" {
     aoVivo: AoVivo;
     /** Fluxos `/events` abertos, encerrados antes de o servidor fechar. */
     aoVivoFechar: Set<() => void>;
+    /** Avisos por push para quem está com o app fechado (ADR 0016). */
+    avisador: Avisador;
   }
 }
 
@@ -54,13 +60,17 @@ export interface Dependencias {
   logger?: FastifyServerOptions["logger"];
   /** Quem entrega os e-mails. Sem isto, vale o Resend, se houver chave. */
   remetente?: Remetente | null;
+  /** Como o push sai. Os testes trocam por um que só anota. */
+  entregarPush?: Entregar;
+  /** Push no Android. Sem isto, vale o Firebase, se houver conta de serviço. */
+  entregarFcm?: EntregarFcm | null;
 }
 
 /**
  * Monta a API sem abrir porta: o servidor chama `listen`, os testes usam
  * `inject`. Cada módulo de `modules/` registra suas rotas aqui.
  */
-export async function construirApp({ config, banco, logger, remetente }: Dependencias) {
+export async function construirApp({ config, banco, logger, remetente, entregarPush, entregarFcm }: Dependencias) {
   const app = Fastify({
     logger: logger ?? { level: config.LOG_LEVEL },
     // Ids de requisição em UUID, para casar com os logs do front.
@@ -74,10 +84,13 @@ export async function construirApp({ config, banco, logger, remetente }: Depende
   app.decorate("colab", criarColaboracao({ db: banco.db, segredo: config.JWT_SECRET, log: app.log }));
   anexarColaboracao(app, app.colab);
   const quemEntrega =
-    remetente !== undefined ? remetente : config.RESEND_API_KEY ? remetenteResend(config.RESEND_API_KEY, config.EMAIL_FROM) : null;
+    remetente !== undefined ? remetente : remetenteDaConfig(config);
   app.decorate("carteiro", criarCarteiro(quemEntrega, app.log));
   app.decorate("aoVivo", criarAoVivo());
   app.decorate("aoVivoFechar", new Set<() => void>());
+  const fcm =
+    entregarFcm !== undefined ? entregarFcm : config.FIREBASE_SERVICE_ACCOUNT ? criarFcm(config.FIREBASE_SERVICE_ACCOUNT) : null;
+  app.decorate("avisador", criarAvisador({ db: banco.db, aoVivo: app.aoVivo, log: app.log, entregar: entregarPush, entregarFcm: fcm }));
   // Fluxos ao vivo nunca terminam sozinhos; sem isto o close esperaria para sempre.
   app.addHook("preClose", async () => {
     for (const fechar of [...app.aoVivoFechar]) fechar();
@@ -135,6 +148,8 @@ export async function construirApp({ config, banco, logger, remetente }: Depende
   await app.register(rotasDePastas);
   await app.register(rotasDeProjetos);
   await app.register(rotasDeImagens);
+  await app.register(rotasDeAvisos);
+  await app.register(rotasDeApoios);
 
   return app;
 }

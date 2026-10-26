@@ -21,3 +21,6 @@ duas apontam uma para a outra.
 | [0013](0013-seguir-e-mural.md) | Seguir pessoas e mural | Aceita |
 | [0014](0014-conversas-ao-vivo.md) | Conversas a dois, com entrega ao vivo por SSE | Aceita |
 | [0015](0015-imagens-no-postgres.md) | Foto de perfil e capa de projeto guardadas no Postgres | Aceita |
+| [0016](0016-avisos-por-push.md) | Avisos fora do app por Web Push, com chaves geradas pelo servidor | Aceita |
+| [0017](0017-email-por-smtp.md) | E-mail dos convites também por SMTP, para usar o Gmail sem domínio | Aceita |
+| [0018](0018-apoio-por-pix.md) | Apoio a projetos por PIX, direto na chave da dona | Aceita |

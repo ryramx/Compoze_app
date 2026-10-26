@@ -62,7 +62,8 @@ captures/
 .cxx/
 
 # Google Services (e.g. APIs or Firebase)
-# google-services.json
+# O CI escreve a partir do segredo GOOGLE_SERVICES_JSON (ADR 0016); nunca no repo.
+google-services.json
 
 # Freeline
 freeline.py

@@ -50,6 +50,8 @@ export default defineConfig({
         // Toda rota do app abre o index.html guardado (SPA).
         navigateFallback: "/index.html",
         cleanupOutdatedCaches: true,
+        // Avisos por push (ADR 0016): o tratamento do evento mora em public/.
+        importScripts: ["avisos-sw.js"],
         runtimeCaching: [
           {
             urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.endsWith(".woff2"),

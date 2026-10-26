@@ -25,6 +25,8 @@ export function criarAoVivo() {
     avisar(userIds: Iterable<string>, e: EventoAoVivo): void {
       for (const id of userIds) for (const f of porPessoa.get(id) ?? []) f(e);
     },
+    /** Se a pessoa está com o app aberto em algum aparelho. */
+    conectado: (userId: string) => porPessoa.has(userId),
     /** Quantos fluxos abertos (para os testes e o /health, se precisar). */
     abertos: () => [...porPessoa.values()].reduce((n, s) => n + s.size, 0),
   };

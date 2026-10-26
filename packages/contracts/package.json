@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./canonico": "./src/canonico.ts",
-    "./imagens": "./src/imagens.ts"
+    "./imagens": "./src/imagens.ts",
+    "./apoios": "./src/apoios.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

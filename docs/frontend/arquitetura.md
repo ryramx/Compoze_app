@@ -231,3 +231,26 @@ A Mesa mostra as três mais novas (`["mural","roda"]`).
 | `services/api/adapters.ts` | `avatar` e `cover` já saem com o endereço completo, para `Monograma` e `Capa` não saberem de onde vem a imagem |
 
 Na demonstração, a imagem reduzida vira `data:` no próprio registro.
+
+## Avisos por push (Fase 3d, ADR 0016)
+
+| Peça | O que faz |
+| --- | --- |
+| `public/avisos-sw.js` | Importado pelo service worker do Workbox (`workbox.importScripts`). Mostra o aviso no `push` e, no toque, foca a janela aberta ou abre uma na `url` do aviso |
+| `lib/avisos.ts` | Dois caminhos: Web Push no navegador e Firebase (`@capacitor/push-notifications`) no APK feito com `VITE_PUSH_NATIVO=1`. `ligarAvisos` (permissão, `subscribe` com a chave da API, `PUT` da inscrição), `desligarAvisos`, `renovarAvisos` (a cada abertura, no `AppLayout`) e `esquecerAvisos` (no `logout`) |
+| Ajustes → Avisos | Liga e desliga por aparelho; explica o bloqueio do navegador e o caso do iPhone (só instalado na tela de início) |
+
+No APK, tocar no aviso abre a conversa (`ouvirToqueNoAviso`, no `AppLayout`).
+Fora do modo demo. Para testar, `vite build` + `vite preview`:
+no `pnpm dev` não há service worker.
+
+## Apoio por PIX (Fase 4d, ADR 0018)
+
+| Peça | O que faz |
+| --- | --- |
+| `components/compoze/ApoioPorPix.tsx` | No detalhe do projeto, só para a dona: cadastra a chave (confere pelo tipo antes de mandar), copia o link de apoio e lista "Para conferir no extrato" com "Chegou" e "Não chegou". Ao confirmar, recarrega o projeto para o arrecadado mudar |
+| `pages/app/Apoiar.tsx` | `/apoiar/:id`: valor (com sugestões), QR desenhado com `qrcode` em SVG, copia e cola, "Já paguei" e "Seus apoios" |
+| `services/api/apoioService.ts` | As rotas de `/projects/{id}/pix`, `/contributions` e `/support/{id}`, tipadas pelo `@compoze/contracts/apoios` |
+
+Pede rede: dinheiro não entra na fila offline. Na demonstração, a página de
+apoio só explica que precisa da conta de verdade.

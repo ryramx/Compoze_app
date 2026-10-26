@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cor do ícone dos avisos: o vermelho-lápis da marca. -->
+    <color name="aviso">#B4412B</color>
+</resources>

@@ -82,13 +82,46 @@ pânico" se o segredo vazar.
 O expurgo da lixeira roda dentro da API, às 3h. No plano grátis a API dorme sem
 uso; se estiver dormindo nessa hora, o pg-boss roda o job quando ela acordar.
 
-## E-mail dos convites (desligado)
+## Avisos por push (ADR 0016)
+
+No navegador e na PWA o push já funciona sem configurar nada: a API gera o
+próprio par de chaves VAPID na primeira vez e guarda na tabela `server_keys`.
+**Não apague essa tabela**: chaves novas invalidam todos os aparelhos
+inscritos, que teriam de ligar os avisos de novo.
+
+No app Android o push passa pelo Firebase. Os passos estão em
+[docs/mobile/android.md](../mobile/android.md#avisos-por-push-firebase); do
+lado do Render é uma variável só, `FIREBASE_SERVICE_ACCOUNT` em
+`compoze-api-staging` → **Environment**, com o conteúdo inteiro do JSON da
+conta de serviço. O log da subida mostra "push no Android ligado (Firebase)".
+
+## E-mail dos convites
 
 Os convites funcionam por link sem nenhum e-mail (ADR 0010). O e-mail é um
-extra e está desligado: a conta no Resend existe, mas sem domínio próprio
-verificado o Resend só entrega para o e-mail da própria conta.
+extra, desligado até uma das duas configurações abaixo. O diálogo de convite
+só mostra o campo de e-mail quando ele está ligado.
 
-Para ligar, quando houver um domínio:
+### Pelo Gmail, sem domínio (ADR 0017)
+
+Grátis, até umas 500 mensagens por dia. Quem recebe vê "Compoze" e o seu
+endereço do Gmail.
+
+1. Em [myaccount.google.com/security](https://myaccount.google.com/security),
+   ligue a **Verificação em duas etapas** (sem ela o Google não oferece senha
+   de app).
+2. Em [myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords),
+   crie uma senha de app com o nome "Compoze". O Google mostra 16 letras uma
+   vez só.
+3. No Render, em `compoze-api-staging` → **Environment**:
+   - `SMTP_USER`: o seu endereço do Gmail;
+   - `SMTP_PASS`: as 16 letras (com ou sem espaços). Colar direto aqui,
+     nunca em chat ou no repositório.
+4. Salvar. O Render reinicia a API, e o log mostra
+   "e-mail ligado (SMTP (smtp.gmail.com))".
+
+Para desligar, apague as duas variáveis ou revogue a senha de app no Google.
+
+### Pelo Resend, com domínio próprio
 
 1. No Resend, em **Domains**, adicionar o domínio e criar no registro dele os
    registros DNS que o Resend mostrar. Esperar o domínio ficar "Verified".
@@ -99,8 +132,8 @@ Para ligar, quando houver um domínio:
      repositório.
    - `EMAIL_FROM`: o remetente no domínio verificado, por exemplo
      `Compoze <convites@seudominio.com.br>`.
-4. Salvar. O Render reinicia a API, e o log mostra "e-mail ligado (Resend)".
-   O diálogo de convite passa a mostrar o campo de e-mail.
+4. Salvar. O log mostra "e-mail ligado (Resend)". Com a chave, o Resend vale
+   mesmo que o SMTP também esteja configurado.
 
 Os links dos e-mails apontam para a primeira origem de `CORS_ORIGINS` (o front
 de staging). `WEB_URL` troca esse endereço, se precisar.

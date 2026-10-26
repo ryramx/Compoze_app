@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_API_URL: string;
   /** Endereço público do front, para links. Só o build do app Android define. */
   readonly VITE_WEB_URL?: string;
+  /** "1" no APK feito com o google-services.json: há push pelo Firebase (ADR 0016). */
+  readonly VITE_PUSH_NATIVO?: string;
 }
 
 interface ImportMeta {
