@@ -17,7 +17,7 @@ direita. Algumas só aparecem onde fazem sentido.
 
 | Seção | O que faz | Aparece |
 | --- | --- | --- |
-| **Perfil** | Foto ("Pôr uma foto", "Trocar foto", "Tirar foto"), nome artístico, "Sobre você" (até 280 caracteres, com contador), cidade e país. **Salvar perfil** | sempre |
+| **Perfil** | Foto ("Pôr uma foto", "Trocar foto", "Tirar foto"), capa do perfil ("Pôr uma capa", "Trocar capa", "Tirar capa"), nome artístico, "Sobre você" (até 280 caracteres, com contador), cidade e país. **Salvar perfil** | sempre |
 | **Aparência** | Tema **Papel**, **Noite** ou **Sistema** | sempre |
 | **Avisos** | Liga ou desliga, **neste aparelho**, os avisos do sistema de mensagem nova, convite, seguidor novo e apoio por PIX, mesmo com o Compoze fechado | onde o navegador ou o app recebe avisos |
 | **Ajuda** | **Rever os primeiros passos** e **Ajuda desta tela** ([ajuda.md](ajuda.md)) | sempre |
@@ -42,8 +42,9 @@ A frase muda conforme o aparelho:
 
 - **Perfil**: `updateCurrentUser` no store, pela fila offline
   (`PATCH /users/me`). A foto é reduzida no aparelho para 512 px e sobe por
-  `PUT /users/me/avatar`; pede rede
-  ([ADR 0015](../decisoes/0015-imagens-no-postgres.md)).
+  `PUT /users/me/avatar`; a capa, para 1600 px, por `PUT /users/me/cover`.
+  As duas pedem rede ([ADR 0015](../decisoes/0015-imagens-no-postgres.md),
+  [ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md)).
 - **Tema**: `lib/tema.ts` guarda a escolha no navegador e aplica a classe no
   `<html>`; "Sistema" segue `prefers-color-scheme`.
 - **Avisos**: `lib/avisos.ts` tem dois caminhos. No navegador e na PWA, **Web
@@ -72,5 +73,5 @@ A frase muda conforme o aparelho:
 
 ## Sem internet
 
-Perfil (menos a foto) e tema funcionam. Avisos, versão do app e senha pedem
+Perfil (menos a foto e a capa) e tema funcionam. Avisos, versão do app e senha pedem
 internet.

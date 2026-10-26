@@ -1,4 +1,4 @@
-import { AtualizarProjeto, DetalheDoProjeto, Id, NovaFaixa, NovoProjeto } from "@compoze/contracts";
+import { AtualizarFaixa, AtualizarProjeto, DetalheDoProjeto, Id, NovaFaixa, NovoProjeto } from "@compoze/contracts";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
@@ -45,6 +45,20 @@ export const rotasDeProjetos: FastifyPluginAsyncZod = async (app) => {
     "/projects/:id/songs",
     { schema: { tags, params, body: NovaFaixa, response: { 201: DetalheDoProjeto } } },
     async (req, reply) => reply.status(201).send(await s.adicionarFaixa(db, req.params.id, req.usuarioId, req.body)),
+  );
+
+  app.patch(
+    "/projects/:id/songs/:song_id",
+    {
+      schema: {
+        tags,
+        summary: "Trocar o número da faixa (troca com a que já tinha o número)",
+        params: params.extend({ song_id: Id }),
+        body: AtualizarFaixa,
+        response: { 200: DetalheDoProjeto },
+      },
+    },
+    async (req) => s.numerarFaixa(db, req.params.id, req.usuarioId, req.params.song_id, req.body.track_number),
   );
 
   app.delete(

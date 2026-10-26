@@ -36,12 +36,22 @@ export const rotasDeImagens: FastifyPluginAsyncZod = async (app) => {
   app.put(
     "/users/me/avatar",
     { ...privado, schema: { tags, summary: "Trocar a foto de perfil (corpo: a imagem)", response: { 200: UsuarioEu } } },
-    async (req) => s.trocarAvatar(db, req.usuarioId, corpo(req.body)),
+    async (req) => s.trocarImagemDoPerfil(db, req.usuarioId, "avatar", corpo(req.body)),
   );
   app.delete(
     "/users/me/avatar",
     { ...privado, schema: { tags, summary: "Tirar a foto de perfil", response: { 200: UsuarioEu } } },
-    async (req) => s.trocarAvatar(db, req.usuarioId, null),
+    async (req) => s.trocarImagemDoPerfil(db, req.usuarioId, "avatar", null),
+  );
+  app.put(
+    "/users/me/cover",
+    { ...privado, schema: { tags, summary: "Trocar a capa do perfil (corpo: a imagem)", response: { 200: UsuarioEu } } },
+    async (req) => s.trocarImagemDoPerfil(db, req.usuarioId, "capa", corpo(req.body)),
+  );
+  app.delete(
+    "/users/me/cover",
+    { ...privado, schema: { tags, summary: "Tirar a capa do perfil", response: { 200: UsuarioEu } } },
+    async (req) => s.trocarImagemDoPerfil(db, req.usuarioId, "capa", null),
   );
   app.put(
     "/projects/:id/cover",

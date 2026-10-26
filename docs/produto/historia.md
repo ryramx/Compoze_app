@@ -54,6 +54,7 @@ moldou toda a arquitetura dali em diante.
 | 26/10 | — | Lista de seguidores e seguindo, com Mensagem e Seguir de volta | #21 | 0013 |
 | 26/10 | — | Primeiros passos no primeiro acesso e ajuda em cada tela | #22 | 0020 |
 | 26/10 | — | Documentação completa: uma página por tela, funcionalidades, arquitetura, futuro | #23 | — |
+| 26/10 | — | Ajustes do primeiro teste: faixa numerada à mão, editar projeto, entradas e custos, capa do perfil, Esteira em kraft, fichas e projetos em duas colunas, mural em cartões | #24 | 0021 |
 
 Versões do APK publicadas: v0.1.x (primeiras), **v0.2.0** (push ligado pelo
 Firebase) e **v0.2.1** (PRs #17 a #21).

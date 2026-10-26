@@ -13,8 +13,13 @@ escreve e o que publica. O próprio perfil é o mesmo, visto por dentro.
 
 ## O que aparece
 
-- **Cabeçalho**: monograma ou foto, `@usuario`, "segue você" (se for o caso),
-  cidade e país, nome e bio.
+- **Capa**: uma faixa larga no topo, com a foto de capa da pessoa. Sem foto,
+  papel kraft com a pauta de cinco linhas. No próprio perfil, **Pôr uma capa**
+  / **Trocar capa** / **Tirar** ficam sobre a capa. A imagem é reduzida no
+  aparelho para 1600 px e sobe por `PUT /users/me/cover`
+  ([ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md)).
+- **Cabeçalho**: monograma ou foto, subindo sobre a capa, `@usuario`, "segue
+  você" (se for o caso), cidade e país, nome e bio.
 - **Ações**: no próprio perfil, **Editar perfil** (leva a Ajustes). No de outra
   pessoa, **Seguir** (ou "Seguindo", ou "Seguir de volta" quando ela já me
   segue) e **Conversar**.

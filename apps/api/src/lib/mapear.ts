@@ -25,6 +25,7 @@ export function usuarioPublico(u: Omit<LinhaDeUsuario, "location" | "passwordHas
     username: u.username,
     bio: u.bio,
     avatar_url: u.avatarUrl,
+    cover_url: u.coverUrl,
     city: u.city,
     state: u.state,
     country: u.country,

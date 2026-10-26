@@ -132,7 +132,8 @@ export function Publicacao({ post }: { post: ApiPost }) {
   }
 
   return (
-    <li className="group flex gap-4 border-b border-linha py-7">
+    // Cada publicação no seu cartão, em folha mais clara que o papel do mural.
+    <li className="group flex gap-3 border border-linha bg-folha p-4 transition-colors hover:border-linha-forte sm:gap-4 sm:p-5">
       <Link to={`/profile/${post.author.username}`}>
         <Monograma usuario={autora} tamanho="md" />
       </Link>
@@ -163,7 +164,7 @@ export function Publicacao({ post }: { post: ApiPost }) {
                 <span className="rotulo">{rotuloDoEstagio(statusDaApi(post.song.status))}</span>
               </>
             );
-            const classe = "mt-4 flex items-baseline justify-between gap-4 border border-linha px-4 py-3";
+            const classe = "mt-4 flex items-baseline justify-between gap-4 border border-linha bg-papel px-4 py-3";
             // Só abre no editor quem escreve a canção; os outros veem o título.
             return tenhoACancao ? (
               <Link to={`/songs/${post.song.id}/edit`} className={cn(classe, "transition-colors hover:border-linha-forte")}>

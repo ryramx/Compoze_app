@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./canonico": "./src/canonico.ts",
     "./imagens": "./src/imagens.ts",
-    "./apoios": "./src/apoios.ts"
+    "./apoios": "./src/apoios.ts",
+    "./lancamentos": "./src/lancamentos.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

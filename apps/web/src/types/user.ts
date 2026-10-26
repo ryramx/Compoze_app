@@ -3,6 +3,8 @@ export interface User {
   name: string;
   username: string;
   avatar: string;
+  /** Foto de capa do perfil (ADR 0021); vazia mostra a pauta. */
+  cover?: string;
   bio: string;
   location: { city: string; country: string; lat: number; lng: number };
   instagram?: string;

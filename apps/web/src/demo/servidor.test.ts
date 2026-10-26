@@ -147,4 +147,38 @@ describe("servidor de demonstração", () => {
     const theo = await entrar("theor");
     expect((await chamar(`/invites/link/${token}/accept`, { method: "POST", token: theo, body: {} })).status).toBe(410);
   });
+
+  it("número de faixa à mão e livro-caixa do projeto (ADR 0021)", async () => {
+    const token = await entrar();
+    // p2 tem uma faixa (s3, número 1).
+    expect((await chamar("/projects/p2/songs", { method: "POST", token, body: { song_id: "s5", track_number: 7 } })).corpo.songs).toEqual([
+      { song_id: "s3", track_number: 1 },
+      { song_id: "s5", track_number: 7 },
+    ]);
+    expect((await chamar("/projects/p2/songs", { method: "POST", token, body: { song_id: "s6", track_number: 7 } })).status).toBe(409);
+    const troca = await chamar("/projects/p2/songs/s3", { method: "PATCH", token, body: { track_number: 7 } });
+    expect(troca.corpo.songs).toEqual([
+      { song_id: "s5", track_number: 1 },
+      { song_id: "s3", track_number: 7 },
+    ]);
+
+    const antes = (await chamar("/projects/p2", { token })).corpo.funding_current as number;
+    const show = (await chamar("/projects/p2/entries", { method: "POST", token, body: { kind: "ENTRADA", description: "Show", amount: 500 } })).corpo;
+    await chamar("/projects/p2/entries", { method: "POST", token, body: { kind: "CUSTO", description: "Cachê", amount: 200 } });
+    expect((await chamar("/projects/p2", { token })).corpo.funding_current).toBe(antes + 500);
+    expect((await chamar("/projects/p2/entries", { token })).corpo).toHaveLength(2);
+    await chamar(`/projects/p2/entries/${show.id}`, { method: "DELETE", token });
+    expect((await chamar("/projects/p2", { token })).corpo.funding_current).toBe(antes);
+  });
+
+  it("capa do perfil sobe e sai (ADR 0021)", async () => {
+    const token = await entrar();
+    const r = await responder("/users/me/cover", {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "image/png" },
+      body: new Blob([new Uint8Array([1, 2, 3])], { type: "image/png" }),
+    });
+    expect((await r.json()).cover_url).toMatch(/^data:/);
+    expect((await chamar("/users/me/cover", { method: "DELETE", token })).corpo.cover_url).toBeNull();
+  });
 });

@@ -88,13 +88,13 @@ em [funcionalidades.md](funcionalidades.md). As telas, uma a uma, em
 | Convite por e-mail | Código pronto; liga com a senha de app do Gmail no Render (ADR 0017) | editor |
 | Memos de voz gravados offline | Pronto (Fase 3c, ADR 0012) | editor |
 | Pastas com subpastas | Pronto | [pastas](../telas/pastas.md) |
-| Projetos: faixas, fase, meta, custo, lançamento, capa | Pronto | [projetos](../telas/projetos.md) |
+| Projetos: faixas numeradas à mão, fase, editar projeto, entradas e custos, lançamento, capa | Pronto (ADR 0021) | [projetos](../telas/projetos.md) |
 | Apoio a projetos por PIX, direto na chave da dona | Pronto (Fase 4d, ADR 0018) | projetos, [apoiar](../telas/apoiar.md) |
 | Lixeira de 30 dias (RN07/RN08) | Pronto | [lixeira](../telas/lixeira.md) |
 | Mural, seguir, curtir, comentar | Pronto (Fase 4a, ADR 0013) | [mural](../telas/mural.md), [perfil](../telas/perfil.md) |
 | Lista de seguidores e seguindo | Pronto | [perfil](../telas/perfil.md) |
 | Conversas a dois, ao vivo, com não lidas | Pronto (Fase 4b, ADR 0014) | [conversas](../telas/conversas.md) |
-| Foto de perfil e capa de projeto | Pronto (Fase 4c, ADR 0015) | ajustes, projetos |
+| Foto e capa de perfil, capa de projeto | Pronto (Fase 4c, ADR 0015; capa do perfil no ADR 0021) | ajustes, perfil, projetos |
 | Avisos com o app fechado (navegador, PWA e Android) | Pronto (Fase 3d, ADR 0016) | ajustes |
 | Mapa de quem compõe (RN11) | Tela e API prontas; falta a opção de aparecer em Ajustes | [mapa](../telas/mapa.md) |
 | Busca global (⌘K) | Pronto | [casca](../telas/casca.md) |

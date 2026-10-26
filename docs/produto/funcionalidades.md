@@ -208,17 +208,28 @@ migrações 0004 e 0005).
 
 **Para quem usa:** single, EP ou álbum, com estilo, descrição, faixas em
 ordem, fase (Planejamento, Produção, Mixagem, Lançado), lançamento, meta e
-custo estimado, capa própria ou tipográfica.
+custo estimado, capa própria ou tipográfica. Tudo se muda depois em **Editar
+projeto**. O número da faixa pode ser escolhido à mão (a 7 num projeto de
+duas) ou ficar no automático; renumerar para um número ocupado troca as duas
+faixas. **Entradas e custos**: o que entrou (show, edital, dinheiro da banda)
+soma no arrecadado junto com o PIX; os custos de produção (cachês, estúdio,
+locação) ficam item a item, contra o custo estimado, com o saldo.
 
-**Por dentro:** `projects` e `project_songs` (com `track_number`). Projeto não
-é dono da canção. Tela: [projetos](../telas/projetos.md).
+**Por dentro:** `projects` e `project_songs` (com `track_number`;
+`PATCH /projects/{id}/songs/{song_id}` troca números), `project_entries`
+(migração 0015, `ENTRADA` ou `CUSTO`; entrada soma em `funding_current` na
+mesma transação). Projeto não é dono da canção. Lógica das faixas no aparelho
+em `lib/faixas.ts`. Tela: [projetos](../telas/projetos.md).
+
+**Decisão:** [ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md).
 
 ## 13. Apoio por PIX
 
 **Para quem usa:** a dona cadastra a chave PIX e divulga o link
 `/apoiar/<id>`. Quem apoia escolhe o valor e paga pelo QR ou copia e cola,
 direto para a dona, sem taxa, e avisa "Já paguei". A dona confere no extrato e
-marca "Chegou" ou "Não chegou"; só o que chegou soma.
+marca "Chegou" ou "Não chegou"; só o que chegou soma (no mesmo arrecadado em
+que somam as entradas lançadas à mão, ADR 0021).
 
 **Por dentro:** BR Code estático montado na API (`lib/pix.ts`, com CRC16 e
 `txid`), tabelas `project_pix` e `project_contributions` (migração 0014),
@@ -275,14 +286,15 @@ Ajustes ([mapa](../telas/mapa.md#limite-atual)).
 
 ## 18. Fotos e capas
 
-**Para quem usa:** foto de perfil e capa de projeto, com "tirar" para voltar
-ao monograma e à capa tipográfica.
+**Para quem usa:** foto de perfil, capa do perfil e capa de projeto, com
+"tirar" para voltar ao monograma, ao kraft com pauta e à capa tipográfica.
 
-**Por dentro:** o aparelho reduz (512 px no perfil, 1200 px na capa, WebP ou
-JPEG); tabela `images` (`bytea`, migração 0012); `GET /images/{id}` público e
+**Por dentro:** o aparelho reduz (512 px na foto, 1600 px na capa do perfil,
+1200 px na capa do projeto, WebP ou JPEG); `users.cover_url` (migração 0015); tabela `images` (`bytea`, migração 0012); `GET /images/{id}` público e
 imutável, com o tipo conferido pelos bytes; imagens sem dono saem no expurgo.
 
-**Decisão:** [ADR 0015](../decisoes/0015-imagens-no-postgres.md).
+**Decisão:** [ADR 0015](../decisoes/0015-imagens-no-postgres.md); capa do
+perfil no [ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md).
 
 ## 19. Avisos (push)
 

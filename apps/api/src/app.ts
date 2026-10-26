@@ -26,6 +26,7 @@ import { anexarColaboracao, criarColaboracao, type Colaboracao } from "./modules
 import { rotasDePastas } from "./modules/folders/rotas";
 import { rotasDeGente } from "./modules/gente/rotas";
 import { rotasDeImagens } from "./modules/imagens/rotas";
+import { rotasDeLancamentos } from "./modules/lancamentos/rotas";
 import { rotasDeMemos } from "./modules/memos/rotas";
 import { rotasDeSaude } from "./modules/health/rotas";
 import { rotasDeProjetos } from "./modules/projects/rotas";
@@ -147,6 +148,7 @@ export async function construirApp({ config, banco, logger, remetente, entregarP
   await app.register(rotasDeConvites);
   await app.register(rotasDePastas);
   await app.register(rotasDeProjetos);
+  await app.register(rotasDeLancamentos);
   await app.register(rotasDeImagens);
   await app.register(rotasDeAvisos);
   await app.register(rotasDeApoios);

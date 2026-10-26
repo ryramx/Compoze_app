@@ -202,7 +202,8 @@ export function projetoDaApi(p: ApiProjectDetail): Project {
     fundingProgress: meta > 0 ? Math.min(100, Math.round((p.funding_current / meta) * 100)) : 0,
     fundingRaised: p.funding_current,
     status: STATUS_PROJETO_DA_API[p.status],
-    songIds: (p.songs ?? []).map((v) => v.song_id),
+    songIds: [...(p.songs ?? [])].sort((a, b) => (a.track_number ?? 0) - (b.track_number ?? 0)).map((v) => v.song_id),
+    trackNumbers: Object.fromEntries((p.songs ?? []).map((v, i) => [v.song_id, v.track_number ?? i + 1])),
     // A API ainda não expõe colaboradores de projeto; a tela trata lista vazia.
     collaboratorIds: [],
     ownerId: p.owner_id,
@@ -217,6 +218,8 @@ export function usuarioDaApi(u: ApiUserPublic | ApiUserMe): User {
     name: u.name,
     username: u.username,
     avatar: enderecoDaImagem(u.avatar_url),
+    // Cópias antigas do aparelho (e do modo demo) não têm o campo.
+    cover: enderecoDaImagem(u.cover_url ?? null),
     bio: u.bio ?? "",
     location: {
       city: u.city ?? "",

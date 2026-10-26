@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { Cabecalho } from "@/components/compoze/Cabecalho";
 import { Confirmar } from "@/components/compoze/Confirmar";
+import { CapaDoPerfil } from "@/components/gente/CapaDoPerfil";
 import { EscolherImagem } from "@/components/compoze/EscolherImagem";
 import { Monograma } from "@/components/compoze/Monograma";
 import { Pagina } from "@/components/layout/Pagina";
@@ -162,6 +163,7 @@ export default function Settings() {
   const eu = useCompoze((s) => s.users.find((u) => u.id === s.currentUserId));
   const atualizarEu = useCompoze((s) => s.updateCurrentUser);
   const trocarFoto = useCompoze((s) => s.trocarFoto);
+  const trocarCapa = useCompoze((s) => s.trocarCapaDoPerfil);
   const hidratar = useCompoze((s) => s.hydrate);
   const limpar = useCompoze((s) => s.limpar);
   const sair = useAuth((s) => s.logout);
@@ -205,9 +207,16 @@ export default function Settings() {
       <Cabecalho titulo="Ajustes" />
 
       <Bloco titulo="Perfil" descricao="Como você aparece nos créditos, no mapa e para quem escreve com você.">
-        <div className="mb-8 flex items-center gap-5">
+        <div className="mb-6 flex items-center gap-5">
           <Monograma usuario={eu} tamanho="lg" />
           <EscolherImagem temImagem={!!eu?.avatar} rotuloTrocar={eu?.avatar ? "Trocar foto" : "Pôr uma foto"} rotuloTirar="Tirar foto" trocar={trocarFoto} />
+        </div>
+        <div className="mb-8">
+          <span className="rotulo mb-2 block">Capa do perfil</span>
+          <CapaDoPerfil imagem={eu?.cover} className="max-w-md" />
+          <div className="mt-2">
+            <EscolherImagem temImagem={!!eu?.cover} rotuloTrocar={eu?.cover ? "Trocar capa" : "Pôr uma capa"} rotuloTirar="Tirar capa" trocar={trocarCapa} />
+          </div>
         </div>
         <form onSubmit={salvar} className="space-y-6">
           <Campo rotulo="Nome artístico" erro={erroNome}>

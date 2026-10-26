@@ -116,7 +116,10 @@ As preferências de Cifras e Alinhar ficam guardadas no navegador.
   (2/4 a 12/8) e andamento em bpm.
 - **Organização**: pasta (ou "Sem pasta"), visibilidade no perfil ("Visível no
   seu perfil" / "Privada — só coautores veem") e tags (`+ tag`, Enter ou
-  vírgula para adicionar).
+  vírgula para adicionar). Para cada projeto em que a canção está, uma linha
+  **Faixa** com o número editável ("07 de Madrugada"; número ocupado troca as
+  duas faixas) e, se houver projeto sem ela, **Pôr num projeto…**, que a põe
+  como próxima faixa ([ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md)).
 - **Coautoria**: cada pessoa com o seu percentual, a soma no alto (verde em
   100%, vermelha fora disso) e uma barra em que cada pessoa ocupa a sua
   fração na cor dela. Botões **Convidar** (só a dona) e **Fechar divisão**.

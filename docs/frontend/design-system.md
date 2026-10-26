@@ -36,7 +36,19 @@ Tailwind via `@theme`.
 | `tinta-3` | `#8a8578` | `#7c766a` | Rótulos, metadados |
 | `linha` / `linha-forte` | `#dbd4c5` / `#b9b09d` | `#2e2c27` / `#4a463d` | Réguas, bordas |
 | `lapis` | `#b4412b` | `#e2694f` | Acento único |
+| `kraft` / `kraft-linha` | `#e4d9c2` / `#cbbd9f` | `#27241d` / `#3b362b` | Papel pardo: a Esteira da Mesa e a capa de perfil sem foto (ADR 0021) |
+| `bege` | `#f7f0e1` | `#1d1b17` | Fundo de quadro mais quente que a folha: "Na roda" (ADR 0021) |
 | `autor-1…5` | índigo, oliva, ocre, ameixa, petróleo | versões claras | Cor de cada coautor |
+
+`kraft` e `bege` não são acentos: são outros papéis. O kraft dá à Esteira um
+cartão pardo que não some no branco, e o bege tira o quadro "Na roda" do
+branco total. O lápis continua sendo a única cor de destaque; na Esteira ele só
+marca, com um traço curto, os estágios que têm obra.
+
+Publicações do mural ficam cada uma num cartão `folha` com régua `linha`, para
+separar quem disse o quê sem precisar de sombra. Fichas de canção e capas de
+projeto vão em grade de duas colunas já no celular (três ou quatro no
+computador).
 
 As cores de autor são dessaturadas de propósito: precisam conviver no mesmo
 texto sem virar arco-íris. A cor de cada pessoa é derivada do id dela.

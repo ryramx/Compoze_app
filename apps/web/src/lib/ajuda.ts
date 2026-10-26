@@ -76,7 +76,7 @@ export const TOPICOS: TopicoDeAjuda[] = [
     titulo: "Projetos",
     resumo: "Singles, EPs e álbuns: as canções em ordem de faixa, o dinheiro e a data de lançamento.",
     itens: [
-      { titulo: "Novo projeto", texto: "Dê um nome, o formato, a meta e a data de lançamento. Tudo pode mudar depois." },
+      { titulo: "Novo projeto", texto: "Dê um nome, o formato, a meta e a data de lançamento. Tudo pode mudar depois, em Editar projeto." },
       { titulo: "Faixas", texto: "Traga canções do caderno para o projeto. Tirar uma faixa ou excluir o projeto não apaga a canção." },
       { titulo: "Capa", texto: "Sem imagem, o projeto ganha uma capa tipográfica. Você pode pôr uma foto quando quiser." },
       { titulo: "Apoio por PIX", texto: "Cadastre sua chave PIX e mande o link de apoio. O dinheiro vai direto para você, sem taxa; você confere no extrato e marca o que chegou." },
@@ -87,7 +87,10 @@ export const TOPICOS: TopicoDeAjuda[] = [
     titulo: "Projeto",
     resumo: "Um single, EP ou álbum por dentro: faixas, fase, quem está envolvido e quanto já entrou.",
     itens: [
-      { titulo: "Adicionar faixa", texto: "Escolha canções do seu caderno. Elas continuam no caderno; o projeto só as reúne em ordem." },
+      { titulo: "Adicionar faixa", texto: "Escolha canções do seu caderno. Elas continuam no caderno; o projeto só as reúne em ordem. Deixe o número vazio para seguir a ordem, ou escreva o número da faixa (a 7, por exemplo)." },
+      { titulo: "Número da faixa", texto: "Toque no número de uma faixa para mudar. Se outra faixa já tem o número, as duas trocam de lugar." },
+      { titulo: "Editar projeto", texto: "Muda o nome, o formato, a descrição, a data, a meta e o custo estimado." },
+      { titulo: "Entradas e custos", texto: "Lance o que entrou (show, edital, dinheiro da banda) e os custos de produção (cachês, estúdio, locação de espaço). Entrada soma no arrecadado; o saldo mostra se ainda falta cobrir." },
       { titulo: "Fase", texto: "Em que ponto o lançamento está. Mude conforme o trabalho anda." },
       { titulo: "Apoio por PIX", texto: "Guarde a chave e copie o link de apoio. Quando alguém disser que pagou, confira no extrato e marque Chegou ou Não chegou. Só o que chegou soma no arrecadado." },
       { titulo: "Capa", texto: "Pôr uma capa troca a capa tipográfica por uma imagem; dá para voltar à tipográfica depois." },
@@ -128,7 +131,8 @@ export const TOPICOS: TopicoDeAjuda[] = [
     titulo: "Perfil",
     resumo: "Como você aparece para quem escreve com você, e onde você conhece outras pessoas.",
     itens: [
-      { titulo: "Editar perfil", texto: "Leva a Ajustes › Perfil: foto, nome artístico, cidade e um pouco sobre você." },
+      { titulo: "Editar perfil", texto: "Leva a Ajustes › Perfil: foto, capa, nome artístico, cidade e um pouco sobre você." },
+      { titulo: "Capa", texto: "No seu perfil, Pôr uma capa coloca uma foto larga no topo. Sem foto, fica o papel pardo com a pauta." },
       { titulo: "Obras", texto: "Aparecem as canções visíveis no perfil. As privadas ficam só entre os coautores." },
       { titulo: "Seguidores e Seguindo", texto: "Toque nos números para ver a lista de pessoas." },
       { titulo: "Perfil de outra pessoa", texto: "Seguir põe as publicações dela no seu mural; Conversar abre uma conversa a dois." },

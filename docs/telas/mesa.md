@@ -25,12 +25,15 @@ canção em que a pessoa estava.
    quatro linhas (cifra em vermelho, versos em serifa), os coautores e "Abrir
    no caderno". Abaixo, as cinco seguintes, uma por linha.
 4. **Esteira.** Seis casas numeradas, uma por estágio (Ideia, Escrita,
-   Revisão, Finalizada, Registrada, Gravada), com quantas obras há em cada.
-   Cada casa abre Canções já filtrada naquele estágio.
+   Revisão, Finalizada, Registrada, Gravada), com quantas obras há em cada,
+   num cartão de **papel kraft** (pardo) para não sumir no papel da página.
+   Um traço curto do lápis marca os estágios que têm obra. Cada casa abre
+   Canções já filtrada naquele estágio.
 5. **Projetos em andamento.** Os três primeiros, com a capa, formato e fase
    ("EP · Produção") e a barra do financiamento.
 6. **Na roda.** As três publicações mais novas do mural de quem a pessoa
-   segue.
+   segue, num quadro **bege claro** em vez de soltas no branco, separadas por
+   réguas.
 
 Caderno vazio: "O caderno está em branco. Toda canção começa com uma linha
 só." e o botão "Escrever a primeira".
@@ -59,6 +62,7 @@ só." e o botão "Escrever a primeira".
 | --- | --- |
 | Uma frase de resumo em vez de quatro cartões de estatística | Uma linha que diz o que pede atenção vale mais do que números soltos. É também o que afasta a tela da cara de painel genérico ([design system](../frontend/design-system.md)) |
 | A última canção aparece como folha, com as primeiras linhas | Ver o próprio verso é o jeito mais rápido de lembrar onde parou |
+| Esteira em kraft e Na roda em bege (tokens `kraft` e `bege`) | O testador achou a Esteira apagada e o Na roda branco demais; são outros papéis, não novas cores de acento ([ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md)) |
 | Esteira com as seis etapas sempre visíveis, mesmo zeradas | Mostra o caminho inteiro de uma obra, da ideia à gravação, e convida a mover as que estão paradas |
 | Convites no topo da Mesa | Entrar numa canção sempre depende do aceite de quem foi convidado ([ADR 0010](../decisoes/0010-convites.md)); o convite precisa estar onde a pessoa olha primeiro |
 | Saudação pelo primeiro nome e pela hora | O app é pessoal, um caderno, não um sistema |

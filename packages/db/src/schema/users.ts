@@ -14,6 +14,8 @@ export const users = pgTable(
     passwordHash: text("password_hash"),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),
+    // Capa do perfil (ADR 0021): `/images/{id}`, como a foto.
+    coverUrl: text("cover_url"),
     city: text("city"),
     state: text("state"),
     country: text("country"),
