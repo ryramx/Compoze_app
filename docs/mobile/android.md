@@ -92,7 +92,9 @@ O workflow confere a chave antes de compilar e diz qual secret está errado:
 ## Avisos por push (Firebase)
 
 O Android só entrega push pelo Firebase Cloud Messaging (ADR 0016). O plano
-grátis (Spark) basta e não pede cartão. Sem estes passos o APK continua
+grátis (Spark) basta e não pede cartão. **Situação:** já configurado (projeto
+"compoze-app", em 26/10/2026); os APKs a partir da v0.2.0 recebem push. Os
+passos abaixo servem para refazer do zero. Sem estes passos o APK continua
 funcionando, só sem a opção de avisos em Ajustes.
 
 1. Em [console.firebase.google.com](https://console.firebase.google.com),

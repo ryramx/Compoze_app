@@ -17,8 +17,8 @@ services/api/     Uma função por rota. Recebe e devolve tipos de domínio.
   dto.ts          Tipos exatamente como a API os envia (snake_case), derivados
                   dos schemas de @compoze/contracts (só tipos, sem zod no bundle).
   adapters.ts     Único lugar que traduz DTO ⇄ domínio.
-services/mock/    Funções puras sobre listas (filtros, lixeira) e as partes
-                  sociais que ainda não têm backend.
+services/mock/    Funções puras sobre listas (filtros, lixeira, pastas,
+                  projetos), usadas pelo store. Não guardam dados.
 lib/api.ts        Transporte: fetch, token, erros (ApiError), modo demo.
 demo/             Servidor de demonstração (ADR 0003).
 types/            Tipos de domínio usados pelas telas.
@@ -66,6 +66,12 @@ projetos já com as faixas, numa ida cada.
 | `/profile`, `/profile/:username` | Perfil |
 | `/profile/:username/seguidores`, `/profile/:username/seguindo` | Lista de seguidores / seguindo, com Mensagem e seguir |
 | `/trash`, `/settings` | Lixeira, Ajustes |
+| `/messages/:id` | Conversa aberta (`?com=<id>` abre ou cria) |
+| `/convite/:token` | Convite por link |
+| `/apoiar/:id` | Apoiar um projeto por PIX |
+| `/compartilhar` | Texto vindo do "Compartilhar" do Android |
+
+Cada tela tem a sua página em [docs/telas/](../telas/README.md).
 
 `RequireAuth` restaura a sessão pelo refresh token e espera a carga inicial
 antes de renderizar qualquer tela protegida. Sem rede, restaura com a última
