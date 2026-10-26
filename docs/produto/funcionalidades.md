@@ -254,7 +254,8 @@ Seguir avisa a pessoa.
 ## 16. Conversas ao vivo
 
 **Para quem usa:** conversa a dois, com mensagem que chega na hora, contador
-de não lidas no menu e aviso quando o app está fechado.
+de não lidas no menu e aviso quando o app está fechado. Começa pelo botão
+"Nova conversa" (busca por nome ou @), pelo perfil ou pela lista de seguidores.
 
 **Por dentro:** `conversations` (uma por par), `conversation_members`,
 `messages` (migração 0011); `GET /events` em Server-Sent Events com um hub em

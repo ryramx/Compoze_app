@@ -223,7 +223,7 @@ A Mesa mostra as três mais novas (`["mural","roda"]`).
 
 | Peça | O que faz |
 | --- | --- |
-| `pages/app/Messages.tsx` | `/messages` e `/messages/:id`; `?com=<id>` abre a conversa com a pessoa (o "Conversar" do perfil) |
+| `pages/app/Messages.tsx` | `/messages` e `/messages/:id`; `?com=<id>` abre a conversa com a pessoa (o "Conversar" do perfil e a janela `components/gente/NovaConversa.tsx`) |
 | `components/gente/conversas.ts` | `useConversas` (chave `["conversas"]`), `useNaoLidas` (contador do menu), `guardarMensagem` |
 | `components/gente/AoVivo.tsx` | Montado no `AppLayout`: mantém o fluxo ao vivo e põe cada mensagem no cache; fora da conversa, avisa |
 | `lib/aoVivo.ts` | Lê `GET /events` com `fetch` (token no cabeçalho), reconecta com espera crescente. Na demo, o servidor da demo chama `emitir` |
