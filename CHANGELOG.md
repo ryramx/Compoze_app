@@ -5,6 +5,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Corrigido
+- Entrar e criar conta com a API dormindo (Render grátis) não parece mais
+  travado: a tela acorda a API ao abrir e, se o envio demorar, explica que o
+  servidor está acordando e que leva até um minuto.
 - A busca do topo (Buscar / ⌘K) acha qualquer pessoa do Compoze pelo nome ou
   pelo @, sem acento. Antes ela só via quem já estava no seu caderno
   (coautores e contatos), e "Nada encontrado" aparecia para todo o resto.

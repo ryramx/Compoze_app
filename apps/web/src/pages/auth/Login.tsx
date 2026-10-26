@@ -1,8 +1,10 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
+import { AvisoAcordando } from "@/components/compoze/AvisoAcordando";
 import { Botao } from "@/components/ui/Botao";
 import { Campo, Entrada } from "@/components/ui/Campo";
 import { emailDemo, SENHA_DEMO } from "@/demo/semente";
+import { acordarApi } from "@/lib/acordar";
 import { ApiError, MODO_DEMO } from "@/lib/api";
 import { useAuth } from "@/store/authStore";
 import { AuthLayout } from "./AuthLayout";
@@ -16,6 +18,9 @@ export default function Login() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+
+  // Acorda a API enquanto a pessoa digita (Render grátis dorme sem uso).
+  useEffect(acordarApi, []);
 
   // Para onde a pessoa ia antes de ser mandada ao login. Devolvê-la ao destino
   // original evita que um link compartilhado sempre termine na Mesa.
@@ -75,6 +80,7 @@ export default function Login() {
         <Botao type="submit" variante="tinta" tamanho="lg" className="w-full justify-center" disabled={enviando}>
           {enviando ? "Entrando…" : "Entrar"}
         </Botao>
+        <AvisoAcordando ativo={enviando} />
       </form>
 
       {MODO_DEMO && (

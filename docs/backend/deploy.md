@@ -22,8 +22,23 @@ dias, e o pago pede cartão. O plano grátis do Neon não expira; o banco "dorme
 sem uso e acorda na primeira consulta (um ou dois segundos). Para produção,
 reavaliamos (Neon pago ou Postgres do Render).
 
-A API no plano grátis do Render também dorme sem uso e leva alguns segundos
-para acordar, o que serve para staging.
+A API no plano grátis do Render também dorme depois de 15 minutos sem uso e
+leva perto de um minuto para acordar. O front lida com isso:
+
+- quem já entrou no aparelho abre na hora, com a cópia local, e o que escreve
+  espera na fila até a API responder;
+- as telas de entrar e criar conta chamam `/health` ao abrir, para a API ir
+  acordando enquanto a pessoa digita, e explicam a espera se ela passar de
+  4 segundos (`lib/acordar.ts`, `AvisoAcordando`).
+
+**Por que não manter a API acordada com um ping (UptimeRobot, cron).** A API
+acordada fala com o banco o tempo todo (o pg-boss consulta a fila a cada
+poucos segundos), então o Neon também nunca dorme. O plano grátis do Neon dá
+100 horas de computação (CU-hora) por mês, e o menor computador (0,25 CU)
+ligado direto gasta umas 180: o banco seria suspenso no meio do mês. Além
+disso, as 750 horas grátis do Render por mês são da conta inteira. Tirar a
+espera de vez pede plano pago (API sempre ligada e um banco que aguente
+ficar acordado).
 
 ## Primeira vez
 

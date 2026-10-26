@@ -1,7 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
+import { AvisoAcordando } from "@/components/compoze/AvisoAcordando";
 import { Botao } from "@/components/ui/Botao";
 import { Campo, Entrada } from "@/components/ui/Campo";
+import { acordarApi } from "@/lib/acordar";
 import { ApiError } from "@/lib/api";
 import { useAuth } from "@/store/authStore";
 import { AuthLayout } from "./AuthLayout";
@@ -20,6 +22,9 @@ export default function Register() {
   const [dados, setDados] = useState({ name: "", username: "", email: "", password: "" });
   const [erros, setErros] = useState<Partial<Record<keyof typeof dados | "geral", string>>>({});
   const [enviando, setEnviando] = useState(false);
+
+  // Acorda a API enquanto a pessoa digita (Render grátis dorme sem uso).
+  useEffect(acordarApi, []);
 
   const mudar = (campo: keyof typeof dados) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setDados((d) => ({ ...d, [campo]: campo === "username" ? e.target.value.toLowerCase() : e.target.value }));
@@ -86,6 +91,7 @@ export default function Register() {
         <Botao type="submit" variante="tinta" tamanho="lg" className="w-full justify-center" disabled={enviando}>
           {enviando ? "Criando…" : "Criar conta"}
         </Botao>
+        <AvisoAcordando ativo={enviando} />
       </form>
     </AuthLayout>
   );
