@@ -1,12 +1,16 @@
 import * as D from "@radix-ui/react-dialog";
 import { Command } from "cmdk";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Estagio } from "@/components/compoze/Estagio";
 import { Monograma } from "@/components/compoze/Monograma";
 import { TODAS } from "@/components/layout/navegacao";
+import { useOnline } from "@/lib/rede";
 import { TIPOS_DE_PROJETO } from "@/lib/rotulos";
+import * as pessoasApi from "@/services/api/userService";
 import { listActive } from "@/services/mock/songService";
 import { useCompoze } from "@/store/compozeStore";
+import type { User } from "@/types";
 
 const grupo =
   "[&_[cmdk-group-heading]]:rotulo [&_[cmdk-group-heading]]:px-5 [&_[cmdk-group-heading]]:pt-4 [&_[cmdk-group-heading]]:pb-1.5";
@@ -16,7 +20,8 @@ const item =
 /**
  * Busca em tudo o que já está carregado: canções (título, tag e letra),
  * projetos, pastas, pessoas e páginas. Não chama a API — o store já tem o
- * conjunto de trabalho da pessoa.
+ * conjunto de trabalho da pessoa. A exceção são as pessoas: com rede, quem
+ * ainda não está no store vem da busca da API (nome ou @, em todas as contas).
  */
 export function BuscaGlobal({ aberta, aoMudar }: { aberta: boolean; aoMudar: (v: boolean) => void }) {
   const navegar = useNavigate();
@@ -25,6 +30,37 @@ export function BuscaGlobal({ aberta, aoMudar }: { aberta: boolean; aoMudar: (v:
   const pastas = useCompoze((s) => s.folders);
   const pessoas = useCompoze((s) => s.users);
   const euId = useCompoze((s) => s.currentUserId);
+  const online = useOnline();
+  const [termo, setTermo] = useState("");
+  const [achados, setAchados] = useState<User[]>([]);
+
+  // Cada abertura começa vazia, como antes de o campo ser controlado.
+  useEffect(() => {
+    if (!aberta) setTermo("");
+  }, [aberta]);
+
+  // Pessoas de fora do store: pergunta à API com uma pausa curta entre letras.
+  useEffect(() => {
+    const t = termo.trim().replace(/^@/, "");
+    if (!aberta || !online || t.length < 2) {
+      setAchados([]);
+      return;
+    }
+    let vivo = true;
+    const espera = setTimeout(() => {
+      pessoasApi
+        .buscar(t)
+        .then((r) => vivo && setAchados(r))
+        .catch(() => vivo && setAchados([]));
+    }, 250);
+    return () => {
+      vivo = false;
+      clearTimeout(espera);
+    };
+  }, [termo, aberta, online]);
+
+  const conhecidas = pessoas.filter((u) => u.id !== euId);
+  const novas = achados.filter((u) => u.id !== euId && !conhecidas.some((c) => c.id === u.id));
 
   const ir = (url: string) => {
     aoMudar(false);
@@ -40,6 +76,8 @@ export function BuscaGlobal({ aberta, aoMudar }: { aberta: boolean; aoMudar: (v:
           <Command label="Buscar" loop>
             <Command.Input
               autoFocus
+              value={termo}
+              onValueChange={setTermo}
               placeholder="Buscar canções, versos, projetos, pessoas…"
               className="w-full border-b border-linha bg-transparent px-5 py-4 font-serif text-xl placeholder:text-tinta-3 focus:outline-none"
             />
@@ -78,15 +116,21 @@ export function BuscaGlobal({ aberta, aoMudar }: { aberta: boolean; aoMudar: (v:
               </Command.Group>
 
               <Command.Group heading="Pessoas" className={grupo}>
-                {pessoas
-                  .filter((u) => u.id !== euId)
-                  .map((u) => (
-                    <Command.Item key={u.id} value={`${u.name} ${u.username}`} onSelect={() => ir(`/profile/${u.username}`)} className={item}>
-                      <Monograma usuario={u} tamanho="xs" />
-                      <span className="flex-1 truncate">{u.name}</span>
-                      <span className="text-[12px] text-tinta-3">@{u.username}</span>
-                    </Command.Item>
-                  ))}
+                {[...conhecidas, ...novas].map((u) => (
+                  <Command.Item
+                    key={u.id}
+                    // Quem veio da API já casou lá (sem acento, parte do nome): o termo
+                    // vai no value para o filtro do cmdk não esconder. No `keywords` não
+                    // serve: o cmdk só relê o value quando ele muda.
+                    value={`${u.name} @${u.username} ${u.id}${novas.includes(u) ? ` ${termo}` : ""}`}
+                    onSelect={() => ir(`/profile/${u.username}`)}
+                    className={item}
+                  >
+                    <Monograma usuario={u} tamanho="xs" />
+                    <span className="flex-1 truncate">{u.name}</span>
+                    <span className="text-[12px] text-tinta-3">@{u.username}</span>
+                  </Command.Item>
+                ))}
               </Command.Group>
 
               <Command.Group heading="Ir para" className={grupo}>
