@@ -19,6 +19,12 @@ export const Login = z.object({
   password: z.string().min(1),
 });
 
+/** Senha nova, com a pessoa já dentro (Ajustes → Senha). */
+export const TrocarSenha = z.object({
+  new_password: z.string().min(8, "A senha precisa de pelo menos 8 caracteres.").max(200),
+});
+export type TrocarSenha = z.infer<typeof TrocarSenha>;
+
 export const Renovar = z.object({ refresh_token: z.string().min(1) });
 
 export const ParDeTokens = z.object({

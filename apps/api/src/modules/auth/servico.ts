@@ -58,6 +58,24 @@ export async function entrar(ctx: Ctx, email: string, senha: string): Promise<Pa
 }
 
 /**
+ * Senha nova para quem já está dentro (ADR 0019). Não pede a atual: serve
+ * justamente a quem esqueceu e ainda tem a sessão aberta num aparelho. Em
+ * troca, toda sessão aberta cai (as outras pontas precisam entrar com a senha
+ * nova) e este aparelho recebe um par novo.
+ */
+export async function trocarSenha(ctx: Ctx, usuarioId: string, nova: string): Promise<ParDeTokens> {
+  const hash = await gerarHash(nova);
+  await ctx.db.transaction(async (tx) => {
+    await tx.update(users).set({ passwordHash: hash }).where(eq(users.id, usuarioId));
+    await tx
+      .update(refreshTokens)
+      .set({ revokedAt: sql`now()` })
+      .where(and(eq(refreshTokens.userId, usuarioId), isNull(refreshTokens.revokedAt)));
+  });
+  return emitirPar(ctx, usuarioId);
+}
+
+/**
  * Troca um refresh token por um par novo. O token apresentado é gasto (uso
  * único). Se ele já tinha sido gasto, alguém tem uma cópia: a família inteira
  * é revogada e as duas pontas precisam entrar de novo.

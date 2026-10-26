@@ -132,7 +132,7 @@ contrato) e `servico.ts` (regras e banco). Rota não tem regra de negócio.
 
 | Módulo | Rotas | Regras |
 | --- | --- | --- |
-| `auth` | `/auth/register`, `/auth/login`, `/auth/refresh` | ADR 0006 |
+| `auth` | `/auth/register`, `/auth/login`, `/auth/refresh`, `/auth/password` | ADR 0006; senha nova sem a atual, ADR 0019 |
 | `users` | `/users/me`, `/users?ids=`, `/users/{username}`, `/map/people` | RN11 |
 | `songs` | `/songs…`, blocos, coautores, divisão, lixeira | RN05, RN07 |
 | `colab` | WebSocket `/collab` (Hocuspocus) | ADR 0007: documento Yjs, projeção em `song_blocks` |

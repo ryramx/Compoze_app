@@ -1,7 +1,7 @@
-import { Cadastro, Erro, Login, ParDeTokens, Renovar } from "@compoze/contracts";
+import { Cadastro, Erro, Login, ParDeTokens, Renovar, TrocarSenha } from "@compoze/contracts";
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 
-import { cadastrar, entrar, renovar } from "./servico";
+import { cadastrar, entrar, renovar, trocarSenha } from "./servico";
 
 export const rotasDeAutenticacao: FastifyPluginAsyncZod = async (app) => {
   const ctx = { db: app.banco.db, config: app.config };
@@ -24,5 +24,20 @@ export const rotasDeAutenticacao: FastifyPluginAsyncZod = async (app) => {
     "/auth/refresh",
     { config, schema: { tags, body: Renovar, response: { 200: ParDeTokens, 401: Erro } } },
     async (req) => renovar(ctx, req.body.refresh_token),
+  );
+
+  app.post(
+    "/auth/password",
+    {
+      config,
+      onRequest: app.autenticar,
+      schema: {
+        tags,
+        summary: "Senha nova para quem está dentro; derruba as outras sessões",
+        body: TrocarSenha,
+        response: { 200: ParDeTokens, 401: Erro },
+      },
+    },
+    async (req) => trocarSenha(ctx, req.usuarioId, req.body.new_password),
   );
 };

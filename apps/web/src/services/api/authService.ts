@@ -45,6 +45,14 @@ export async function login(email: string, password: string): Promise<User> {
   return me();
 }
 
+/**
+ * Senha nova, sem pedir a atual (ADR 0019). O servidor derruba as outras
+ * sessões e devolve um par novo para este aparelho, que fica dentro.
+ */
+export async function trocarSenha(nova: string): Promise<void> {
+  guardarPar(await api.post<ApiTokenPair>("/auth/password", { new_password: nova }));
+}
+
 const EU_KEY = "compoze.eu";
 
 /** Quem está logada, guardada para abrir o app offline (ADR 0005, sessão offline). */
