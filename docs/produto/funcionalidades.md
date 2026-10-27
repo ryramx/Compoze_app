@@ -34,6 +34,7 @@ geral, em [../arquitetura.md](../arquitetura.md).
 25. [Tema claro e escuro](#25-tema-claro-e-escuro)
 26. [Primeiros passos e ajuda](#26-primeiros-passos-e-ajuda)
 27. [Novidades](#27-novidades)
+28. [Importar e exportar](#28-importar-e-exportar)
 
 ---
 
@@ -408,3 +409,26 @@ vira push.
 
 **Decisão:** [ADR 0023](../decisoes/0023-novidades-na-mesa.md). Telas:
 [mesa](../telas/mesa.md), [novidades](../telas/novidades.md).
+
+## 28. Importar e exportar
+
+**Para quem usa:** trazer uma canção escrita em outro lugar e levar uma
+canção para fora. **Importar** fica em Canções (cria uma canção nova, como
+ideia) e no `…` do editor (põe na canção aberta: acrescenta no fim ou
+substitui a folha). Aceita PDF, Word, Markdown, texto e ChordPro, ou o texto
+colado de um site de cifras. Letra, cifra sobre a letra, acordes entre
+colchetes, seções, notas e a ficha (tom, andamento, compasso) vêm junto; o
+que não tem campo (capotraste, artista) vira nota. A prévia mostra como vai
+ficar antes de criar. **Exportar**, no `…` do editor, gera PDF (para
+imprimir), Markdown (texto puro, que volta sem perder nada) ou Word, com ou
+sem cifras, notas e ficha, em qualquer estágio. Funciona sem internet; no
+Android, o arquivo abre a folha de compartilhar.
+
+**Por dentro:** tudo no aparelho. `lib/arquivoDeLetra.ts` (Word/ODT com
+`fflate`), `lib/pdfParaTexto.ts` (pdf.js, com o acorde posicionado pela
+posição na página), `lib/importar.ts` (texto → blocos), `lib/exportar.ts`
+(roteiro → Markdown, .docx montado à mão, PDF com jsPDF),
+`lib/salvarArquivo.ts` (download ou `@capacitor/share`).
+
+**Decisão:** [ADR 0024](../decisoes/0024-importar-e-exportar.md). Telas:
+[canções](../telas/cancoes.md), [editor](../telas/editor.md).

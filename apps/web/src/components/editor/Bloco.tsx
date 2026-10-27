@@ -136,8 +136,10 @@ export function Bloco({
             onKeyDown={teclas}
             placeholder={PLACEHOLDER.section}
             aria-label="Nome da seção"
-            className="w-auto min-w-0 bg-transparent text-[11px] font-semibold tracking-[0.2em] text-tinta-2 uppercase placeholder:text-tinta-3/70 focus:text-lapis focus:outline-none"
-            size={Math.max(8, (bloco.label ?? "").length + 1)}
+            className="w-auto min-w-0 bg-transparent text-[11px] font-semibold tracking-[0.2em] text-tinta-2 uppercase [field-sizing:content] placeholder:text-tinta-3/70 focus:text-lapis focus:outline-none"
+            // Versalete espaçado é mais largo que o `size` conta; onde o
+            // navegador não tem field-sizing, a folga evita cortar o rótulo.
+            size={Math.max(8, Math.ceil((bloco.label ?? "").length * 1.5) + 1)}
           />
           <span className="h-px flex-1 bg-linha" />
         </div>

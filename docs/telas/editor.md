@@ -102,7 +102,7 @@ Da esquerda para a direita:
 - **Alinhar**: passa a letra para fonte monoespaçada, para acorde e sílaba
   coincidirem na vertical.
 - **Memos** (microfone), **Ficha** (no celular) e **`…`**: Histórico de
-  versões, Copiar link, Mover para a lixeira.
+  versões, Copiar link, Importar…, Exportar…, Mover para a lixeira.
 
 As preferências de Cifras e Alinhar ficam guardadas no navegador.
 
@@ -207,6 +207,59 @@ No servidor, cada memo tem até 8 MB e fica no próprio Postgres, porque um
 armazenamento de arquivos (R2/S3) pediria cartão de crédito
 ([ADR 0012](../decisoes/0012-memos-de-voz.md)). Apagar um memo é de vez, sem
 lixeira, e o diálogo avisa isso.
+
+## Importar e exportar
+
+![Exportar a canção](imagens/exportar.webp)
+
+**Importar…** (menu `…`) traz para a canção aberta o conteúdo de um PDF,
+Word (.docx ou .odt), Markdown, texto ou ChordPro, ou um texto colado. A
+janela mostra a prévia; depois:
+
+- numa folha vazia (a folha pautada de uma canção nova), **Pôr na folha**;
+- numa folha com texto, **Acrescentar no fim** ou **Substituir a folha**.
+
+A importação é uma ação só no desfazer: um Ctrl+Z volta a folha como estava
+(e o histórico de versões continua lá). A ficha só recebe o que está vazio
+(tom, andamento; compasso numa folha vazia), e o título só se a canção ainda
+for "Sem título". Com cifra, o **Alinhar** liga sozinho.
+
+O que a leitura reconhece:
+
+| No arquivo | Vira |
+| --- | --- |
+| Linha só de acordes (`G   D/F#  Em7(9)`, com barras, `(2x)`, `N.C.`) e tablatura | ♯ Cifra, com os espaços |
+| O verso logo abaixo dela | ¶ Verso |
+| `[G]Quando a ci[D]dade` (acordes no verso, ChordPro) | ♯ Cifra alinhada + ¶ Verso |
+| `[Refrão]`, `REFRÃO:`, `Intro: G D`, `Verso 2`, `## Ponte`, `{start_of_chorus}` | § Seção (com a cifra que vier na mesma linha) |
+| `> texto`, `{comment: …}`, `Nota: …` | ※ Nota |
+| `Tom: G`, `BPM: 92`, `Compasso: 3/4`, `{key: G}` no topo | Ficha |
+| Artista, capotraste, afinação, composição | ※ Nota no começo, para nada se perder |
+| `# Título`, `{title: …}` ou a primeira linha igual ao nome do arquivo | Título |
+
+Num PDF, o acorde é posto sobre a letra do verso que está **na mesma
+posição na página**, medindo a largura das letras, então acerta mesmo com
+fonte proporcional; ainda assim a janela pede para conferir. PDF só de
+imagem (digitalizado) e `.doc` antigo não abrem, e a janela diz por quê.
+
+**Exportar…** gera a canção como está agora, em qualquer estágio:
+
+- **PDF**: A4 no espírito do Caderno, com a cifra em lápis vermelho sobre a
+  letra em fonte de máquina de escrever, seções em versalete com régua,
+  notas com fio tracejado e o rodapé "título · Compoze".
+- **Markdown**: texto puro para Notion, Obsidian ou GitHub; a seção com
+  cifra vai num bloco de código para manter o alinhamento. Importar o
+  arquivo de volta dá a mesma canção.
+- **Word (.docx)**: abre no Word, Google Docs e LibreOffice, com estilos
+  nomeados (Cifra, Letra alinhada, Nota) e Courier New para o alinhamento.
+
+Em **Incluir**: Cifras, Notas para quem escreve junto e Ficha (tom,
+andamento, estágio e coautoria). A última escolha fica lembrada. No
+navegador o arquivo baixa; no app Android abre a folha de compartilhar
+(salvar em Arquivos, Drive, WhatsApp…). Tudo funciona sem internet. Decisão
+no [ADR 0024](../decisoes/0024-importar-e-exportar.md).
+
+![Importar e exportar no celular](imagens/celular-importar-exportar.webp)
 
 ## Copiar link e lixeira
 

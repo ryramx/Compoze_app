@@ -1,11 +1,13 @@
 import { editarTexto, inserirBloco, mudarBloco, removerBloco, substituirBlocos } from "@compoze/documento";
-import { ArrowLeft, History, Link2, Mic, MoreHorizontal, Redo2, SlidersHorizontal, Trash2, Undo2, X } from "lucide-react";
+import { ArrowLeft, FileDown, FileUp, History, Link2, Mic, MoreHorizontal, Redo2, SlidersHorizontal, Trash2, Undo2, X } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { Confirmar } from "@/components/compoze/Confirmar";
+import { Importar } from "@/components/compoze/Importar";
 import { PilhaDeMonogramas } from "@/components/compoze/Monograma";
 import { Bloco } from "@/components/editor/Bloco";
+import { Exportar } from "@/components/editor/Exportar";
 import { FichaTecnica } from "@/components/editor/FichaTecnica";
 import { Historico } from "@/components/editor/Historico";
 import { Memos } from "@/components/editor/Memos";
@@ -17,7 +19,10 @@ import { ORIGEM_LOCAL, useDocumentoDaCancao, type EstadoDoDocumento } from "@/ho
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { quando } from "@/lib/datas";
+import { blocosParaODocumento } from "@/lib/folhaInicial";
+import type { CancaoImportada } from "@/lib/importar";
 import { ENDERECO_PUBLICO } from "@/lib/nativo";
+import { rotuloDoEstagio } from "@/lib/rotulos";
 import { uuidv7 } from "@/lib/uuidv7";
 import { tipoDeBlocoParaApi } from "@/services/api/adapters";
 import { useCompoze } from "@/store/compozeStore";
@@ -79,6 +84,8 @@ export default function SongEditor() {
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
   const [historicoAberto, setHistoricoAberto] = useState(false);
   const [memosAbertos, setMemosAbertos] = useState(false);
+  const [importando, setImportando] = useState(false);
+  const [exportando, setExportando] = useState(false);
   const tituloRef = useRef<HTMLTextAreaElement>(null);
 
   // A listagem pode não trazer os blocos; o editor busca a canção completa ao
@@ -171,6 +178,8 @@ export default function SongEditor() {
   }
 
   const autora = getUser(musica.creatorId);
+  // Folha pautada sem nada escrito: importar ocupa o lugar dela.
+  const folhaVazia = blocos.every((b) => b.type === "section" || !b.text.trim());
   const outros = musica.collaborators.filter((c) => c.userId !== musica.creatorId).map((c) => getUser(c.userId));
 
   /**
@@ -233,6 +242,46 @@ export default function SongEditor() {
     });
     navegar("/songs");
   }
+
+  /**
+   * Põe na folha uma canção importada (ADR 0024), numa transação só: um
+   * Ctrl+Z desfaz a importação inteira. A ficha só recebe o que está vazio.
+   */
+  function aplicarImportacao(c: CancaoImportada, modo: "acrescentar" | "substituir") {
+    if (!doc || !musica) return;
+    const novos = blocosParaODocumento(c.blocos, euId);
+    if (modo === "substituir") substituirBlocos(doc, novos, ORIGEM_LOCAL);
+    else doc.transact(() => novos.forEach((b) => inserirBloco(doc, b, undefined, ORIGEM_LOCAL)), ORIGEM_LOCAL);
+
+    const patch: Partial<typeof musica> = {};
+    if (!musica.title.trim() || musica.title === "Sem título") patch.title = c.titulo;
+    if (c.tom && !musica.key) patch.key = c.tom;
+    if (c.bpm && !musica.bpm) patch.bpm = c.bpm;
+    if (c.compasso && (!musica.timeSignature || folhaVazia)) patch.timeSignature = c.compasso;
+    if (Object.keys(patch).length > 0) atualizarMusica(musica.id, patch);
+
+    // Com cifra, a letra em fonte monoespaçada põe cada acorde na sílaba certa.
+    const temCifra = c.blocos.some((b) => b.type === "chord-line");
+    if (temCifra && !letraEmMono) {
+      setLetraEmMono(true);
+      guardar("compoze.editor.mono", true);
+    }
+    if (temCifra && !mostrarCifras) {
+      setMostrarCifras(true);
+      guardar("compoze.editor.cifras", true);
+    }
+    toast(temCifra ? "Importada. A letra ficou alinhada com as cifras (botão Alinhar)." : "Importada.");
+  }
+
+  const paraExportar = () => ({
+    titulo: musica!.title,
+    tom: musica!.key,
+    bpm: musica!.bpm,
+    compasso: musica!.timeSignature,
+    estagio: rotuloDoEstagio(musica!.status),
+    coautoria: musica!.collaborators.map((c) => ({ nome: getUser(c.userId)?.name ?? "Alguém", percentual: c.percentage })),
+    blocos,
+  });
 
   const alternar = (atual: boolean, set: (v: boolean) => void, chave: string) => () => {
     set(!atual);
@@ -314,6 +363,15 @@ export default function SongEditor() {
             </ItemDeMenu>
             <ItemDeMenu icone={<Link2 />} aoEscolher={copiarLink}>
               Copiar link
+            </ItemDeMenu>
+            <SeparadorDeMenu />
+            {documento.estado !== "recusado" && (
+              <ItemDeMenu icone={<FileUp />} aoEscolher={() => setImportando(true)}>
+                Importar…
+              </ItemDeMenu>
+            )}
+            <ItemDeMenu icone={<FileDown />} aoEscolher={() => setExportando(true)}>
+              Exportar…
             </ItemDeMenu>
             <div className="sm:hidden">
               <ItemDeMenu aoEscolher={alternar(mostrarCifras, setMostrarCifras, "compoze.editor.cifras")}>
@@ -461,6 +519,13 @@ export default function SongEditor() {
         podeEscrever={documento.estado !== "recusado"}
         aoRestaurar={(blocos) => doc && substituirBlocos(doc, blocos, ORIGEM_LOCAL)}
       />
+
+      <Importar
+        aberto={importando}
+        aoMudar={setImportando}
+        destino={{ tipo: "cancao", folhaVazia, aoAplicar: aplicarImportacao }}
+      />
+      <Exportar aberto={exportando} aoMudar={setExportando} cancao={paraExportar} />
 
       <Memos musica={musica} aberto={memosAbertos} aoMudar={setMemosAbertos} podeEscrever={documento.estado !== "recusado"} />
 
