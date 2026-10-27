@@ -1,8 +1,9 @@
 import type { InfiniteData, QueryClient } from "@tanstack/react-query";
 import type { ApiFeedPage, ApiPost } from "@/services/api/dto";
 
-/** Troca uma publicação em todas as páginas de mural em cache (o meu e os de perfil). */
+/** Troca uma publicação em todas as páginas de mural em cache (o meu e os de perfil) e na tela dela sozinha. */
 export function trocarNoMural(qc: QueryClient, id: string, f: (p: ApiPost) => ApiPost | null) {
+  qc.setQueryData<ApiPost>(["publicacao", id], (p) => (p ? (f(p) ?? undefined) : p));
   qc.setQueriesData<InfiniteData<ApiFeedPage>>({ queryKey: ["mural"] }, (dados) =>
     dados
       ? {

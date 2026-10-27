@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { UsuarioPublico } from "./users";
+import { DataHora } from "./comum";
 
 /**
  * Avisos fora do app, por push (ADR 0016). O navegador inscreve o aparelho
@@ -37,3 +39,62 @@ export const Aviso = z.object({
   tag: z.string(),
 });
 export type Aviso = z.infer<typeof Aviso>;
+
+/**
+ * Novidades da Mesa (ADR 0023): o que aconteceu com a pessoa, como numa
+ * rede social. Não há tabela própria: cada item sai das tabelas de origem
+ * (mensagens, comentários, curtidas, seguidores, convites, apoios), então
+ * apagar a curtida ou o comentário tira a novidade junto.
+ */
+export const TipoDeNovidade = z.enum([
+  /** Mensagem de alguém numa conversa (uma linha por conversa, a mais nova). */
+  "MESSAGE",
+  "COMMENT",
+  "LIKE",
+  "FOLLOW",
+  /** Convite pela conta esperando resposta. */
+  "INVITE",
+  /** Alguém aceitou um convite que eu mandei. */
+  "INVITE_ACCEPTED",
+  /** Alguém diz que mandou um PIX para o meu projeto. */
+  "SUPPORT",
+  /** A dona do projeto confirmou que recebeu o meu PIX. */
+  "SUPPORT_CONFIRMED",
+]);
+export type TipoDeNovidade = z.infer<typeof TipoDeNovidade>;
+
+export const Novidade = z.object({
+  /** Estável entre leituras: tipo e id de origem. */
+  id: z.string(),
+  kind: TipoDeNovidade,
+  at: DataHora,
+  unread: z.boolean(),
+  /** Quem fez. Nula se a conta foi apagada. */
+  actor: UsuarioPublico.nullable(),
+  /** Do que se trata: título da canção, nome do projeto, começo da publicação. */
+  subject: z.string().nullable(),
+  /** Trecho do que foi dito: a mensagem, o comentário. */
+  excerpt: z.string().nullable(),
+  /** Valor do apoio, em reais. */
+  amount: z.number().int().nullable(),
+  /** Mensagens não lidas na conversa. */
+  count: z.number().int().nullable(),
+  /** Caminho do app para abrir ao tocar. */
+  url: z.string(),
+});
+export type Novidade = z.infer<typeof Novidade>;
+
+export const ConsultaDeNovidades = z.object({
+  /** `at` do último item visto, para a página seguinte. */
+  before: DataHora.optional(),
+  limit: z.coerce.number().int().min(1).max(50).default(30),
+});
+export type ConsultaDeNovidades = z.infer<typeof ConsultaDeNovidades>;
+
+export const PaginaDeNovidades = z.object({
+  items: z.array(Novidade),
+  /** Quantas novidades não lidas há ao todo (não só nesta página). */
+  unread_count: z.number().int(),
+  next_cursor: z.string().nullable(),
+});
+export type PaginaDeNovidades = z.infer<typeof PaginaDeNovidades>;

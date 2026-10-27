@@ -5,6 +5,14 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Adicionado
+- Novidades na Mesa, como numa rede social: mensagens recebidas, comentários
+  e curtidas nas suas publicações, gente nova seguindo você, convites
+  recebidos e aceitos, e apoios por PIX. As novas levam o traço do lápis e
+  contam no menu ("Novidades") e num sino na barra do celular; "Ver todas"
+  abre a tela `/novidades`. Rota `GET /notifications` e
+  `PUT /notifications/seen`; tela `/posts/:id` para abrir uma publicação com
+  os comentários. Comentário na sua publicação agora também chega por push
+  (ADR 0023).
 - Janela de recorte ao escolher foto de perfil, capa do perfil ou capa de
   projeto: arrastar posiciona, o controle, a roda do mouse ou dois dedos
   aproximam. A foto sai num círculo; a capa do perfil, em 3:1 (ADR 0022).

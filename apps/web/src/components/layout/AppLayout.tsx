@@ -1,4 +1,4 @@
-import { CircleHelp, CloudOff, Menu as IconeMenu, Moon, RefreshCw, Search, Sun, X } from "lucide-react";
+import { Bell, CircleHelp, CloudOff, Menu as IconeMenu, Moon, RefreshCw, Search, Sun, X } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { Marca } from "@/components/compoze/Marca";
 import { Monograma } from "@/components/compoze/Monograma";
 import { AoVivo } from "@/components/gente/AoVivo";
 import { useNaoLidas } from "@/components/gente/conversas";
+import { useNovidadesNaoLidas } from "@/components/gente/novidades";
 import { ESCRITA, GENTE, RODAPE, type ItemDeNavegacao } from "@/components/layout/navegacao";
 import { jaViuPrimeirosPassos, ROTAS_SEM_TOUR, useAjuda } from "@/lib/ajuda";
 import { MODO_DEMO } from "@/lib/api";
@@ -105,10 +106,30 @@ function EstadoDaRede() {
   );
 }
 
+/** Sino da barra do celular (ADR 0023): leva às Novidades e mostra quantas são novas. */
+function SinoDeNovidades() {
+  const n = useNovidadesNaoLidas();
+  return (
+    <Link
+      to="/novidades"
+      className="relative grid size-9 place-items-center text-tinta-2"
+      aria-label={n > 0 ? `Novidades, ${n} novas` : "Novidades"}
+    >
+      <Bell className="size-[18px]" />
+      {n > 0 && (
+        <span aria-hidden className="numeral absolute top-1 right-0.5 min-w-4 bg-lapis px-1 text-center text-[10px] leading-4 text-papel">
+          {n > 99 ? "99+" : n}
+        </span>
+      )}
+    </Link>
+  );
+}
+
 function Trilho({ aoNavegar, aoBuscar }: { aoNavegar?: () => void; aoBuscar: () => void }) {
   const eu = useCompoze((s) => s.users.find((u) => u.id === s.currentUserId));
   const [, escuro] = useTema();
   const naoLidas = useNaoLidas();
+  const novidades = useNovidadesNaoLidas();
   const abrirAjuda = useAjuda((s) => s.abrirPainel);
 
   return (
@@ -138,7 +159,7 @@ function Trilho({ aoNavegar, aoBuscar }: { aoNavegar?: () => void; aoBuscar: () 
         <div>
           <div className="rotulo mb-1.5 px-5">Gente</div>
           {GENTE.map((i) => (
-            <ItemDoTrilho key={i.url} item={i} aoClicar={aoNavegar} contador={i.url === "/messages" ? naoLidas : 0} />
+            <ItemDoTrilho key={i.url} item={i} aoClicar={aoNavegar} contador={i.url === "/messages" ? naoLidas : i.url === "/novidades" ? novidades : 0} />
           ))}
         </div>
         <div>
@@ -275,6 +296,7 @@ export default function AppLayout() {
           <Marca className="text-[16px]" />
         </Link>
         <div className="flex items-center gap-1">
+          <SinoDeNovidades />
           <button onClick={abrirAjuda} className="grid size-9 place-items-center text-tinta-2" aria-label="Ajuda desta tela">
             <CircleHelp className="size-[18px]" />
           </button>

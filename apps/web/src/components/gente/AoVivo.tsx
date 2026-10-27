@@ -23,6 +23,8 @@ export function AoVivo() {
     if (!eu) return;
     return conectarAoVivo({
       aoEvento: (e) => {
+        // Mensagem nova ou lida muda as novidades da Mesa (ADR 0023).
+        void qc.invalidateQueries({ queryKey: ["novidades"] });
         if (e.type === "read") {
           void qc.invalidateQueries({ queryKey: ["conversas"] });
           return;
@@ -40,7 +42,10 @@ export function AoVivo() {
         });
       },
       // Pode ter chegado coisa enquanto a conexão estava caída.
-      aoReconectar: () => void qc.invalidateQueries({ queryKey: ["conversas"] }).then(() => qc.invalidateQueries({ queryKey: ["mensagens"] })),
+      aoReconectar: () => {
+        void qc.invalidateQueries({ queryKey: ["novidades"] });
+        void qc.invalidateQueries({ queryKey: ["conversas"] }).then(() => qc.invalidateQueries({ queryKey: ["mensagens"] }));
+      },
     });
   }, [eu, qc, navegar]);
 

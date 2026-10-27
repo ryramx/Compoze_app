@@ -41,6 +41,8 @@ export interface BancoDemo {
   conversas?: ConversaDemo[];
   /** Entradas e custos dos projetos (ADR 0021). */
   lancamentos?: ApiEntry[];
+  /** Novidades da Mesa (ADR 0023): até quando cada pessoa já viu. */
+  novidadesVistas?: Record<string, string>;
 }
 
 export interface ConversaDemo {

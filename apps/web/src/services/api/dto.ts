@@ -14,6 +14,8 @@
  */
 import type {
   Comentario,
+  Novidade,
+  PaginaDeNovidades,
   Conversa,
   EventoAoVivo,
   Mensagem,
@@ -102,6 +104,8 @@ export type ApiConversation = Conversa;
 export type ApiMessage = Mensagem;
 export type ApiMessagePage = PaginaDeMensagens;
 export type ApiLiveEvent = EventoAoVivo;
+export type ApiNotification = Novidade;
+export type ApiNotificationPage = PaginaDeNovidades;
 export type ApiSnapshot = RetratoDaCancao;
 export type ApiInvite = Convite;
 export type ApiInviteCreated = ConviteCriado;

@@ -28,6 +28,7 @@ import { rotasDeGente } from "./modules/gente/rotas";
 import { rotasDeImagens } from "./modules/imagens/rotas";
 import { rotasDeLancamentos } from "./modules/lancamentos/rotas";
 import { rotasDeMemos } from "./modules/memos/rotas";
+import { rotasDeNovidades } from "./modules/novidades/rotas";
 import { rotasDeSaude } from "./modules/health/rotas";
 import { rotasDeProjetos } from "./modules/projects/rotas";
 import { rotasDeCancoes } from "./modules/songs/rotas";
@@ -152,6 +153,7 @@ export async function construirApp({ config, banco, logger, remetente, entregarP
   await app.register(rotasDeImagens);
   await app.register(rotasDeAvisos);
   await app.register(rotasDeApoios);
+  await app.register(rotasDeNovidades);
 
   return app;
 }

@@ -28,3 +28,4 @@ duas apontam uma para a outra.
 | [0020](0020-primeiros-passos-e-ajuda.md) | Primeiros passos no primeiro acesso e ajuda de cada tela | Aceita |
 | [0021](0021-ajustes-do-primeiro-teste.md) | Ajustes do primeiro teste: faixas numeradas à mão, entradas e custos do projeto, capa do perfil | Aceita |
 | [0022](0022-recorte-de-imagens.md) | Janela de recorte para foto e capas, e capa do perfil sempre em 3:1 | Aceita |
+| [0023](0023-novidades-na-mesa.md) | Novidades na Mesa: mensagens, comentários, curtidas, seguidores, convites e apoios | Aceita |
