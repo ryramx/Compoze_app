@@ -10,6 +10,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   aproximam. A foto sai num círculo; a capa do perfil, em 3:1 (ADR 0022).
 
 ### Corrigido
+- O app instalado pelo navegador (PWA) só procurava versão nova ao ser aberto
+  do zero. Agora procura também ao voltar para ele e de hora em hora, e mostra
+  o aviso "Há uma versão nova do Compoze".
 - A capa do perfil trocada no próprio perfil não aparecia até recarregar a
   página (a consulta do perfil não era invalidada).
 

@@ -125,7 +125,9 @@ build; a configuração está em `vite.config.ts`.
   Toda rota abre o `index.html` guardado. Os dados não passam por ele: ficam
   no IndexedDB e na fila (ADR 0008), e a API é outra origem.
 - Versão nova não entra sozinha. `lib/pwa.ts` mostra "Há uma versão nova do
-  Compoze" com o botão Atualizar, que fica até a pessoa escolher.
+  Compoze" com o botão Atualizar, que fica até a pessoa escolher. A procura
+  acontece ao abrir, ao voltar para o app (`visibilitychange`) e de hora em
+  hora: a PWA instalada fica dias aberta em segundo plano.
 - Na primeira instalação aparece "Pronto: o Compoze agora abre mesmo sem
   internet".
 - Depois do login, o app pede armazenamento persistente
