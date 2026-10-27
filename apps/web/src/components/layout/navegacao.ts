@@ -1,4 +1,4 @@
-import { Disc3, FileMusic, FolderTree, LampDesk, Map, MessageSquare, Newspaper, Settings, Trash2, type LucideIcon } from "lucide-react";
+import { Bell, Disc3, FileMusic, FolderTree, LampDesk, Map, MessageSquare, Newspaper, Settings, Trash2, type LucideIcon } from "lucide-react";
 
 export interface ItemDeNavegacao {
   titulo: string;
@@ -16,6 +16,7 @@ export const ESCRITA: ItemDeNavegacao[] = [
 ];
 
 export const GENTE: ItemDeNavegacao[] = [
+  { titulo: "Novidades", url: "/novidades", icone: Bell },
   { titulo: "Mural", url: "/feed", icone: Newspaper },
   { titulo: "Conversas", url: "/messages", icone: MessageSquare },
   { titulo: "Mapa", url: "/map", icone: Map },

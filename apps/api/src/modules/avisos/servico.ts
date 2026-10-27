@@ -1,5 +1,5 @@
-import type { Aviso, Convite, InscricaoPush, Mensagem } from "@compoze/contracts";
-import { conversationMembers, pushSubscriptions, songs, users, type Banco } from "@compoze/db";
+import type { Aviso, Comentario, Convite, InscricaoPush, Mensagem } from "@compoze/contracts";
+import { conversationMembers, posts, pushSubscriptions, songs, users, type Banco } from "@compoze/db";
 import { and, eq, ne } from "drizzle-orm";
 
 /**
@@ -66,5 +66,15 @@ export async function avisoDeConvite(db: Banco, c: Convite): Promise<{ para: str
       url: "/",
       tag: `convite-${c.id}`,
     },
+  };
+}
+
+/** Comentário na minha publicação (ADR 0023). Quem comenta no próprio post não se avisa. */
+export async function avisoDeComentario(db: Banco, c: Comentario): Promise<{ para: string[]; aviso: Aviso } | null> {
+  const [p] = await db.select({ autora: posts.authorId }).from(posts).where(eq(posts.id, c.post_id));
+  if (!p || p.autora === c.author.id) return null;
+  return {
+    para: [p.autora],
+    aviso: { title: `${c.author.name} comentou`, body: resumo(c.content), url: `/posts/${c.post_id}`, tag: `comentarios-${c.post_id}` },
   };
 }

@@ -13,7 +13,7 @@ import {
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
-import { avisoDeSeguidor } from "../avisos/servico";
+import { avisoDeComentario, avisoDeSeguidor } from "../avisos/servico";
 import * as s from "./servico";
 
 const ParamPessoa = z.object({ id: Id });
@@ -116,7 +116,11 @@ export const rotasDeGente: FastifyPluginAsyncZod = async (app) => {
   app.post(
     "/posts/:id/comments",
     { schema: { tags: mural, params: ParamPost, body: NovoComentario, response: { 201: Comentario } } },
-    async (req, reply) => reply.status(201).send(await s.comentar(db, req.params.id, req.usuarioId, req.body)),
+    async (req, reply) => {
+      const comentario = await s.comentar(db, req.params.id, req.usuarioId, req.body);
+      void app.avisador.avisarDepois(avisoDeComentario(db, comentario));
+      return reply.status(201).send(comentario);
+    },
   );
 
   app.delete("/posts/:id/comments/:comment_id", { schema: { tags: mural, params: ParamComentario } }, async (req, reply) => {

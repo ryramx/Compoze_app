@@ -25,6 +25,8 @@ const paginas = {
   Map: () => import("@/pages/app/Map"),
   Profile: () => import("@/pages/app/Profile"),
   Seguidores: () => import("@/pages/app/Seguidores"),
+  Novidades: () => import("@/pages/app/Novidades"),
+  Post: () => import("@/pages/app/Post"),
   Trash: () => import("@/pages/app/Trash"),
   Settings: () => import("@/pages/app/Settings"),
   Convite: () => import("@/pages/app/Convite"),
@@ -43,6 +45,8 @@ const Messages = lazy(paginas.Messages);
 const MapPage = lazy(paginas.Map);
 const Profile = lazy(paginas.Profile);
 const Seguidores = lazy(paginas.Seguidores);
+const Novidades = lazy(paginas.Novidades);
+const Post = lazy(paginas.Post);
 const Trash = lazy(paginas.Trash);
 const Settings = lazy(paginas.Settings);
 const Convite = lazy(paginas.Convite);
@@ -119,6 +123,8 @@ export default function App() {
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/projects/:id" element={<ProjectDetail />} />
                 <Route path="/feed" element={<Feed />} />
+                <Route path="/posts/:id" element={<Post />} />
+                <Route path="/novidades" element={<Novidades />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/messages/:id" element={<Messages />} />
                 <Route path="/map" element={<MapPage />} />

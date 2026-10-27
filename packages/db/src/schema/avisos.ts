@@ -34,3 +34,14 @@ export const serverKeys = pgTable("server_keys", {
   value: text("value").notNull(),
   createdAt: quando("created_at").notNull().defaultNow(),
 });
+
+/**
+ * Até quando a pessoa já viu as novidades da Mesa (ADR 0023). O que chegou
+ * depois aparece como novo. Fica fora de `users` de propósito: marcar como
+ * visto acontece toda hora e não deve mexer no `updated_at` da conta, que a
+ * sincronização usa.
+ */
+export const notificationMarks = pgTable("notification_marks", {
+  userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  seenAt: quando("seen_at").notNull(),
+});

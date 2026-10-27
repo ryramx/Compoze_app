@@ -181,4 +181,17 @@ describe("servidor de demonstração", () => {
     expect((await r.json()).cover_url).toMatch(/^data:/);
     expect((await chamar("/users/me/cover", { method: "DELETE", token })).corpo.cover_url).toBeNull();
   });
+
+  it("novidades da Mesa: seguidores e mensagem chegam como novas, e ver apaga o novo (ADR 0023)", async () => {
+    const token = await entrar();
+    const { corpo } = await chamar("/notifications", { token });
+    const tipos = new Set(corpo.items.map((n: { kind: string }) => n.kind));
+    expect(tipos.has("FOLLOW")).toBe(true);
+    expect(tipos.has("MESSAGE")).toBe(true);
+    expect(corpo.unread_count).toBeGreaterThan(0);
+    expect((await chamar("/notifications/seen", { method: "PUT", token })).status).toBe(204);
+    const depois = (await chamar("/notifications", { token })).corpo;
+    // Só a conversa com mensagem por ler continua nova.
+    expect(depois.items.filter((n: { unread: boolean }) => n.unread).map((n: { kind: string }) => n.kind)).toEqual(["MESSAGE"]);
+  });
 });

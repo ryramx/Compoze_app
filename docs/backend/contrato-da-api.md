@@ -300,9 +300,20 @@ O `pix_code` é o BR Code estático com o valor e o `txid`, o mesmo do QR.
 
 O push leva `{ title, body, url, tag }` (o `Aviso` de `packages/contracts`).
 Sai em mensagem nova (para os outros da conversa), em convite pela conta
-(para a convidada) e em seguidor novo (para quem foi seguida), só para quem
+(para a convidada), em seguidor novo (para quem foi seguida), em comentário
+numa publicação (para quem publicou, ADR 0023) e em PIX avisado (para a dona), só para quem
 não está com um fluxo `/events` aberto. O app fecha o fluxo quando sai da
 tela, então "aberto" quer dizer "olhando o Compoze agora".
+
+## Novidades (ADR 0023)
+
+| Método | Rota | Corpo / resposta |
+| --- | --- | --- |
+| GET | `/notifications?before=&limit=` | `{ items: Notification[], unread_count, next_cursor }`, do mais novo ao mais antigo. `before` é o `next_cursor` (o `at` do último item); `limit` até 50 (padrão 30). `unread_count` conta todas as novas, não só a página |
+| PUT | `/notifications/seen` | `204`. O que chegou até agora deixa de ser novo (mensagens, não: seguem a conversa) |
+
+`Notification = { id, kind, at, unread, actor: UserPublic | null, subject, excerpt, amount, count, url }`.
+`kind`: `MESSAGE` (uma por conversa, a mensagem mais nova de outra pessoa; `count` = não lidas), `COMMENT`, `LIKE` (nas minhas publicações; `subject` = começo do post), `FOLLOW`, `INVITE` (pela conta, pendente), `INVITE_ACCEPTED` (convite que eu mandei), `SUPPORT` (PIX avisado no meu projeto; `amount` em reais), `SUPPORT_CONFIRMED` (a dona confirmou o meu). Não há tabela de notificações: a lista é montada das tabelas de origem, então desfazer a ação tira a novidade.
 
 ## Processos do servidor
 

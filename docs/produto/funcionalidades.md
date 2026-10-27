@@ -33,6 +33,7 @@ geral, em [../arquitetura.md](../arquitetura.md).
 24. [Modo demonstração](#24-modo-demonstração)
 25. [Tema claro e escuro](#25-tema-claro-e-escuro)
 26. [Primeiros passos e ajuda](#26-primeiros-passos-e-ajuda)
+27. [Novidades](#27-novidades)
 
 ---
 
@@ -390,3 +391,20 @@ para toda tela do menu.
 
 **Decisão:** [ADR 0020](../decisoes/0020-primeiros-passos-e-ajuda.md). Tela:
 [ajuda](../telas/ajuda.md).
+
+## 27. Novidades
+
+**Para quem usa:** como numa rede social, a Mesa mostra o que aconteceu com
+você: mensagens, comentários e curtidas nas suas publicações, quem começou a
+seguir você, convites recebidos e aceitos, e apoios por PIX. As novas levam o
+traço do lápis e contam em "Novidades" no menu e no sino do celular. Tocar
+numa novidade leva à conversa, à publicação, ao perfil, à canção ou ao
+projeto.
+
+**Por dentro:** `GET /notifications` monta a lista na hora a partir das
+tabelas de origem (sem tabela de notificações); `notification_marks` guarda
+até quando a pessoa já viu (migração 0016). Comentário em publicação também
+vira push.
+
+**Decisão:** [ADR 0023](../decisoes/0023-novidades-na-mesa.md). Telas:
+[mesa](../telas/mesa.md), [novidades](../telas/novidades.md).
