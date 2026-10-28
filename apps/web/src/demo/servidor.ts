@@ -233,6 +233,72 @@ const rotasPublicas: Rota[] = [
 ];
 
 const rotasPrivadas: Rota[] = [
+  // ----------------------------------------------------------- novidades
+  // Montadas na hora a partir do resto, como na API (ADR 0023). Apoios ficam
+  // de fora: a demonstração não tem PIX de verdade.
+  ({ metodo, partes, query, userId }) => {
+    if (partes[0] !== "notifications") return null;
+    const db = carregar();
+    const eu = userId!;
+    db.novidadesVistas ??= {};
+    if (partes[1] === "seen" && metodo === "PUT") {
+      db.novidadesVistas[eu] = agora();
+      gravar();
+      return json(null, 204);
+    }
+    if (partes.length !== 1 || metodo !== "GET") return null;
+    db.conversas ??= conversasDeExemplo();
+    if (!db.posts) Object.assign(db, genteDeExemplo());
+    const visto = db.novidadesVistas[eu];
+    const pessoa = (id: string | null) => {
+      const u = id ? db.usuarios.find((x) => x.id === id) : undefined;
+      return u ? publico(u) : null;
+    };
+    type Item = { id: string; kind: string; at: string; actor: ApiUserPublic | null; subject: string | null; excerpt: string | null; count: number | null; url: string };
+    const itens: Item[] = [];
+    for (const c of db.conversas.filter((x) => x.membros.includes(eu))) {
+      const deOutros = c.mensagens.filter((m) => m.author_id !== eu);
+      const ultima = deOutros.at(-1);
+      if (!ultima) continue;
+      const lida = c.lida[eu];
+      const n = deOutros.filter((m) => !lida || m.created_at > lida).length;
+      itens.push({ id: `MESSAGE:${c.id}`, kind: "MESSAGE", at: ultima.created_at, actor: pessoa(ultima.author_id), subject: null, excerpt: ultima.content, count: n, url: `/messages/${c.id}` });
+    }
+    const meus = db.posts!.filter((p) => p.author_id === eu);
+    for (const p of meus) {
+      for (const c of db.comentarios!.filter((x) => x.post_id === p.id && x.author_id !== eu)) {
+        itens.push({ id: `COMMENT:${c.id}`, kind: "COMMENT", at: c.created_at, actor: pessoa(c.author_id), subject: p.content, excerpt: c.content, count: null, url: `/posts/${p.id}` });
+      }
+      // A demonstração não guarda quando curtiram: vale a hora da publicação.
+      for (const quem of p.curtidas.filter((x) => x !== eu)) {
+        itens.push({ id: `LIKE:${p.id}:${quem}`, kind: "LIKE", at: p.created_at, actor: pessoa(quem), subject: p.content, excerpt: null, count: null, url: `/posts/${p.id}` });
+      }
+    }
+    for (const f of (db.seguindo ?? []).filter((x) => x.followed_id === eu)) {
+      const u = pessoa(f.follower_id);
+      itens.push({ id: `FOLLOW:${f.follower_id}`, kind: "FOLLOW", at: f.created_at, actor: u, subject: null, excerpt: null, count: null, url: u ? `/profile/${u.username}` : "/profile" });
+    }
+    for (const c of db.convites ?? []) {
+      const s = db.musicas.find((m) => m.id === c.song_id);
+      if (!s || s.deleted_at || c.revoked_at) continue;
+      if (c.invited_user_id === eu && !c.accepted_at && !c.declined_at && c.expires_at > agora()) {
+        itens.push({ id: `INVITE:${c.id}`, kind: "INVITE", at: c.created_at, actor: pessoa(c.invited_by), subject: s.title, excerpt: null, count: null, url: "/" });
+      }
+    }
+    const todas = itens
+      .map((i) => ({ ...i, amount: null, unread: i.kind === "MESSAGE" ? (i.count ?? 0) > 0 : !visto || i.at > visto }))
+      .sort((a, b) => b.at.localeCompare(a.at));
+    const antes = query.get("before");
+    const lista = antes ? todas.filter((i) => i.at < antes) : todas;
+    const limite = Number(query.get("limit") ?? 30);
+    const pagina = lista.slice(0, limite);
+    return json({
+      items: pagina,
+      unread_count: todas.filter((i) => i.unread).length,
+      next_cursor: lista.length > limite ? pagina.at(-1)!.at : null,
+    });
+  },
+
   // ----------------------------------------------------------- conversas
   // ADR 0014. "Ao vivo" aqui é o próprio navegador: `emitir` entrega o evento.
   ({ metodo, partes, query, corpo, userId }) => {

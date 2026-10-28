@@ -5,6 +5,22 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Adicionado
+- Importar e exportar canções (ADR 0024). **Importar** (em Canções, ou no
+  `…` do editor para a canção aberta) lê PDF, Word (.docx/.odt), Markdown,
+  texto e ChordPro, ou texto colado, e mantém letra, cifras sobre a letra,
+  acordes entre colchetes, seções, notas e a ficha (tom, andamento,
+  compasso); antes de criar, mostra a prévia. **Exportar** (no `…` do
+  editor) gera PDF, Markdown ou Word da canção em qualquer estágio, com ou
+  sem cifras, notas e ficha. Tudo no aparelho, também sem internet; no app
+  Android o arquivo abre a folha de compartilhar.
+- Novidades na Mesa, como numa rede social: mensagens recebidas, comentários
+  e curtidas nas suas publicações, gente nova seguindo você, convites
+  recebidos e aceitos, e apoios por PIX. As novas levam o traço do lápis e
+  contam no menu ("Novidades") e num sino na barra do celular; "Ver todas"
+  abre a tela `/novidades`. Rota `GET /notifications` e
+  `PUT /notifications/seen`; tela `/posts/:id` para abrir uma publicação com
+  os comentários. Comentário na sua publicação agora também chega por push
+  (ADR 0023).
 - Janela de recorte ao escolher foto de perfil, capa do perfil ou capa de
   projeto: arrastar posiciona, o controle, a roda do mouse ou dois dedos
   aproximam. A foto sai num círculo; a capa do perfil, em 3:1 (ADR 0022).
@@ -13,6 +29,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - O app instalado pelo navegador (PWA) só procurava versão nova ao ser aberto
   do zero. Agora procura também ao voltar para ele e de hora em hora, e mostra
   o aviso "Há uma versão nova do Compoze".
+- Canções no celular: a tabela do índice ficava mais larga que a tela (o
+  primeiro verso não cortava), o que deslocava as janelas abertas ali.
+- O nome de seção comprido aparecia cortado no editor.
 - A capa do perfil trocada no próprio perfil não aparecia até recarregar a
   página (a consulta do perfil não era invalidada).
 

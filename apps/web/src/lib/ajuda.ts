@@ -31,6 +31,7 @@ export const TOPICOS: TopicoDeAjuda[] = [
       { titulo: "Nova canção", texto: "Abre uma folha em branco no editor. Toda canção nasce no estágio Ideia." },
       { titulo: "Continue de onde parou", texto: "A canção que você mexeu por último, com um trecho da letra, e as outras recentes logo abaixo." },
       { titulo: "Convites", texto: "Quando alguém chama você para escrever uma canção, o convite aparece no topo da Mesa para aceitar ou recusar." },
+      { titulo: "Novidades", texto: "Mensagens, comentários e curtidas nas suas publicações, quem começou a seguir você, convites aceitos e apoios. As novas levam um traço vermelho; Ver todas abre a lista inteira." },
       { titulo: "Esteira", texto: "Quantas obras há em cada estágio, de Ideia a Gravada. Toque num estágio para ver só aquelas canções." },
       { titulo: "Na roda", texto: "As publicações mais novas do mural de quem você segue." },
     ],
@@ -44,6 +45,7 @@ export const TOPICOS: TopicoDeAjuda[] = [
       { titulo: "Estágio", texto: "Filtre pelo ponto em que a obra está: Ideia, Escrita, Revisão, Finalizada, Registrada ou Gravada." },
       { titulo: "Índice e Fichas", texto: "O índice é uma lista enxuta; as fichas mostram o começo da letra. A ordem pode ser por data, título ou estágio." },
       { titulo: "Nova canção", texto: "Cria a canção e abre o editor na hora. Funciona também sem internet." },
+      { titulo: "Importar", texto: "Traz uma canção de um PDF, Word, Markdown ou texto, com letra, cifras e anotações. Você confere a prévia antes de criar." },
     ],
   },
   {
@@ -58,6 +60,7 @@ export const TOPICOS: TopicoDeAjuda[] = [
       { titulo: "Ficha", texto: "Estágio, tom, compasso, andamento, pasta, tags e quem pode ver. Lá também ficam a Coautoria, com os percentuais que precisam fechar em 100%, e Registrar a obra." },
       { titulo: "Convidar", texto: "Chame alguém pelo nome ou @ para escrever junto. Quem ainda não tem conta recebe um link." },
       { titulo: "Histórico de versões", texto: "Em ⋯, guarde uma versão com nome e volte a qualquer uma. Cada versão tem um carimbo SHA-256, útil como prova de autoria." },
+      { titulo: "Importar e exportar", texto: "Em ⋯, Importar traz a letra e as cifras de um arquivo para esta canção; Exportar gera PDF, Markdown ou Word, pronta ou não." },
       { titulo: "Desfazer", texto: "Ctrl+Z desfaz, Ctrl+Shift+Z refaz. Tudo se salva sozinho, sem botão de salvar." },
     ],
   },
@@ -105,6 +108,17 @@ export const TOPICOS: TopicoDeAjuda[] = [
       { titulo: "Curtir e comentar", texto: "Cada publicação aceita curtida e comentário." },
       { titulo: "Mural vazio?", texto: "Ele mostra quem você segue. Abra o perfil de quem escreve com você e toque em Seguir." },
       { titulo: "Internet", texto: "O mural precisa de rede. As suas canções, não." },
+    ],
+  },
+  {
+    id: "novidades",
+    titulo: "Novidades",
+    resumo: "Tudo o que aconteceu com você e com o que você publicou, do mais novo ao mais antigo.",
+    itens: [
+      { titulo: "O que entra", texto: "Mensagens, comentários e curtidas nas suas publicações, gente nova seguindo você, convites recebidos e aceitos, e apoios por PIX." },
+      { titulo: "Novas", texto: "As que você ainda não viu levam um traço vermelho e contam no sino. Ao sair da tela, passam a vistas. Mensagem só deixa de ser nova quando você abre a conversa." },
+      { titulo: "Abrir", texto: "Toque numa novidade para ir direto à conversa, à publicação, ao perfil, à canção ou ao projeto." },
+      { titulo: "Avisos", texto: "Com os avisos ligados em Ajustes, comentário novo também chega com o Compoze fechado." },
     ],
   },
   {
@@ -200,7 +214,7 @@ export const TOPICOS: TopicoDeAjuda[] = [
 const POR_ID = new Map(TOPICOS.map((t) => [t.id, t]));
 
 /** Telas que aparecem em "Outras telas" no painel: as do menu, na ordem do menu. */
-export const TELAS_DO_MENU = ["mesa", "cancoes", "editor", "pastas", "projetos", "mural", "conversas", "mapa", "perfil", "lixeira", "ajustes"];
+export const TELAS_DO_MENU = ["mesa", "cancoes", "editor", "pastas", "projetos", "novidades", "mural", "conversas", "mapa", "perfil", "lixeira", "ajustes"];
 
 // A ordem importa: a primeira regra que casa vence.
 const ROTAS: [RegExp, string][] = [
@@ -210,6 +224,8 @@ const ROTAS: [RegExp, string][] = [
   [/^\/projects\/[^/]+/, "projeto"],
   [/^\/projects/, "projetos"],
   [/^\/feed/, "mural"],
+  [/^\/posts\//, "mural"],
+  [/^\/novidades/, "novidades"],
   [/^\/messages/, "conversas"],
   [/^\/map/, "mapa"],
   [/^\/profile\/[^/]+\/(seguidores|seguindo)/, "seguidores"],

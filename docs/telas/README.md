@@ -20,7 +20,8 @@ Mendes". Para ver ao vivo: `pnpm dev` e "Entrar como Lara Mendes".
 | Pastas | `/folders` | [pastas.md](pastas.md) |
 | Projetos e detalhe do projeto | `/projects`, `/projects/:id` | [projetos.md](projetos.md) |
 | Apoiar um projeto por PIX | `/apoiar/:id` | [apoiar.md](apoiar.md) |
-| Mural | `/feed` | [mural.md](mural.md) |
+| Novidades | `/novidades` | [novidades.md](novidades.md) |
+| Mural e publicação sozinha | `/feed`, `/posts/:id` | [mural.md](mural.md) |
 | Conversas | `/messages`, `/messages/:id` | [conversas.md](conversas.md) |
 | Mapa | `/map` | [mapa.md](mapa.md) |
 | Perfil, seguidores e seguindo | `/profile`, `/profile/:username`, `…/seguidores`, `…/seguindo` | [perfil.md](perfil.md) |

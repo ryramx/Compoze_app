@@ -22,6 +22,7 @@ export function mural(opcoes: { autora?: string; antes?: string; limite?: number
 }
 
 export const publicar = (p: { id: string; content: string; song_id?: string | null }) => api.post<ApiPost>("/posts", p);
+export const publicacao = (postId: string) => api.get<ApiPost>(`/posts/${postId}`);
 export const apagar = (postId: string) => api.delete<void>(`/posts/${postId}`);
 export const curtir = (postId: string, sim: boolean) =>
   sim ? api.put<ApiPost>(`/posts/${postId}/like`) : api.delete<ApiPost>(`/posts/${postId}/like`);

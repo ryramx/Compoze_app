@@ -100,12 +100,12 @@ function Comentarios({ post }: { post: ApiPost }) {
 }
 
 /** Uma publicação do mural, com curtir, comentários e apagar (a própria). */
-export function Publicacao({ post }: { post: ApiPost }) {
+export function Publicacao({ post, comentariosAbertos = false }: { post: ApiPost; comentariosAbertos?: boolean }) {
   const qc = useQueryClient();
   const online = useOnline();
   const eu = useCompoze((s) => s.currentUserId);
   const tenhoACancao = useCompoze((s) => (post.song ? s.songs.some((m) => m.id === post.song!.id) : false));
-  const [comentando, setComentando] = useState(false);
+  const [comentando, setComentando] = useState(comentariosAbertos);
   const autora = usuarioDaApi(post.author);
 
   async function curtir() {

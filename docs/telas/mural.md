@@ -1,6 +1,6 @@
 # Mural
 
-`/feed` · `apps/web/src/pages/app/Feed.tsx`,
+`/feed`, `/posts/:id` (uma publicação sozinha, aberta pelas [Novidades](novidades.md)) · `apps/web/src/pages/app/Feed.tsx`, `Post.tsx`,
 `components/gente/Publicacao.tsx`, `BotaoDeSeguir.tsx`, `cache.ts`
 
 ![Mural](imagens/mural.webp)

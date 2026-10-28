@@ -18,14 +18,14 @@ No computador, um trilho fixo à esquerda, com 232 px:
 | Grupo | Itens |
 | --- | --- |
 | **Escrita** | Mesa, Canções, Pastas, Projetos |
-| **Gente** | Mural, Conversas (com o número de não lidas), Mapa |
+| **Gente** | Novidades (com o número de novas, [ADR 0023](../decisoes/0023-novidades-na-mesa.md)), Mural, Conversas (com o número de não lidas), Mapa |
 | Rodapé | Lixeira, Ajustes, **Ajuda desta tela** (tecla `?`) |
 
 Acima, o campo "Buscar ⌘K". Embaixo, a pessoa (monograma, nome e `@`, que
 levam ao perfil) e o botão de tema claro/escuro. A seção ativa ganha um traço
 de lápis vermelho à esquerda e o ícone em vermelho.
 
-No celular, o topo tem **Ajuda** (?), Buscar e ☰; o trilho vira uma **gaveta** e aparecem **cinco
+No celular, o topo tem o **sino das Novidades** (com o número de novas), **Ajuda** (?), Buscar e ☰; o trilho vira uma **gaveta** e aparecem **cinco
 abas fixas embaixo**: Mesa, Canções, Projetos, Mural, Perfil. No editor as
 abas somem: o espaço de baixo é da barra de inserir blocos.
 

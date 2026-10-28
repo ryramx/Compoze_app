@@ -111,7 +111,7 @@ describe("criação", () => {
     expect(id).toMatch(/^[0-9a-f-]{36}$/);
     expect(useCompoze.getState().getSong(id)?.title).toBe("Minha nova ideia");
     // A folha pautada nasce no documento do aparelho; o servidor não semeia outra.
-    expect(semearFolhaInicial).toHaveBeenCalledWith(id, "u1", undefined);
+    expect(semearFolhaInicial).toHaveBeenCalledWith(id, "u1", undefined, undefined);
     expect(naFila()).toEqual([
       { metodo: "POST", caminho: "/songs", corpo: { id, title: "Minha nova ideia", folder_id: "f1", folha_pautada: false } },
     ]);
