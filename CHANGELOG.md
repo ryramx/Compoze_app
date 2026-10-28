@@ -26,6 +26,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   aproximam. A foto sai num círculo; a capa do perfil, em 3:1 (ADR 0022).
 
 ### Corrigido
+- O app instalado pelo navegador (PWA) só procurava versão nova ao ser aberto
+  do zero. Agora procura também ao voltar para ele e de hora em hora, e mostra
+  o aviso "Há uma versão nova do Compoze".
 - Canções no celular: a tabela do índice ficava mais larga que a tela (o
   primeiro verso não cortava), o que deslocava as janelas abertas ali.
 - O nome de seção comprido aparecia cortado no editor.

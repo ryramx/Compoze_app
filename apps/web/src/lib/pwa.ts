@@ -24,6 +24,19 @@ export function registrarServiceWorker(): void {
     onOfflineReady() {
       toast("Pronto: o Compoze agora abre mesmo sem internet.");
     },
+    // O navegador só procura versão nova ao abrir a página. A PWA instalada
+    // fica dias aberta em segundo plano, então procuramos também ao voltar
+    // para ela e de hora em hora; sem isso, a pessoa seguia na versão velha.
+    onRegisteredSW(_url, registro) {
+      if (!registro) return;
+      const procurar = () => {
+        if (navigator.onLine) void registro.update().catch(() => {});
+      };
+      setInterval(procurar, 60 * 60 * 1000);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") procurar();
+      });
+    },
   });
 }
 
