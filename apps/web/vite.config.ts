@@ -42,8 +42,10 @@ export default defineConfig({
       },
       workbox: {
         // Só as fontes latinas entram no pacote offline; os outros alfabetos
-        // (cirílico, vietnamita…) baixam quando usados e ficam guardados.
-        globPatterns: ["**/*.{js,css,html,svg,png}", "**/*-latin-*.woff2", "**/*-latin-ext-*.woff2"],
+        // (cirílico, vietnamita…) baixam quando usados e ficam guardados. O
+        // .mjs é o leitor de PDF da importação (pdf.js, ADR 0024), que também
+        // tem de funcionar sem rede.
+        globPatterns: ["**/*.{js,mjs,css,html,svg,png}", "**/*-latin-*.woff2", "**/*-latin-ext-*.woff2"],
         globIgnores: ["**/*-cyrillic*", "**/*-greek*", "**/*-vietnamese*"],
         // O editor, com Yjs, passa do limite padrão de 2 MiB.
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,

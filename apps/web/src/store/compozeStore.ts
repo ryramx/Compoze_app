@@ -12,6 +12,7 @@ import type {
 import { ApiError } from "@/lib/api";
 import { lerCopia, salvarCopia } from "@/lib/copiaLocal";
 import { comFaixa, renumerar, semFaixa } from "@/lib/faixas";
+import type { BlocoImportado } from "@/lib/importar";
 import { abrirFila, enfileirar, esvaziar } from "@/lib/fila";
 import { queryClient } from "@/lib/queryClient";
 import { uuidv7 } from "@/lib/uuidv7";
@@ -76,6 +77,8 @@ interface CompozeState {
     projectId?: string;
     /** Letra inicial, uma estrofe por bloco (texto compartilhado, Fase 3b). */
     estrofes?: string[];
+    /** A folha inteira, já em blocos (canção importada, ADR 0024). */
+    blocos?: BlocoImportado[];
   }) => Promise<string>;
   createProject: (input: {
     name: string;
@@ -308,12 +311,12 @@ export const useCompoze = create<CompozeState>((set, get) => ({
   // Criar não espera o servidor: o id nasce no aparelho (UUID v7) e o pedido
   // vai para a fila. Funciona offline; o servidor aceita o id do cliente.
 
-  createSong: async ({ title, folderId, projectId, estrofes }) => {
+  createSong: async ({ title, folderId, projectId, estrofes, blocos }) => {
     const id = uuidv7();
     const eu = get().currentUserId;
     // A folha pautada nasce no documento do aparelho, antes de o editor abrir.
     const { semearFolhaInicial } = await import("@/lib/folhaInicial");
-    await semearFolhaInicial(id, eu, estrofes);
+    await semearFolhaInicial(id, eu, estrofes, blocos);
 
     const nova: Song = {
       id,

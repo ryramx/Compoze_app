@@ -1,9 +1,10 @@
-import { MoreHorizontal, Plus, Search, Trash2 } from "lucide-react";
+import { FileUp, MoreHorizontal, Plus, Search, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import { Cabecalho, Vazio } from "@/components/compoze/Cabecalho";
 import { Estagio } from "@/components/compoze/Estagio";
+import { Importar } from "@/components/compoze/Importar";
 import { PilhaDeMonogramas } from "@/components/compoze/Monograma";
 import { Pagina } from "@/components/layout/Pagina";
 import { Botao } from "@/components/ui/Botao";
@@ -11,6 +12,7 @@ import { Seletor } from "@/components/ui/Campo";
 import { ItemDeMenu, Menu } from "@/components/ui/Menu";
 import { cn } from "@/lib/cn";
 import { quando } from "@/lib/datas";
+import type { CancaoImportada } from "@/lib/importar";
 import { ESTAGIOS, posicaoDoEstagio } from "@/lib/rotulos";
 import { listActive } from "@/services/mock/songService";
 import { useCompoze } from "@/store/compozeStore";
@@ -26,6 +28,7 @@ export default function Songs() {
   const todas = useCompoze((s) => s.songs);
   const getUser = useCompoze((s) => s.getUser);
   const criarMusica = useCompoze((s) => s.createSong);
+  const atualizarMusica = useCompoze((s) => s.updateSong);
   const excluirMusica = useCompoze((s) => s.deleteSong);
   const restaurarMusica = useCompoze((s) => s.restoreSong);
   const navegar = useNavigate();
@@ -37,6 +40,7 @@ export default function Songs() {
   const termo = params.get("q") ?? "";
   const [ordem, setOrdem] = useState<Ordem>("recentes");
   const [vista, setVista] = useState<Vista>("indice");
+  const [importando, setImportando] = useState(false);
 
   const mudarParam = (chave: string, valor: string | null) => {
     const p = new URLSearchParams(params);
@@ -73,6 +77,27 @@ export default function Songs() {
     navegar(`/songs/${id}/edit`);
   }
 
+  /** Canção importada (ADR 0024): nasce como ideia, com a folha e a ficha que vieram. */
+  async function importada(c: CancaoImportada) {
+    const id = await criarMusica({ title: c.titulo, blocos: c.blocos });
+    const ficha: Partial<Song> = {};
+    if (c.tom) ficha.key = c.tom;
+    if (c.bpm) ficha.bpm = c.bpm;
+    if (c.compasso) ficha.timeSignature = c.compasso;
+    if (Object.keys(ficha).length > 0) atualizarMusica(id, ficha);
+    // Com cifra, o editor abre com a letra alinhada aos acordes.
+    if (c.blocos.some((b) => b.type === "chord-line")) {
+      try {
+        localStorage.setItem("compoze.editor.mono", "1");
+        localStorage.setItem("compoze.editor.cifras", "1");
+      } catch {
+        // Preferência do editor; sem ela, o botão Alinhar resolve.
+      }
+    }
+    toast("Importada como ideia.");
+    navegar(`/songs/${id}/edit`);
+  }
+
   function excluir(m: Song) {
     excluirMusica(m.id);
     toast(`“${m.title}” foi para a lixeira.`, {
@@ -87,9 +112,14 @@ export default function Songs() {
         titulo="Canções"
         descricao={`${ativas.length} ${ativas.length === 1 ? "obra" : "obras"} no caderno, da primeira ideia à gravação.`}
         acoes={
-          <Botao variante="tinta" onClick={() => void novaCancao()}>
-            <Plus /> Nova canção
-          </Botao>
+          <div className="flex gap-2">
+            <Botao variante="contorno" onClick={() => setImportando(true)}>
+              <FileUp /> Importar
+            </Botao>
+            <Botao variante="tinta" onClick={() => void novaCancao()}>
+              <Plus /> Nova canção
+            </Botao>
+          </div>
         }
       />
 
@@ -185,7 +215,9 @@ export default function Songs() {
               {lista.map((m, i) => (
                 <tr key={m.id} className="group border-b border-linha transition-colors hover:bg-papel-2/50">
                   <td className="numeral py-4 align-top text-[12px] text-tinta-3">{String(i + 1).padStart(2, "0")}</td>
-                  <td className="py-3 pr-4">
+                  {/* max-w-0 + w-full: a coluna ocupa o que sobra e o verso corta com
+                      reticências, em vez de alargar a tabela além da tela do celular. */}
+                  <td className="w-full max-w-0 py-3 pr-4">
                     <Link to={`/songs/${m.id}/edit`} className="block">
                       <span className="font-serif text-[1.2rem] leading-tight group-hover:text-lapis">{m.title}</span>
                       <span className="mt-0.5 block truncate text-[13px] text-tinta-3 md:max-w-md">
@@ -266,6 +298,8 @@ export default function Songs() {
           </ul>
         )}
       </div>
+
+      <Importar aberto={importando} aoMudar={setImportando} destino={{ tipo: "nova", aoCriar: importada }} />
     </Pagina>
   );
 }
