@@ -137,7 +137,7 @@ export function Importar({
       aoMudar={mudar}
       largura="lg"
       titulo={destino.tipo === "nova" ? "Importar uma canção" : "Importar para esta canção"}
-      descricao="De um PDF, Word, Markdown ou texto. A letra, as cifras e as anotações vêm junto; você confere antes."
+      descricao="De um PDF, Word, Markdown, HTML ou texto. A letra, as cifras e as anotações vêm junto; você confere antes."
       rodape={rodape}
     >
       {etapa.nome !== "previa" && (
@@ -166,7 +166,7 @@ export function Importar({
                   <Botao variante="contorno" onClick={() => entrada.current?.click()}>
                     Escolher arquivo
                   </Botao>
-                  <p className="numeral text-[11.5px] tracking-wide text-tinta-3">PDF · Word (.docx) · Markdown · Texto · ChordPro</p>
+                  <p className="numeral text-[11.5px] tracking-wide text-tinta-3">PDF · Word · Markdown · HTML · Texto · ChordPro</p>
                 </>
               )}
               <input

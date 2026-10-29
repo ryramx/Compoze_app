@@ -45,7 +45,8 @@ export const TOPICOS: TopicoDeAjuda[] = [
       { titulo: "Estágio", texto: "Filtre pelo ponto em que a obra está: Ideia, Escrita, Revisão, Finalizada, Registrada ou Gravada." },
       { titulo: "Índice e Fichas", texto: "O índice é uma lista enxuta; as fichas mostram o começo da letra. A ordem pode ser por data, título ou estágio." },
       { titulo: "Nova canção", texto: "Cria a canção e abre o editor na hora. Funciona também sem internet." },
-      { titulo: "Importar", texto: "Traz uma canção de um PDF, Word, Markdown ou texto, com letra, cifras e anotações. Você confere a prévia antes de criar." },
+      { titulo: "Importar", texto: "Traz uma canção de um PDF, Word, Markdown, HTML ou texto, com letra, cifras e anotações. Você confere a prévia antes de criar." },
+      { titulo: "Selecionar e exportar", texto: "Selecionar marca até 50 canções, que saem juntas num .zip, em PDF, Markdown, Word ou HTML." },
     ],
   },
   {
@@ -60,7 +61,7 @@ export const TOPICOS: TopicoDeAjuda[] = [
       { titulo: "Ficha", texto: "Estágio, tom, compasso, andamento, pasta, tags e quem pode ver. Lá também ficam a Coautoria, com os percentuais que precisam fechar em 100%, e Registrar a obra." },
       { titulo: "Convidar", texto: "Chame alguém pelo nome ou @ para escrever junto. Quem ainda não tem conta recebe um link." },
       { titulo: "Histórico de versões", texto: "Em ⋯, guarde uma versão com nome e volte a qualquer uma. Cada versão tem um carimbo SHA-256, útil como prova de autoria." },
-      { titulo: "Importar e exportar", texto: "Em ⋯, Importar traz a letra e as cifras de um arquivo para esta canção; Exportar gera PDF, Markdown ou Word, pronta ou não." },
+      { titulo: "Importar e exportar", texto: "Em ⋯, Importar traz a letra e as cifras de um arquivo para esta canção; Exportar gera PDF, Markdown, Word ou HTML, pronta ou não." },
       { titulo: "Desfazer", texto: "Ctrl+Z desfaz, Ctrl+Shift+Z refaz. Tudo se salva sozinho, sem botão de salvar." },
     ],
   },

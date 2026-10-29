@@ -35,6 +35,19 @@ abrir no editor.
   cada formato está em [Editor › Importar e exportar](editor.md#importar-e-exportar).
 
 ![Importar uma canção](imagens/importar.webp)
+
+![Selecionar canções](imagens/cancoes-selecionar.webp)
+![Exportar várias canções](imagens/cancoes-exportar-varias.webp)
+- **Exportar várias de uma vez**: **Selecionar** (ao lado da ordem) põe uma
+  caixinha em cada canção, e tocar numa canção marca em vez de abrir. A barra
+  de baixo mostra quantas estão marcadas, do máximo de 50, e tem **Marcar as
+  da lista** (vale o filtro e a busca), **Limpar** e **Exportar**. O diálogo
+  é o mesmo do editor (PDF, Markdown, Word ou HTML, com ou sem cifras, notas
+  e ficha), e as canções saem num .zip, uma por arquivo, na ordem da lista.
+  Sem internet, entram as já abertas no aparelho, e o aviso diz quais
+  ficaram de fora ([ADR 0025](../decisoes/0025-html-e-exportar-varias.md)).
+- **Exportar…** no menu `…` de cada linha, para uma canção sem abrir o
+  editor.
 - **Mover para a lixeira** pelo menu `…` de cada linha, com "Desfazer" no
   aviso que aparece.
 

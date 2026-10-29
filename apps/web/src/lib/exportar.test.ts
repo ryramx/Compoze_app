@@ -129,3 +129,42 @@ describe("nome do arquivo", () => {
     expect(nomeDoArquivo("Rua", "markdown")).toBe("Rua.md");
   });
 });
+
+describe("HTML", () => {
+  it("página única com estilo, cifra em <pre> e volta pelo importador", async () => {
+    const { paraHtml } = await import("@/lib/exportar");
+    const { textoDoHtml } = await import("@/lib/arquivoDeLetra");
+    const pagina = paraHtml(cancao, OPCOES_PADRAO);
+    expect(pagina).toMatch(/^<!doctype html>/);
+    expect(pagina).toContain("<style>");
+    expect(pagina).toContain("<pre><b>Am          F            C</b>\nCafé esfriou na xícara, a cidade\n<b>Am          F</b>\nJanela aberta pra rua</pre>");
+    expect(pagina).not.toContain("<script");
+
+    const de = lerCancao(textoDoHtml(pagina), "markdown");
+    expect(de).toMatchObject({ titulo: "Madrugada", tom: "Am", bpm: 78, compasso: "4/4" });
+    expect(essencia(de.blocos)).toEqual(
+      essencia(cancao.blocos.map((x) => (x.type === "note" ? { ...x, text: "Trocar rua por avenida?" } : x))),
+    );
+  });
+
+  it("escapa o que viria como marcação", async () => {
+    const { paraHtml } = await import("@/lib/exportar");
+    const pagina = paraHtml({ ...cancao, titulo: "<script>alert(1)</script>" }, OPCOES_PADRAO);
+    expect(pagina).not.toContain("<script>alert");
+    expect(pagina).toContain("&lt;script&gt;");
+  });
+
+  it("lê uma página qualquer de letra", async () => {
+    const { textoDoHtml } = await import("@/lib/arquivoDeLetra");
+    const c = lerCancao(
+      textoDoHtml("<html><body><nav>menu</nav><h1>Rua</h1><div>Primeira <b>linha</b><br>segunda</div><p>[Refrão]</p><p>Outra</p><footer>site</footer></body></html>"),
+      "markdown",
+    );
+    expect(c.titulo).toBe("Rua");
+    expect(c.blocos).toEqual([
+      { type: "lyric-line", text: "Primeira linha\nsegunda" },
+      { type: "section", label: "Refrão", text: "" },
+      { type: "lyric-line", text: "Outra" },
+    ]);
+  });
+});
