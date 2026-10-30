@@ -45,7 +45,7 @@ export const TOPICOS: TopicoDeAjuda[] = [
       { titulo: "Estágio", texto: "Filtre pelo ponto em que a obra está: Ideia, Escrita, Revisão, Finalizada, Registrada ou Gravada." },
       { titulo: "Índice e Fichas", texto: "O índice é uma lista enxuta; as fichas mostram o começo da letra. A ordem pode ser por data, título ou estágio." },
       { titulo: "Nova canção", texto: "Cria a canção e abre o editor na hora. Funciona também sem internet." },
-      { titulo: "Importar", texto: "Traz uma canção de um PDF, Word, Markdown, HTML ou texto, com letra, cifras e anotações. Você confere a prévia antes de criar." },
+      { titulo: "Importar", texto: "Traz canções de PDF, Word, Markdown, HTML ou texto, com letra, cifras e anotações. Vários arquivos de uma vez viram uma canção cada. Você confere antes de criar." },
       { titulo: "Selecionar e exportar", texto: "Selecionar marca até 50 canções, que saem juntas num .zip, em PDF, Markdown, Word ou HTML." },
     ],
   },

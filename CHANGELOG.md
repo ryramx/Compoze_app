@@ -5,6 +5,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 ## [Não lançado]
 
 ### Adicionado
+- Importar várias canções de uma vez: em Canções, escolha ou arraste vários
+  arquivos (HTML, PDF, Word, Markdown, texto) e cada um vira uma canção nova,
+  até 50 por vez, com a lista para conferir e desmarcar (ADR 0026).
 - Exportar em HTML: uma página só, com o estilo do Caderno embutido, que
   abre sem internet em qualquer navegador e imprime bem; a importação lê
   HTML de volta (ADR 0025).

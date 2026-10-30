@@ -86,7 +86,7 @@ export default function Songs() {
   }
 
   /** Canção importada (ADR 0024): nasce como ideia, com a folha e a ficha que vieram. */
-  async function importada(c: CancaoImportada) {
+  async function criarImportada(c: CancaoImportada): Promise<string> {
     const id = await criarMusica({ title: c.titulo, blocos: c.blocos });
     const ficha: Partial<Song> = {};
     if (c.tom) ficha.key = c.tom;
@@ -102,8 +102,22 @@ export default function Songs() {
         // Preferência do editor; sem ela, o botão Alinhar resolve.
       }
     }
+    return id;
+  }
+
+  async function importada(c: CancaoImportada) {
+    const id = await criarImportada(c);
     toast("Importada como ideia.");
     navegar(`/songs/${id}/edit`);
+  }
+
+  /**
+   * Vários arquivos, uma canção cada (ADR 0026). Uma por vez: cada uma nasce
+   * no aparelho e o pedido entra na fila, que fala com o servidor em ordem.
+   */
+  async function importadas(cs: CancaoImportada[]) {
+    for (const c of cs) await criarImportada(c);
+    toast(`${cs.length} ${cs.length === 1 ? "canção importada" : "canções importadas"} como ideia.`);
   }
 
   function alternarEscolha(id: string) {
@@ -408,7 +422,7 @@ export default function Songs() {
         />
       )}
 
-      <Importar aberto={importando} aoMudar={setImportando} destino={{ tipo: "nova", aoCriar: importada }} />
+      <Importar aberto={importando} aoMudar={setImportando} destino={{ tipo: "nova", aoCriar: importada, aoCriarVarias: importadas }} />
     </Pagina>
   );
 }
