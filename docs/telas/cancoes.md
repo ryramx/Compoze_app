@@ -27,14 +27,32 @@ abrir no editor.
     compactas; três no computador e quatro nas telas largas
     ([ADR 0021](../decisoes/0021-ajustes-do-primeiro-teste.md)).
 - **Nova canção**, que abre direto no editor.
-- **Importar** uma canção de um PDF, Word, Markdown, texto ou ChordPro, ou
-  colando o texto. Arrastar o arquivo para a janela também vale. Antes de
+- **Importar** uma canção de um PDF, Word, Markdown, HTML, texto ou ChordPro, ou
+  colando o texto. Arrastar o arquivo para a janela também vale.
+  **Vários arquivos de uma vez** (até 50) viram uma canção nova cada: a
+  janela lista os arquivos enquanto lê, com o título, o resumo, **Ver** para
+  a prévia e o motivo de quem não deu; desmarque o que não quiser e toque em
+  "Criar 6 canções" ([ADR 0026](../decisoes/0026-importar-varias.md)). Antes de
   criar, a prévia mostra a folha como vai ficar (seções, cifras, versos,
   notas e o tom) e o título pode ser mudado. A canção nasce como ideia e abre
   no editor, com o **Alinhar** ligado se veio cifra. Como a leitura entende
   cada formato está em [Editor › Importar e exportar](editor.md#importar-e-exportar).
 
 ![Importar uma canção](imagens/importar.webp)
+![Importar vários arquivos](imagens/importar-varias.webp)
+
+![Selecionar canções](imagens/cancoes-selecionar.webp)
+![Exportar várias canções](imagens/cancoes-exportar-varias.webp)
+- **Exportar várias de uma vez**: **Selecionar** (ao lado da ordem) põe uma
+  caixinha em cada canção, e tocar numa canção marca em vez de abrir. A barra
+  de baixo mostra quantas estão marcadas, do máximo de 50, e tem **Marcar as
+  da lista** (vale o filtro e a busca), **Limpar** e **Exportar**. O diálogo
+  é o mesmo do editor (PDF, Markdown, Word ou HTML, com ou sem cifras, notas
+  e ficha), e as canções saem num .zip, uma por arquivo, na ordem da lista.
+  Sem internet, entram as já abertas no aparelho, e o aviso diz quais
+  ficaram de fora ([ADR 0025](../decisoes/0025-html-e-exportar-varias.md)).
+- **Exportar…** no menu `…` de cada linha, para uma canção sem abrir o
+  editor.
 - **Mover para a lixeira** pelo menu `…` de cada linha, com "Desfazer" no
   aviso que aparece.
 

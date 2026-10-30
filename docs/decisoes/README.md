@@ -30,3 +30,5 @@ duas apontam uma para a outra.
 | [0022](0022-recorte-de-imagens.md) | Janela de recorte para foto e capas, e capa do perfil sempre em 3:1 | Aceita |
 | [0023](0023-novidades-na-mesa.md) | Novidades na Mesa: mensagens, comentários, curtidas, seguidores, convites e apoios | Aceita |
 | [0024](0024-importar-e-exportar.md) | Importar (PDF, Word, Markdown, texto, ChordPro) e exportar (PDF, Markdown, Word) canções, no aparelho | Aceita |
+| [0025](0025-html-e-exportar-varias.md) | Exportar em HTML e várias canções de uma vez (.zip, até 50, gerado no aparelho) | Aceita |
+| [0026](0026-importar-varias.md) | Importar várias canções de uma vez: um arquivo, uma canção nova (até 50) | Aceita |

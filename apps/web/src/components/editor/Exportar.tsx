@@ -3,13 +3,14 @@ import { toast } from "sonner";
 import { Botao } from "@/components/ui/Botao";
 import { Dialogo } from "@/components/ui/Dialogo";
 import { cn } from "@/lib/cn";
-import { exportar, OPCOES_PADRAO, type CancaoParaExportar, type FormatoDeExportacao, type OpcoesDeExportacao } from "@/lib/exportar";
+import { OPCOES_PADRAO, type FormatoDeExportacao, type OpcoesDeExportacao } from "@/lib/exportar";
 import { salvarArquivo } from "@/lib/salvarArquivo";
 
 const FORMATOS: { valor: FormatoDeExportacao; nome: string; ext: string; para: string }[] = [
   { valor: "pdf", nome: "PDF", ext: ".pdf", para: "Para imprimir, levar ao ensaio ou mandar para alguém." },
   { valor: "markdown", nome: "Markdown", ext: ".md", para: "Texto puro, para Notion, Obsidian ou GitHub. Volta para o Compoze sem perder nada." },
   { valor: "word", nome: "Word", ext: ".docx", para: "Para editar no Word, no Google Docs ou no LibreOffice." },
+  { valor: "html", nome: "HTML", ext: ".html", para: "Uma página que abre em qualquer navegador, sem internet, ou vai para um site." },
 ];
 
 const OPCOES: { chave: keyof OpcoesDeExportacao; rotulo: string }[] = [
@@ -29,26 +30,43 @@ function lembrado(): { formato: FormatoDeExportacao; opcoes: OpcoesDeExportacao 
   }
 }
 
+export interface ArquivoExportado {
+  nome: string;
+  tipo: string;
+  bytes: Uint8Array;
+  /** Canções que ficaram de fora de um lote. */
+  faltaram?: string[];
+}
+
 /**
- * "Exportar" no editor (ADR 0024). Sai a canção como está agora, em qualquer
- * estágio, gerada no aparelho (funciona offline). A última escolha fica
- * lembrada no navegador.
+ * "Exportar" (ADR 0024 e 0025). No editor, a canção aberta; em Canções, as
+ * selecionadas, num .zip. Sai como está agora, em qualquer estágio, gerado no
+ * aparelho. A última escolha fica lembrada no navegador.
  */
 export function Exportar({
   aberto,
   aoMudar,
-  cancao,
+  gerar,
+  titulo = "Exportar a canção",
+  descricao = "Sai como está agora, pronta ou não. Funciona sem internet.",
 }: {
   aberto: boolean;
   aoMudar: (aberto: boolean) => void;
-  cancao: () => CancaoParaExportar;
+  gerar: (
+    formato: FormatoDeExportacao,
+    opcoes: OpcoesDeExportacao,
+    aoAvancar: (prontas: number, total: number) => void,
+  ) => Promise<ArquivoExportado>;
+  titulo?: string;
+  descricao?: string;
 }) {
   const [inicial] = useState(lembrado);
   const [formato, setFormato] = useState(inicial.formato);
   const [opcoes, setOpcoes] = useState(inicial.opcoes);
   const [gerando, setGerando] = useState(false);
+  const [progresso, setProgresso] = useState<{ prontas: number; total: number } | null>(null);
 
-  async function gerar() {
+  async function gerarArquivo() {
     setGerando(true);
     try {
       localStorage.setItem(CHAVE, JSON.stringify({ formato, opcoes }));
@@ -56,14 +74,19 @@ export function Exportar({
       // Lembrar a escolha é só conveniência.
     }
     try {
-      const arquivo = await exportar(formato, cancao(), opcoes);
+      const arquivo = await gerar(formato, opcoes, (prontas, total) => setProgresso({ prontas, total }));
       const como = await salvarArquivo(arquivo.nome, arquivo.tipo, arquivo.bytes);
-      if (como === "baixado") toast(`Baixado: ${arquivo.nome}`);
+      if (arquivo.faltaram?.length) {
+        toast(
+          `${arquivo.faltaram.length === 1 ? "Ficou de fora" : `Ficaram de fora ${arquivo.faltaram.length}`}: ${arquivo.faltaram.join(", ")}. Sem internet, só entram as canções já abertas neste aparelho.`,
+        );
+      } else if (como === "baixado") toast(`Baixado: ${arquivo.nome}`);
       aoMudar(false);
-    } catch {
-      toast("Não deu para gerar o arquivo. Tente de novo.");
+    } catch (e) {
+      toast(e instanceof Error && e.message ? e.message : "Não deu para gerar o arquivo. Tente de novo.");
     } finally {
       setGerando(false);
+      setProgresso(null);
     }
   }
 
@@ -71,11 +94,15 @@ export function Exportar({
     <Dialogo
       aberto={aberto}
       aoMudar={aoMudar}
-      titulo="Exportar a canção"
-      descricao="Sai como está agora, pronta ou não. Funciona sem internet."
+      titulo={titulo}
+      descricao={descricao}
       rodape={
-        <Botao variante="tinta" onClick={() => void gerar()} disabled={gerando}>
-          {gerando ? "Gerando…" : `Exportar ${FORMATOS.find((f) => f.valor === formato)!.nome}`}
+        <Botao variante="tinta" onClick={() => void gerarArquivo()} disabled={gerando}>
+          {gerando
+            ? progresso && progresso.total > 1
+              ? `Gerando ${progresso.prontas} de ${progresso.total}…`
+              : "Gerando…"
+            : `Exportar ${FORMATOS.find((f) => f.valor === formato)!.nome}`}
         </Botao>
       }
     >

@@ -19,6 +19,7 @@ import { ORIGEM_LOCAL, useDocumentoDaCancao, type EstadoDoDocumento } from "@/ho
 import { MODO_DEMO } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import { quando } from "@/lib/datas";
+import { exportar } from "@/lib/exportar";
 import { blocosParaODocumento } from "@/lib/folhaInicial";
 import type { CancaoImportada } from "@/lib/importar";
 import { ENDERECO_PUBLICO } from "@/lib/nativo";
@@ -525,7 +526,7 @@ export default function SongEditor() {
         aoMudar={setImportando}
         destino={{ tipo: "cancao", folhaVazia, aoAplicar: aplicarImportacao }}
       />
-      <Exportar aberto={exportando} aoMudar={setExportando} cancao={paraExportar} />
+      <Exportar aberto={exportando} aoMudar={setExportando} gerar={(formato, opcoes) => exportar(formato, paraExportar(), opcoes)} />
 
       <Memos musica={musica} aberto={memosAbertos} aoMudar={setMemosAbertos} podeEscrever={documento.estado !== "recusado"} />
 

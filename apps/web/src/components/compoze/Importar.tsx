@@ -13,13 +13,44 @@ import { lerCancao, resumoDaImportacao, tituloDoArquivo, type CancaoImportada } 
  * verso e nota, e a ficha que veio junto.
  *
  * `destino` diz para onde vai: uma canção nova (Canções) ou a canção aberta
- * no editor (acrescentar no fim ou substituir a folha).
+ * no editor (acrescentar no fim ou substituir a folha). Em Canções dá para
+ * escolher vários arquivos de uma vez: cada arquivo vira uma canção nova
+ * (ADR 0026).
  */
 export type DestinoDaImportacao =
-  | { tipo: "nova"; aoCriar: (c: CancaoImportada) => Promise<void> | void }
+  | {
+      tipo: "nova";
+      aoCriar: (c: CancaoImportada) => Promise<void> | void;
+      aoCriarVarias: (cs: CancaoImportada[]) => Promise<void> | void;
+    }
   | { tipo: "cancao"; folhaVazia: boolean; aoAplicar: (c: CancaoImportada, modo: "acrescentar" | "substituir") => void };
 
-type Etapa = { nome: "escolher" } | { nome: "lendo" } | { nome: "previa"; cancao: CancaoImportada; aviso?: string };
+/** Arquivos de uma vez: o mesmo teto da exportação em lote. */
+export const MAXIMO_DE_ARQUIVOS = 50;
+
+interface ItemDoLote {
+  arquivo: string;
+  estado: "esperando" | "pronto" | "erro";
+  cancao?: CancaoImportada;
+  erro?: string;
+  incluir: boolean;
+}
+
+type Etapa =
+  | { nome: "escolher" }
+  | { nome: "lendo" }
+  | { nome: "previa"; cancao: CancaoImportada; aviso?: string }
+  | { nome: "lote"; itens: ItemDoLote[]; sobraram: number };
+
+const ERRO_DE_LEITURA = "Não deu para ler este arquivo. Ele pode estar corrompido ou protegido por senha.";
+
+/** Lê um arquivo até virar canção; recusa o que não tem letra. */
+async function cancaoDoArquivo(arquivo: File): Promise<{ cancao: CancaoImportada; aviso?: string }> {
+  const { texto, formato, aviso } = await lerArquivoDeLetra(arquivo);
+  const cancao = lerCancao(texto, formato, tituloDoArquivo(arquivo.name));
+  if (cancao.blocos.length === 0) throw new ArquivoRecusado("Não achamos letra nem cifra neste arquivo.");
+  return { cancao, aviso };
+}
 
 export function Importar({
   aberto,
@@ -37,9 +68,16 @@ export function Importar({
   const [titulo, setTitulo] = useState("");
   const [arrastando, setArrastando] = useState(false);
   const [criando, setCriando] = useState(false);
+  const [vendo, setVendo] = useState<number | null>(null);
+  const varios = destino.tipo === "nova";
   const entrada = useRef<HTMLInputElement>(null);
+  // Cada leitura de lote tem um número; "Escolher outros" ou fechar a janela
+  // no meio troca o número, e a leitura antiga para de mexer na tela.
+  const leitura = useRef(0);
 
   function recomecar() {
+    leitura.current++;
+    setVendo(null);
     setEtapa({ nome: "escolher" });
     setErro(null);
     setColado("");
@@ -65,12 +103,58 @@ export function Importar({
     setErro(null);
     setEtapa({ nome: "lendo" });
     try {
-      const { texto, formato, aviso } = await lerArquivoDeLetra(arquivo);
-      mostrar(lerCancao(texto, formato, tituloDoArquivo(arquivo.name)), aviso);
+      const { cancao, aviso } = await cancaoDoArquivo(arquivo);
+      mostrar(cancao, aviso);
     } catch (e) {
       setEtapa({ nome: "escolher" });
-      setErro(e instanceof ArquivoRecusado ? e.message : "Não deu para ler este arquivo. Ele pode estar corrompido ou protegido por senha.");
+      setErro(e instanceof ArquivoRecusado ? e.message : ERRO_DE_LEITURA);
     }
+  }
+
+  /**
+   * Vários arquivos: lê um por vez (um PDF pesa no celular), mostrando cada
+   * um assim que fica pronto. Um arquivo só segue o caminho de sempre, com a
+   * prévia inteira e o título editável.
+   */
+  async function lerVarios(lista: File[]) {
+    if (lista.length === 0) return;
+    if (lista.length === 1 || !varios) return ler(lista[0]!);
+    setErro(null);
+    const minha = ++leitura.current;
+    const arquivos = lista.slice(0, MAXIMO_DE_ARQUIVOS);
+    const itens: ItemDoLote[] = arquivos.map((a) => ({ arquivo: a.name, estado: "esperando", incluir: true }));
+    const sobraram = lista.length - arquivos.length;
+    setEtapa({ nome: "lote", itens: [...itens], sobraram });
+    for (let i = 0; i < arquivos.length; i++) {
+      try {
+        const { cancao } = await cancaoDoArquivo(arquivos[i]!);
+        if (leitura.current !== minha) return;
+        itens[i] = { ...itens[i]!, estado: "pronto", cancao };
+      } catch (e) {
+        itens[i] = { ...itens[i]!, estado: "erro", incluir: false, erro: e instanceof ArquivoRecusado ? e.message : ERRO_DE_LEITURA };
+      }
+      if (leitura.current !== minha) return;
+      setEtapa({ nome: "lote", itens: [...itens], sobraram });
+    }
+  }
+
+  function alternarItem(i: number) {
+    if (etapa.nome !== "lote") return;
+    const itens = etapa.itens.map((it, j) => (j === i && it.estado === "pronto" ? { ...it, incluir: !it.incluir } : it));
+    setEtapa({ ...etapa, itens });
+  }
+
+  async function criarVarias() {
+    if (etapa.nome !== "lote" || destino.tipo !== "nova") return;
+    const cancoes = etapa.itens.filter((it) => it.incluir && it.cancao).map((it) => it.cancao!);
+    if (cancoes.length === 0) return;
+    setCriando(true);
+    try {
+      await destino.aoCriarVarias(cancoes);
+    } finally {
+      setCriando(false);
+    }
+    mudar(false);
   }
 
   function lerColado() {
@@ -84,8 +168,7 @@ export function Importar({
   function soltar(e: DragEvent) {
     e.preventDefault();
     setArrastando(false);
-    const arquivo = e.dataTransfer.files[0];
-    if (arquivo) void ler(arquivo);
+    void lerVarios([...e.dataTransfer.files]);
   }
 
   async function confirmar(modo: "acrescentar" | "substituir" = "substituir") {
@@ -104,8 +187,24 @@ export function Importar({
     mudar(false);
   }
 
-  const rodape =
-    etapa.nome !== "previa" ? undefined : (
+  const noLote = etapa.nome === "lote" ? etapa : null;
+  const lendoLote = noLote?.itens.some((it) => it.estado === "esperando") ?? false;
+  const escolhidasNoLote = noLote?.itens.filter((it) => it.incluir && it.cancao).length ?? 0;
+
+  const rodape = noLote ? (
+    <>
+      <Botao variante="texto" onClick={recomecar} className="mr-auto">
+        Escolher outros
+      </Botao>
+      <Botao variante="tinta" onClick={() => void criarVarias()} disabled={lendoLote || criando || escolhidasNoLote === 0}>
+        {criando
+          ? "Criando…"
+          : lendoLote
+            ? "Lendo…"
+            : `Criar ${escolhidasNoLote} ${escolhidasNoLote === 1 ? "canção" : "canções"}`}
+      </Botao>
+    </>
+  ) : etapa.nome !== "previa" ? undefined : (
       <>
         <Botao variante="texto" onClick={recomecar} className="mr-auto">
           Escolher outro
@@ -136,11 +235,15 @@ export function Importar({
       aberto={aberto}
       aoMudar={mudar}
       largura="lg"
-      titulo={destino.tipo === "nova" ? "Importar uma canção" : "Importar para esta canção"}
-      descricao="De um PDF, Word, Markdown ou texto. A letra, as cifras e as anotações vêm junto; você confere antes."
+      titulo={noLote ? `Importar ${noLote.itens.length} arquivos` : varios ? "Importar canções" : "Importar para esta canção"}
+      descricao={
+        noLote
+          ? "Cada arquivo vira uma canção nova, como ideia. Desmarque o que não quiser."
+          : `De um PDF, Word, Markdown, HTML ou texto${varios ? `, um ou vários arquivos (até ${MAXIMO_DE_ARQUIVOS})` : ""}. A letra, as cifras e as anotações vêm junto; você confere antes.`
+      }
       rodape={rodape}
     >
-      {etapa.nome !== "previa" && (
+      {(etapa.nome === "escolher" || etapa.nome === "lendo") && (
         <div className="space-y-4">
           {!colando ? (
             <div
@@ -162,22 +265,23 @@ export function Importar({
                 </p>
               ) : (
                 <>
-                  <p className="font-serif text-lg">Arraste o arquivo para cá</p>
+                  <p className="font-serif text-lg">{varios ? "Arraste os arquivos para cá" : "Arraste o arquivo para cá"}</p>
                   <Botao variante="contorno" onClick={() => entrada.current?.click()}>
-                    Escolher arquivo
+                    {varios ? "Escolher arquivos" : "Escolher arquivo"}
                   </Botao>
-                  <p className="numeral text-[11.5px] tracking-wide text-tinta-3">PDF · Word (.docx) · Markdown · Texto · ChordPro</p>
+                  <p className="numeral text-[11.5px] tracking-wide text-tinta-3">PDF · Word · Markdown · HTML · Texto · ChordPro</p>
                 </>
               )}
               <input
                 ref={entrada}
                 type="file"
                 accept={ACEITOS}
+                multiple={varios}
                 className="hidden"
                 onChange={(e) => {
-                  const arquivo = e.target.files?.[0];
+                  const arquivos = [...(e.target.files ?? [])];
                   e.target.value = "";
-                  if (arquivo) void ler(arquivo);
+                  void lerVarios(arquivos);
                 }}
               />
             </div>
@@ -209,6 +313,56 @@ export function Importar({
           <button onClick={() => setColando(!colando)} className="link-sublinhado text-[13px] text-tinta-2">
             {colando ? "Prefiro escolher um arquivo" : "Prefere colar o texto? (de um site de cifras, do bloco de notas)"}
           </button>
+        </div>
+      )}
+
+      {noLote && (
+        <div className="space-y-3">
+          <p className="text-[13px] text-tinta-2" role="status">
+            {resumoDoLote(noLote.itens)}
+          </p>
+          {noLote.sobraram > 0 && (
+            <p className="border-l-2 border-lapis bg-lapis-tinta px-3 py-2 text-[13px] text-tinta-2">
+              Vieram só os primeiros {MAXIMO_DE_ARQUIVOS}. Importe os outros {noLote.sobraram} depois.
+            </p>
+          )}
+          <ul className="max-h-[50vh] divide-y divide-linha overflow-y-auto border-y border-linha" aria-label="Arquivos">
+            {noLote.itens.map((it, i) => (
+              <li key={i} className="py-2.5">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={it.incluir}
+                    disabled={it.estado !== "pronto"}
+                    onChange={() => alternarItem(i)}
+                    aria-label={`Importar ${it.cancao?.titulo ?? it.arquivo}`}
+                    className="mt-1.5 accent-[var(--lapis)]"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className={cn("truncate font-serif text-[1.05rem]", it.estado === "erro" ? "text-tinta-3" : "text-tinta")}>
+                      {it.cancao?.titulo ?? it.arquivo}
+                    </p>
+                    <p className="truncate text-[12.5px] text-tinta-3">
+                      <span className="numeral">{it.arquivo}</span>
+                      {it.estado === "esperando" && <span className="italic"> · lendo…</span>}
+                      {it.cancao && <> · {resumoDaImportacao(it.cancao)}</>}
+                    </p>
+                    {it.erro && <p className="text-[12.5px] text-lapis">{it.erro}</p>}
+                  </div>
+                  {it.cancao && (
+                    <button onClick={() => setVendo(vendo === i ? null : i)} className="link-sublinhado shrink-0 text-[12.5px] text-tinta-2">
+                      {vendo === i ? "Fechar" : "Ver"}
+                    </button>
+                  )}
+                </div>
+                {vendo === i && it.cancao && (
+                  <div className="mt-2.5">
+                    <Previa cancao={it.cancao} />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -266,3 +420,16 @@ function Previa({ cancao }: { cancao: CancaoImportada }) {
     </div>
   );
 }
+
+/** "12 arquivos · 11 viram canção · 1 com problema". */
+function resumoDoLote(itens: ItemDoLote[]): string {
+  const lendo = itens.filter((it) => it.estado === "esperando").length;
+  const prontos = itens.filter((it) => it.estado === "pronto").length;
+  const erros = itens.filter((it) => it.estado === "erro").length;
+  const partes = [`${itens.length} arquivos`];
+  if (lendo > 0) partes.push(`lendo ${itens.length - lendo + 1} de ${itens.length}`);
+  if (prontos > 0) partes.push(`${prontos} ${prontos === 1 ? "vira canção" : "viram canção"}`);
+  if (erros > 0) partes.push(`${erros} com problema`);
+  return partes.join(" · ");
+}
+

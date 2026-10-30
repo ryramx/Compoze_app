@@ -3,9 +3,10 @@ import type { SongBlock } from "@/types";
 
 /**
  * Exportar uma canção (ADR 0024): PDF para imprimir ou mandar, Markdown para
- * guardar em texto puro (Notion, Obsidian, GitHub) e Word para quem vai
- * editar fora. Os três saem do mesmo roteiro (`roteiro`), então dizem a mesma
- * coisa: título, ficha, seções, cifra sobre a letra e as notas.
+ * guardar em texto puro (Notion, Obsidian, GitHub), Word para quem vai
+ * editar fora e HTML para abrir em qualquer navegador ou pôr num site (ADR
+ * 0025). Todos saem do mesmo roteiro (`roteiro`), então dizem a mesma coisa:
+ * título, ficha, seções, cifra sobre a letra e as notas.
  *
  * Tudo é gerado no aparelho, sem servidor: funciona offline e em qualquer
  * estágio, de ideia a gravada.
@@ -15,7 +16,7 @@ import type { SongBlock } from "@/types";
 // pasta com `instanceof`, e o TextEncoder pode devolver o de outro contexto.
 const strToU8 = (t: string) => new Uint8Array(paraBytes(t));
 
-export type FormatoDeExportacao = "pdf" | "markdown" | "word";
+export type FormatoDeExportacao = "pdf" | "markdown" | "word" | "html";
 
 export interface CancaoParaExportar {
   titulo: string;
@@ -103,10 +104,13 @@ export function nomeDoArquivo(titulo: string, formato: FormatoDeExportacao): str
     .map((c) => (c.charCodeAt(0) < 32 ? " " : c))
     .join("")
     .replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 80) || "Canção";
-  return `${base}.${formato === "pdf" ? "pdf" : formato === "word" ? "docx" : "md"}`;
+  return `${base}.${EXTENSAO[formato]}`;
 }
 
+export const EXTENSAO: Record<FormatoDeExportacao, string> = { pdf: "pdf", markdown: "md", word: "docx", html: "html" };
+
 export const TIPO_DO_ARQUIVO: Record<FormatoDeExportacao, string> = {
+  html: "text/html",
   pdf: "application/pdf",
   markdown: "text/markdown",
   word: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -161,6 +165,94 @@ export function paraMarkdown(c: CancaoParaExportar, opcoes: OpcoesDeExportacao):
     if (saida[saida.length - 1] !== "") saida.push("");
   }
   return `${saida.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd()}\n`;
+}
+
+// ------------------------------------------------------------------ HTML
+
+const html = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+// O Caderno em poucas linhas: papel, tinta, lápis vermelho, régua fina. As
+// fontes do app (Newsreader, IBM Plex Mono) valem se a pessoa as tiver;
+// senão, Georgia e Courier, que todo sistema tem.
+const ESTILO_HTML = `
+:root{--papel:#f3efe6;--folha:#faf8f3;--tinta:#1c1b18;--tinta-2:#57534a;--tinta-3:#8a8578;--lapis:#b4412b;--linha:#d8d1c2}
+@media (prefers-color-scheme:dark){:root{--papel:#151412;--folha:#1b1a17;--tinta:#ece6d9;--tinta-2:#ada697;--tinta-3:#7c766a;--lapis:#e2694f;--linha:#34312b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--papel);color:var(--tinta);font:16px/1.55 "Hanken Grotesk",system-ui,sans-serif}
+main{max-width:46rem;margin:0 auto;padding:3.5rem 1.25rem 4rem}
+h1{font:400 2.6rem/1.1 Newsreader,Georgia,serif;margin:0 0 .75rem;letter-spacing:-.01em}
+.ficha{color:var(--tinta-2);font-size:.82rem;margin:0 0 2.5rem}
+.ficha p{margin:0}
+section{margin:0 0 1.75rem}
+h2{display:flex;align-items:center;gap:.75rem;margin:0 0 .6rem;font-size:.7rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--tinta-2)}
+h2::after{content:"";flex:1;height:1px;background:var(--linha)}
+pre{margin:0;font:14px/1.6 "IBM Plex Mono","Courier New",monospace;white-space:pre;overflow-x:auto}
+pre b{color:var(--lapis);font-weight:500}
+p.verso{margin:0 0 .9rem;font:1.2rem/1.55 Newsreader,Georgia,serif;white-space:pre-wrap}
+blockquote{margin:.75rem 0;padding:.5rem .8rem;border:1px dashed var(--tinta-3);color:var(--tinta-2);font-style:italic;font-size:.9rem;white-space:pre-wrap}
+footer{margin-top:3rem;color:var(--tinta-3);font-size:.75rem}
+@media print{body{background:#fff}main{padding:0}footer{display:none}}
+`;
+
+/**
+ * HTML: uma página só, com o estilo embutido, que abre sem internet em
+ * qualquer navegador e imprime bem. A seção com cifra vai num `<pre>` (cifra
+ * em `<b>`), que mantém o alinhamento; a importação lê de volta.
+ */
+export function paraHtml(c: CancaoParaExportar, opcoes: OpcoesDeExportacao): string {
+  const titulo = c.titulo.trim() || "Sem título";
+  const corpo: string[] = [`<h1>${html(titulo)}</h1>`];
+  if (opcoes.ficha) {
+    const ficha = linhasDaFicha(c);
+    if (ficha.length > 0) corpo.push(`<div class="ficha">${ficha.map((l) => `<p>${html(l)}</p>`).join("")}</div>`);
+  }
+  for (const t of roteiro(c.blocos, opcoes)) {
+    const partes: string[] = [];
+    if (t.rotulo !== null) partes.push(`<h2>${html(t.rotulo)}</h2>`);
+    let pre: string[] | null = null;
+    let estrofe: string[] = [];
+    const fecharPre = () => {
+      if (pre) partes.push(`<pre>${pre.join("\n")}</pre>`);
+      pre = null;
+    };
+    const fecharEstrofe = () => {
+      if (estrofe.length) partes.push(`<p class="verso">${estrofe.map(html).join("<br>")}</p>`);
+      estrofe = [];
+    };
+    for (const l of t.linhas) {
+      if (l.tipo === "nota") {
+        fecharPre();
+        fecharEstrofe();
+        partes.push(`<blockquote>${html(l.texto)}</blockquote>`);
+      } else if (l.tipo === "pausa") {
+        if (pre) (pre as string[]).push("");
+        else fecharEstrofe();
+      } else if (t.alinhado) {
+        pre ??= [];
+        (pre as string[]).push(l.tipo === "cifra" ? `<b>${html(l.texto)}</b>` : html(l.texto));
+      } else estrofe.push(l.texto);
+    }
+    fecharPre();
+    fecharEstrofe();
+    corpo.push(`<section>${partes.join("")}</section>`);
+  }
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Compoze">
+<title>${html(titulo)}</title>
+<style>${ESTILO_HTML}</style>
+</head>
+<body>
+<main>
+${corpo.join("\n")}
+<footer>${html(titulo)} · Compoze</footer>
+</main>
+</body>
+</html>
+`;
 }
 
 // ------------------------------------------------------------------ Word
@@ -386,6 +478,10 @@ export async function exportar(
   opcoes: OpcoesDeExportacao,
 ): Promise<{ nome: string; tipo: string; bytes: Uint8Array }> {
   const bytes =
-    formato === "pdf" ? await paraPdf(c, opcoes) : formato === "word" ? paraWord(c, opcoes) : strToU8(paraMarkdown(c, opcoes));
+    formato === "pdf"
+      ? await paraPdf(c, opcoes)
+      : formato === "word"
+        ? paraWord(c, opcoes)
+        : strToU8(formato === "html" ? paraHtml(c, opcoes) : paraMarkdown(c, opcoes));
   return { nome: nomeDoArquivo(c.titulo, formato), tipo: TIPO_DO_ARQUIVO[formato], bytes };
 }

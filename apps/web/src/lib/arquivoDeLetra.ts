@@ -32,10 +32,13 @@ export const ACEITOS = [
   ".chopro",
   ".chordpro",
   ".crd",
+  ".html",
+  ".htm",
   "application/pdf",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "application/vnd.oasis.opendocument.text",
   "text/markdown",
+  "text/html",
   "text/plain",
 ].join(",");
 
@@ -67,13 +70,16 @@ export async function lerArquivoDeLetra(arquivo: File): Promise<TextoDoArquivo> 
   if (ext === "doc") {
     throw new ArquivoRecusado("Arquivos .doc (Word antigo) não abrem aqui. No Word, salve como .docx e importe de novo.");
   }
+  if (ext === "html" || ext === "htm" || tipo === "text/html") {
+    return { texto: textoDoHtml(await arquivo.text()), formato: "markdown" };
+  }
   if (ext === "md" || ext === "markdown" || tipo === "text/markdown") {
     return { texto: await arquivo.text(), formato: "markdown" };
   }
   if (["txt", "cho", "chopro", "chordpro", "crd", "pro"].includes(ext) || tipo.startsWith("text/")) {
     return { texto: await arquivo.text(), formato: "texto" };
   }
-  throw new ArquivoRecusado("Este tipo de arquivo não é de letra. Use PDF, Word (.docx), Markdown ou texto.");
+  throw new ArquivoRecusado("Este tipo de arquivo não é de letra. Use PDF, Word (.docx), Markdown, HTML ou texto.");
 }
 
 // ------------------------------------------------------------------ Word
@@ -196,3 +202,59 @@ export function textoDoOdt(bytes: Uint8Array): string {
   bloco(corpo);
   return saida.join("\n");
 }
+
+// ------------------------------------------------------------------ HTML
+
+/** Elementos de dentro da linha: um `div` só com eles é um parágrafo. */
+const EM_LINHA = new Set(["span", "b", "i", "em", "strong", "a", "br", "small", "u", "mark", "sup", "sub", "code", "font", "s"]);
+
+/** O que não é texto da canção numa página. */
+const FORA_DO_TEXTO = new Set(["script", "style", "noscript", "template", "footer", "nav", "head", "svg", "button", "form"]);
+
+/**
+ * Texto de uma página HTML (ADR 0025), no mesmo Markdown leve dos outros
+ * formatos: `h1` é título, `h2`–`h6` seção, `pre` guarda a cifra alinhada,
+ * `blockquote` é nota. Parágrafo junta os espaços como o navegador faz,
+ * menos onde há `<br>`.
+ */
+export function textoDoHtml(fonte: string): string {
+  const doc = new DOMParser().parseFromString(fonte, "text/html");
+  const saida: string[] = [];
+
+  const linhaDe = (el: Element): string => {
+    let texto = "";
+    for (const n of el.childNodes) {
+      if (n.nodeType === 3) texto += (n.textContent ?? "").replace(/\s+/g, " ");
+      else if (n.nodeType === 1) {
+        const c = n as Element;
+        if (c.localName === "br") texto += "\n";
+        else if (!FORA_DO_TEXTO.has(c.localName)) texto += linhaDe(c);
+      }
+    }
+    return texto;
+  };
+  const limpa = (t: string) =>
+    t
+      .split("\n")
+      .map((l) => l.trim().replace(/^([#>])/, "\\$1"))
+      .join("\n")
+      .trim();
+
+  const bloco = (el: Element) => {
+    for (const c of el.children) {
+      const nome = c.localName;
+      if (FORA_DO_TEXTO.has(nome)) continue;
+      if (nome === "h1") saida.push(`# ${linhaDe(c).trim()}`, "");
+      else if (/^h[2-6]$/.test(nome)) saida.push(`## ${linhaDe(c).trim()}`, "");
+      else if (nome === "pre") saida.push("```", (c.textContent ?? "").replace(/\n$/, ""), "```", "");
+      else if (nome === "blockquote") saida.push(...limpa(linhaDe(c)).split("\n").map((l) => `> ${l}`), "");
+      else if (nome === "p" || nome === "li" || (nome === "div" && [...c.children].every((x) => EM_LINHA.has(x.localName)))) {
+        const t = limpa(linhaDe(c));
+        if (t) saida.push(t, "");
+      } else bloco(c);
+    }
+  };
+  bloco(doc.body);
+  return saida.join("\n");
+}
+

@@ -414,21 +414,27 @@ vira push.
 
 **Para quem usa:** trazer uma canção escrita em outro lugar e levar uma
 canção para fora. **Importar** fica em Canções (cria uma canção nova, como
-ideia) e no `…` do editor (põe na canção aberta: acrescenta no fim ou
+ideia; vários arquivos de uma vez viram uma canção cada, até 50) e no `…` do editor (põe na canção aberta: acrescenta no fim ou
 substitui a folha). Aceita PDF, Word, Markdown, texto e ChordPro, ou o texto
 colado de um site de cifras. Letra, cifra sobre a letra, acordes entre
 colchetes, seções, notas e a ficha (tom, andamento, compasso) vêm junto; o
 que não tem campo (capotraste, artista) vira nota. A prévia mostra como vai
-ficar antes de criar. **Exportar**, no `…` do editor, gera PDF (para
-imprimir), Markdown (texto puro, que volta sem perder nada) ou Word, com ou
-sem cifras, notas e ficha, em qualquer estágio. Funciona sem internet; no
+ficar antes de criar. **Exportar**, no `…` do editor ou de cada canção em
+Canções, gera PDF (para imprimir), Markdown (texto puro, que volta sem perder
+nada), Word ou HTML (uma página que abre em qualquer navegador), com ou sem
+cifras, notas e ficha, em qualquer estágio. Em Canções, **Selecionar** marca
+até 50 canções, que saem juntas num .zip. Funciona sem internet; no
 Android, o arquivo abre a folha de compartilhar.
 
 **Por dentro:** tudo no aparelho. `lib/arquivoDeLetra.ts` (Word/ODT com
 `fflate`), `lib/pdfParaTexto.ts` (pdf.js, com o acorde posicionado pela
 posição na página), `lib/importar.ts` (texto → blocos), `lib/exportar.ts`
-(roteiro → Markdown, .docx montado à mão, PDF com jsPDF),
+(roteiro → Markdown, .docx montado à mão, PDF com jsPDF, HTML com o CSS
+embutido), `lib/exportarVarias.ts` (lote: texto da cópia local ou do
+servidor, 3 pedidos por vez, zip com `fflate`),
 `lib/salvarArquivo.ts` (download ou `@capacitor/share`).
 
-**Decisão:** [ADR 0024](../decisoes/0024-importar-e-exportar.md). Telas:
+**Decisão:** [ADR 0024](../decisoes/0024-importar-e-exportar.md) e
+[ADR 0025](../decisoes/0025-html-e-exportar-varias.md) e
+[ADR 0026](../decisoes/0026-importar-varias.md). Telas:
 [canções](../telas/cancoes.md), [editor](../telas/editor.md).

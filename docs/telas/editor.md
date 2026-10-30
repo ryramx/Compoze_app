@@ -213,7 +213,7 @@ lixeira, e o diálogo avisa isso.
 ![Exportar a canção](imagens/exportar.webp)
 
 **Importar…** (menu `…`) traz para a canção aberta o conteúdo de um PDF,
-Word (.docx ou .odt), Markdown, texto ou ChordPro, ou um texto colado. A
+Word (.docx ou .odt), Markdown, HTML, texto ou ChordPro, ou um texto colado. A
 janela mostra a prévia; depois:
 
 - numa folha vazia (a folha pautada de uma canção nova), **Pôr na folha**;
@@ -232,7 +232,7 @@ O que a leitura reconhece:
 | O verso logo abaixo dela | ¶ Verso |
 | `[G]Quando a ci[D]dade` (acordes no verso, ChordPro) | ♯ Cifra alinhada + ¶ Verso |
 | `[Refrão]`, `REFRÃO:`, `Intro: G D`, `Verso 2`, `## Ponte`, `{start_of_chorus}` | § Seção (com a cifra que vier na mesma linha) |
-| `> texto`, `{comment: …}`, `Nota: …` | ※ Nota |
+| `> texto`, `{comment: …}`, `Nota: …`, `<blockquote>` | ※ Nota |
 | `Tom: G`, `BPM: 92`, `Compasso: 3/4`, `{key: G}` no topo | Ficha |
 | Artista, capotraste, afinação, composição | ※ Nota no começo, para nada se perder |
 | `# Título`, `{title: …}` ou a primeira linha igual ao nome do arquivo | Título |
@@ -252,6 +252,12 @@ imagem (digitalizado) e `.doc` antigo não abrem, e a janela diz por quê.
   arquivo de volta dá a mesma canção.
 - **Word (.docx)**: abre no Word, Google Docs e LibreOffice, com estilos
   nomeados (Cifra, Letra alinhada, Nota) e Courier New para o alinhamento.
+- **HTML**: uma página só, com o estilo do Caderno embutido (tema escuro
+  pelo sistema), que abre em qualquer navegador sem internet, imprime bem e
+  pode ir para um site. A importação lê de volta
+  ([ADR 0025](../decisoes/0025-html-e-exportar-varias.md)).
+
+![Canção exportada em HTML](imagens/exportar-html.webp)
 
 Em **Incluir**: Cifras, Notas para quem escreve junto e Ficha (tom,
 andamento, estágio e coautoria). A última escolha fica lembrada. No
