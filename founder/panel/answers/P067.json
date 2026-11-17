@@ -1,0 +1,13 @@
+{
+  "id": "P067",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Quando uma música vai pro Spotify eu preciso fechar a divisão com meu parceiro, e hoje isso é print de WhatsApp e um acordo de caderno. Se por R$ 9,90 eu saio com um PDF com o aceite de cada um, pago uma vez e pronto.",
+  "objection": "Não sei se a UBC, a ABRAMUS ou a distribuidora aceitam esse PDF. Se não aceitarem, foram R$ 9,90 jogados fora e eu ainda teria que refazer tudo.",
+  "would_change_my_mind": "Se a associação ou a distribuidora disser por escrito que aceita a folha de divisão do Compoze.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

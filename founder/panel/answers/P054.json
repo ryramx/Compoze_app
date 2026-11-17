@@ -1,0 +1,13 @@
+{
+  "id": "P054",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Eu escrevo com um parceiro em outra cidade e hoje me viro com WhatsApp, caderno e bloco de notas, que são grátis e já fazem o trabalho. Pagar R$ 9,90 por uma folha de divisão só faz sentido na hora de publicar, e eu ainda não sei se a canção vai sair do caderno.",
+  "objection": "Por que pagar se a versão grátis já faz quase tudo? A folha de divisão é um PDF que eu poderia montar num modelo de Word e mandar por e-mail para o parceiro assinar.",
+  "would_change_my_mind": "Se a associação ou a editora aceitasse a folha do Compoze como documento de divisão sem eu precisar refazer nada, e se eu já tivesse uma canção em vias de ser lançada com parceiro que mora longe.",
+  "price_too_cheap": 0,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

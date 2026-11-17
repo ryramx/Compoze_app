@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu já escrevo junto de graça, com offline e mural, e o bloco de notas do celular me serve. Memo de voz e exportar PDF são legais, mas não são o que me faz falta no dia a dia, então não pago R$ 9,90 por mês por isso agora.",
+  "objection": "Se a versão grátis já faz quase tudo, o que eu ganho de fato pagando? A parte de coautoria e registro eu ainda não entendi direito: o hash não substitui a Biblioteca Nacional, então não vejo onde isso me protege de verdade.",
+  "would_change_my_mind": "Se o Plus incluísse o certificado da divisão de coautoria, ou se eu visse um caso real de briga de percentual resolvido com esse registro, eu consideraria pagar.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 8,
+  "price_too_expensive": 12
+}

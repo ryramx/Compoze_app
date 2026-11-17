@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu vendo e cedo música pra artista e editora, então, quando uma canção sai do caderno, preciso mesmo de uma folha de divisão assinada por todo mundo. Pagar R$ 9,90 uma vez por canção, sem assinatura, cabe no meu mês; já pago mais que isso em café quando fecho uma parceria.",
+  "objection": "Se a associação e a editora vão aceitar esse PDF. 'Não substitui o registro oficial' me deixa com a pulga atrás da orelha: se eu pagar e na hora H o documento não servir, perdi dinheiro e prazo. Também não conheço o app e ainda não sei se meu parceiro, que mora longe, vai aceitar o link sem resistência.",
+  "would_change_my_mind": "Ver um exemplo da folha aceita pela UBC ou pela ABRAMUS, ou um depoimento de compositor que levou a folha pra associação e não teve problema.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 20,
+  "price_too_expensive": 35
+}

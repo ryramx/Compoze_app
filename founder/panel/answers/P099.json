@@ -1,0 +1,13 @@
+{
+  "id": "P099",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "timing",
+  "reason": "Escrever de graça eu topo, mas a folha só faz sentido quando uma canção vai mesmo sair do caderno. No primeiro mês eu provavelmente não tenho nenhuma pronta para sair, e num mês apertado R$ 9,90 parece mais uma coisa para cancelar depois.",
+  "objection": "Não sei se a UBC ou a editora aceitam esse PDF de verdade. Ele não substitui o registro, então eu ainda teria que fazer o registro oficial e levar a folha junto, e aí o custo some duas vezes.",
+  "would_change_my_mind": "Se eu já tiver uma música marcada para gravar ou lançar no mês e meu parceiro pedir a divisão por escrito, eu pago a folha na hora. Também mudaria se a associação ou a distribuidora dissesse por escrito que aceita o documento.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

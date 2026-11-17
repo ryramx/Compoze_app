@@ -1,0 +1,13 @@
+{
+  "id": "P038",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já fecho divisão no papel ou num PDF simples e mando pro parceiro pelo WhatsApp, e a associação nunca me pediu nada além disso. Não pago app há anos e R$ 9,90 por uma folha que não substitui o registro oficial me parece cobrar pelo que eu já faço de graça.",
+  "objection": "Se eu pagar, ainda vou ter que levar a folha pra UBC ou ABRAMUS e eles podem não aceitar. Pago R$ 9,90 e fico com um documento que não resolve o registro.",
+  "would_change_my_mind": "Uma confirmação da UBC ou da ABRAMUS, ou de uma distribuidora, de que aceitam a folha com aceite de cada coautor como documento de divisão.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 20
+}

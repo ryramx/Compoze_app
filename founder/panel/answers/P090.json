@@ -1,0 +1,13 @@
+{
+  "id": "P090",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "Eu lanço uma música por mês e já tive briga de percentual com parceiro. Se a divisão estiver assinada por cada um e com data registrada, pago os R$ 9,90 sem pensar. O bloco de notas não prova nada na hora da briga.",
+  "objection": "Um PDF com aceite de cada coautor vale mesmo na UBC, na ABRAMUS ou na distribuidora, ou é só mais um papel? Se a associação não reconhecer, perdi o dinheiro.",
+  "would_change_my_mind": "Se a UBC, a ABRAMUS ou a distribuidora dissessem por escrito que aceitam essa folha como prova de coautoria.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 30
+}

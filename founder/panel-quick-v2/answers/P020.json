@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Eu ganho uns R$ 1.000 por ano e só uso app grátis; R$ 9,90 por mês é mais de um décimo do que entra no meu ano. Compor a gente faz no caderno e no áudio do WhatsApp, e a folha de divisão eu só preciso quando alguém for registrar a música, o que nunca aconteceu comigo.",
+  "objection": "Um desenvolvedor só, app fora da Play Store cobrando anual, e se ele sumir? Mesmo com exportação grátis, eu ia ficar pensando se minhas letras estão seguras lá dentro.",
+  "would_change_my_mind": "Se a folha de divisão assinada em PDF viesse no plano grátis, ou se meus parceiros de banda já pagassem e a gente dividisse o custo.",
+  "price_too_cheap": 1,
+  "price_cheap": 2,
+  "price_expensive": 3,
+  "price_too_expensive": 4
+}

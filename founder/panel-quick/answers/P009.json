@@ -1,0 +1,13 @@
+{
+  "id": "P009",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Minhas letras inéditas são o que eu tenho de mais valioso e ainda não estão registradas. Não vou colocar isso na nuvem de um desenvolvedor independente que nem está na Play Store, mesmo que o plano grátis seja generoso. Eu usaria o grátis só para testar e nunca passaria as letras de verdade para lá.",
+  "objection": "Quem garante que minha letra inédita não fica guardada nos servidores de alguém, ou vaza, antes de eu registrar a obra? O hash ajuda, mas não substitui o registro e eu não entendo direito o que ele protege.",
+  "would_change_my_mind": "Deixar claro, em texto simples, que as letras ficam no meu aparelho e são criptografadas, que eu posso exportar tudo a qualquer momento e apagar a conta com os dados. Se eu usar o grátis três meses sem problema, aí eu consideraria o Plus.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 19,
+  "price_too_expensive": 35
+}

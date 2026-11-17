@@ -1,0 +1,13 @@
+{
+  "id": "P086",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "A ideia de ter a divisão fechada e documentada me interessa, porque já tive briga de coautoria. Mas sou desenvolvedor independente desconhecido, sem empresa por trás, e não vou pagar para uma folha que a UBC ou a editora pode nem aceitar sem o registro oficial, que o próprio texto diz que não substitui.",
+  "objection": "Se a UBC ou a editora não reconhecer a folha, eu paguei R$ 9,90 por um PDF bonito e ainda preciso refazer tudo no papel.",
+  "would_change_my_mind": "Ver uma folha de exemplo aceita por uma editora ou pela associação, ou um parceiro meu dizendo que já usou e funcionou.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 18,
+  "price_too_expensive": 30
+}

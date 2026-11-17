@@ -1,0 +1,13 @@
+{
+  "id": "P008",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu uso só app grátis e nunca paguei assinatura de app, fora o streaming. Esse é de um desenvolvedor só, fora da Play Store: se ele sumir, levo junto anos de letra e cifra.",
+  "objection": "Medo de perder as canções se o app sair do ar ou o desenvolvedor parar, sem ter como tirar tudo antes.",
+  "would_change_my_mind": "Estar na Play Store e eu conseguir tirar todas as minhas canções em arquivo a qualquer momento, mesmo sem pagar.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 8,
+  "price_too_expensive": 9
+}

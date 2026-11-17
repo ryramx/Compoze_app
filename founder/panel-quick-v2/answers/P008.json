@@ -1,0 +1,13 @@
+{
+  "id": "P008",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu uso só app grátis e nunca paguei assinatura de app além de streaming. Pelo que entendi, o que faz o Compoze útil de verdade, a folha de divisão, fica no Plus, e eu ainda não sei se a gente vai precisar disso agora.",
+  "objection": "App de um desenvolvedor só, de fora das grandes lojas, pode sumir e levar as minhas músicas. A promessa de exportar tudo é boa, mas eu teria que confiar que ela funciona na hora que eu precisar.",
+  "would_change_my_mind": "Se eu já tivesse registrado uma canção na UBC ou na ABRAMUS e a editora ou a distribuidora pedisse a folha de divisão assinada, eu pagaria R$ 79 no ano sem pensar duas vezes.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 15
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P005",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu nem tenho canção saindo do caderno ainda, então não preciso de folha de divisão agora. Escrever de graça é legal, mas pagar R$ 9,90 por um PDF que eu não vou levar pra UBC ou editora este mês não faz sentido pra quem ganha pouco e faz música por hobby.",
+  "objection": "Não sei se alguma das minhas músicas vai chegar a ser gravada ou publicada. Se não chegar, a folha é dinheiro jogado fora, e o combinado com meus parceiros hoje já funciona no WhatsApp.",
+  "would_change_my_mind": "Se uma canção minha fosse aceita por uma banda, editora ou produtor que exigisse a folha de divisão assinada pelos coautores antes de gravar.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 15
+}

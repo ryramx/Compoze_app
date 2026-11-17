@@ -1,0 +1,13 @@
+{
+  "id": "P006",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu uso o WhatsApp com meu parceiro e isso funciona, mesmo sendo bagunçado. Um app de um desenvolvedor só, fora da Play Store, me faria desconfiar de perder as músicas se ele sumir; não pago R$ 9,90 por mês para arriscar isso enquanto estou começando.",
+  "objection": "Se o app sumir ou o desenvolvedor parar, o que acontece com as canções e com o registro da coautoria?",
+  "would_change_my_mind": "Poder baixar todas as minhas canções em PDF ou texto a qualquer momento, sem assinar, e ver o app na Play Store ou com mais gente por trás dele.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 20
+}

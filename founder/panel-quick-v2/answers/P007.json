@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já resolvo com bloco de notas e WhatsApp, e nunca paguei assinatura de app além de streaming. R$ 9,90 por mês parece pouco, mas para mim é um app pago a mais que eu não tenho certeza de que vou usar de verdade.",
+  "objection": "A folha de divisão em PDF só vale se a associação, a editora ou a distribuidora realmente aceitarem o documento. Sem essa garantia, pago para gerar um papel que talvez nem precise.",
+  "would_change_my_mind": "Se eu visse que a folha assinada é aceita pela UBC ou pela ABRAMUS sem problema e se eu já tivesse um caso concreto de divisão de coautoria em disputa.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 9.9,
+  "price_too_expensive": 15
+}

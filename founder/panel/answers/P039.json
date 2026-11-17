@@ -1,0 +1,13 @@
+{
+  "id": "P039",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "Briga de coautoria já me custou parceria, então um documento com o aceite de cada um e o histórico de versões me interessa de verdade. Pago os R$ 9,90 só na música que for sair este mês, mas só depois de ver que a folha aceita o nome de quem escreveu cada trecho e que consigo exportar tudo.",
+  "objection": "Minhas letras ficam na nuvem de uma empresa pequena feita por um desenvolvedor sozinho. E se o Compoze fechar ou mudar de dono? Além disso, a folha não é o registro na UBC ou na ABRAMUS, então não sei se a associação vai aceitar o PDF sem problema.",
+  "would_change_my_mind": "Ver a folha de exemplo de uma canção real, com o aceite de cada coautor, e saber que consigo baixar tudo antes de pagar qualquer coisa.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 15,
+  "price_too_expensive": 30
+}

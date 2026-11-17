@@ -1,0 +1,13 @@
+{
+  "id": "P009",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Não compro agora. Eu já tenho meu caderno e o Cifra Club, que funcionam, e um app de um desenvolvedor só fora da Play Store me dá medo de perder as letras que eu escrevi com meus parceiros. Pagar R$ 9,90 por uma folha de divisão também pesa, porque lanço uma música por mês e meu orçamento é curto.",
+  "objection": "E se o app sumir ou o desenvolvedor largar o projeto? A promessa de exportar tudo e avisar com 90 dias ajuda, mas eu ainda teria que confiar num app que não conheço e que não está na Play Store.",
+  "would_change_my_mind": "Ver uma folha de divisão feita no Compoze aceita pela distribuidora ou pela UBC/ABRAMUS, por um compositor que eu conheço, e poder baixar tudo antes de pagar qualquer coisa.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu nem tenho canção saindo do caderno ainda, então não preciso de folha de divisão agora. Escrevo sozinha de madrugada e o bloco de notas do celular já faz o que preciso, de graça.",
+  "objection": "Pagar R$ 9,90 por uma folha para algo que eu nem sei se vai render dinheiro. E ainda ter que convencer parceiro a entrar num app.",
+  "would_change_my_mind": "Uma canção minha entrar de verdade numa editora ou ser tocada e cobrar direitos, e aí a associação pedir o documento de divisão.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

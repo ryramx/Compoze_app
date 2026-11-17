@@ -1,0 +1,13 @@
+{
+  "id": "P088",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu escrevo com a minha parceira de madrugada no bloco de notas e a gente só pensa em papel quando a música já está pronta para sair. Uma folha de divisão feita num app, com um código de integridade, me parece um comprovante que a associação ainda pode não aceitar, então não vejo por que pagar agora.",
+  "objection": "Esse hash não vale nada, o registro de verdade é na Biblioteca Nacional ou na associação. Se eu pagar e na hora de registrar a UBC pedir outra coisa, o dinheiro foi embora.",
+  "would_change_my_mind": "Se a UBC ou a ABRAMUS confirmarem por escrito que aceitam a folha de divisão do Compoze como prova de divisão de coautoria, eu pago na primeira música que sair do caderno.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 19,
+  "price_too_expensive": 30
+}

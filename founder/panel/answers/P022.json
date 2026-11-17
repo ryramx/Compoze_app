@@ -1,0 +1,13 @@
+{
+  "id": "P022",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu gosto da ideia de deixar a divisão fechada antes de dar briga com a banda, e R$ 9,90 é pouco. Mas um hash guardado num site não me convence de que isso vale alguma coisa na hora de registrar: quem decide é a Biblioteca Nacional ou a associação, e até agora eu nunca precisei de papel nenhum para uma música. Não compro antes de ter uma música saindo de verdade.",
+  "objection": "Se a associação ou a distribuidora não reconhece esse documento, eu paguei por um PDF bonito que não serve para nada.",
+  "would_change_my_mind": "Uma confirmação clara de que UBC, ABRAMUS ou a minha distribuidora aceitam a folha de divisão como comprovante de coautoria.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 19,
+  "price_too_expensive": 35
+}

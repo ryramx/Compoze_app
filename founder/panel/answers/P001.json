@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "timing",
+  "reason": "Eu escrevo muito, mas a maioria das canções ainda não vai sair do caderno, então não tenho motivo para pagar R$ 9,90 agora. Também não largo meu bloco de notas e meu áudio do WhatsApp por um app novo só para isso.",
+  "objection": "Essa folha de divisão vale na associação, na editora e na distribuidora? Se eles não aceitarem, eu paguei por um PDF bonito e fiquei na mesma.",
+  "would_change_my_mind": "Se uma distribuidora ou a UBC/ABRAMUS me pedir a folha assinada antes de liberar uma música, eu compro na hora.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 18,
+  "price_too_expensive": 35
+}

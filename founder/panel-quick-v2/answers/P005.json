@@ -1,0 +1,13 @@
+{
+  "id": "P005",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já tenho o Cifra Club para cifra e o caderno para letra, e funciona. Não vejo motivo para pagar para mudar a forma como escrevo com a banda, ainda mais para uma folha de divisão que eu nem sei se preciso agora.",
+  "objection": "Um app de um desenvolvedor só pode sumir e levar as minhas músicas junto. O aviso de 90 dias e a exportação grátis ajudam, mas ainda fico com medo de confiar a letra da banda a um app assim.",
+  "would_change_my_mind": "Se a banda fechar uma parceria ou um lançamento que exija a folha de divisão assinada e eu já tiver que levar o documento para a UBC ou a distribuidora, aí eu pagaria.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

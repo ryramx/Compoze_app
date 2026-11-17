@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu co-escrevo quase tudo com parceiro e, quando a música sai, a divisão vira briga se ninguém tiver anotado. Pagar R$ 9,90 uma vez por uma folha com aceite de cada um é barato comparado a perder uma parceria ou um repasse da UBC. Só compraria se fosse uma música que de fato vai sair.",
+  "objection": "Um dev só, app fora do ar ou abandonado e eu perdendo as letras. O 'exporta tudo grátis' ajuda, mas eu ia querer ver isso funcionando antes de confiar a canção inteira ali.",
+  "would_change_my_mind": "Ver que a folha é aceita pela UBC/ABRAMUS ou pela editora que eu uso, ou um sinal de que o projeto tem empresa por trás e não é um dev sozinho.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

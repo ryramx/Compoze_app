@@ -1,0 +1,13 @@
+{
+  "id": "P048",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu escrevo com meus parceiros, mas um PDF da própria plataforma não prova nada para a associação. Se a divisão não é registrada na Biblioteca Nacional ou no UBC/ABRAMUS, eu pagaria por um papel que não resolve o que me preocupa, e ainda sou de usar só app grátis.",
+  "objection": "Isso não é o registro oficial. Se eu pagar R$ 9,90 e a associação ou a distribuidora não aceitar o documento, o dinheiro foi embora.",
+  "would_change_my_mind": "A UBC ou a ABRAMUS, ou a distribuidora que eu uso, dizer por escrito que aceita a folha de divisão como documento para cadastrar a música.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P084",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "A ideia de dividir a autoria com registro é exatamente o que eu queria, mas um app de um dev só fora da Play Store é o que me faz desconfiar. Eu não colocaria minhas letras num lugar que eu não sei se vai existir daqui a dois anos, mesmo com a promessa de exportação grátis.",
+  "objection": "Se o app sumir ou o desenvolvedor desistir, minhas canções e o histórico de aceites ficam presos num sistema que eu não controlo. E não tenho como saber se a folha tem valor de verdade para a UBC ou a editora sem tentar.",
+  "would_change_my_mind": "Ver a folha de divisão de uma canção minha aceita por uma associação ou editora, ou um app na Play Store com nome de empresa e histórico público.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 19,
+  "price_too_expensive": 35
+}

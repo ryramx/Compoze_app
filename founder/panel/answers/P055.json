@@ -1,0 +1,13 @@
+{
+  "id": "P055",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo com parceiro no bloco de notas e no áudio do WhatsApp e funciona. A divisão só me importa quando a música sai, e até lá não pago por um documento que ainda não preciso.",
+  "objection": "Ainda não sei se a associação e a editora aceitam uma folha feita por um app independente, e não quero gastar para descobrir que não serve.",
+  "would_change_my_mind": "Se uma música com parceiro estiver para ser lançada ou inscrita e a UBC ou a distribuidora pedir uma folha de divisão assinada por todos.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

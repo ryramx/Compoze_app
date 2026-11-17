@@ -1,0 +1,13 @@
+{
+  "id": "P041",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já escrevo no bloco de notas e mando áudio no WhatsApp e isso resolve. Pagar R$ 9,90 por uma folha de divisão só faria sentido se a distribuidora ou a associação me pedissem, e até hoje ninguém pediu.",
+  "objection": "Não sei se um PDF que eu mesma gerei vale alguma coisa para a UBC ou a distribuidora. Se não aceitarem, paguei por nada.",
+  "would_change_my_mind": "Uma distribuidora ou a associação exigir a divisão assinada antes de liberar uma música que escrevi com parceiros.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

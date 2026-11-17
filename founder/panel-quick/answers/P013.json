@@ -1,0 +1,13 @@
+{
+  "id": "P013",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "O grátis já cobre o que eu uso no dia a dia: canções, escrever junto com meu parceiro e offline. Não pago R$ 9,90 por um hash que, pelo que entendi, não substitui o registro de verdade na Biblioteca Nacional ou na associação.",
+  "objection": "Esse hash não vale nada, o registro de verdade é na Biblioteca Nacional ou na associação.",
+  "would_change_my_mind": "Se a associação ou a Biblioteca Nacional aceitasse esse hash como prova de autoria.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 22
+}

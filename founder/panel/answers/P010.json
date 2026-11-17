@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "A briga de quem fica com quanto da música acontece depois que ela já saiu, e uma folha assinada por todo mundo antes do lançamento me poupava essa dor de cabeça. Pago R$ 9,90 por uma canção que vai para a associação sem pensar duas vezes, mas só quando ela realmente vai sair do caderno.",
+  "objection": "Meus parceiros nunca vão instalar mais um app, e o PDF não é o registro oficial, então ainda vou ter que ir na UBC ou na ABRAMUS de qualquer jeito. Se o aceite travar com um dos coautores, a folha não serve para nada.",
+  "would_change_my_mind": "Se o link no navegador fosse tão simples que o parceiro aceitasse em um toque, sem criar conta, eu compraria já na primeira canção.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 30
+}

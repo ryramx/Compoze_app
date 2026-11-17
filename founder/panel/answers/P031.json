@@ -1,0 +1,13 @@
+{
+  "id": "P031",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Não pago pelo bloco de notas, mas quando uma canção minha com parceiro vai pro streaming a divisão precisa estar por escrito, e já tive briga por causa disso. Pagar R$ 9,90 uma vez para ter a folha com aceite de cada um faz sentido nessa hora, não antes.",
+  "objection": "Se a UBC ou a ABRAMUS vão mesmo aceitar um PDF de um app independente. Se eu pagar e o documento for recusado, perdi o dinheiro e a briga continua.",
+  "would_change_my_mind": "Uma confirmação clara da UBC, da ABRAMUS ou da minha distribuidora de que aceitam essa folha de divisão.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 19,
+  "price_too_expensive": 35
+}

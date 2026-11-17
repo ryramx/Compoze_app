@@ -1,0 +1,13 @@
+{
+  "id": "P019",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já componho no bloco de notas e no WhatsApp com os meus parceiros, e funciona. Não vejo motivo para pagar só para ter uma folha de divisão que eu nem preciso agora.",
+  "objection": "Eu não sei se meus parceiros vão aceitar assinar um PDF por um app novo. Pra mim a divisão é um acordo de confiança e um print no grupo resolve, até o dia em que alguém discorda.",
+  "would_change_my_mind": "Se uma editora ou a UBC/ABRAMUS pedisse a folha de divisão assinada para registrar uma música que já está rendendo, eu pagaria na hora.",
+  "price_too_cheap": 2,
+  "price_cheap": 6,
+  "price_expensive": 14,
+  "price_too_expensive": 22
+}

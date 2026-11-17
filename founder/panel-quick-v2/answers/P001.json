@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu entendo o problema de coautoria, já vi briga por causa disso, mas o Plus é para quem já tem música pronta para registrar. Eu escrevo de madrugada no bloco de notas e a versão grátis já salva e exporta tudo, então não sinto que preciso pagar agora.",
+  "objection": "Por que pagar se a versão grátis já faz quase tudo? A folha de divisão só me serve quando a música vai para a associação ou a editora, e eu ainda não chego lá.",
+  "would_change_my_mind": "Se um parceiro me pedisse a folha assinada antes de gravar, ou se eu já tivesse uma canção em vias de registro, eu pagaria o Plus.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 20
+}

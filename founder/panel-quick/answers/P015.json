@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "A ideia de coautoria dentro da obra me interessa, porque já vi briga feia por percentual. Mas não pago por um app de um desenvolvedor só, fora da Play Store, para guardar letra e cifra que eu não consigo tirar de lá com facilidade. O plano grátis já cobre o que eu preciso para começar, então não tenho motivo para assinar agora.",
+  "objection": "E se o app sumir, o desenvolvedor parar ou a pessoa sair do projeto? Minhas músicas e o histórico de quem escreveu cada trecho ficam presos ali, e o hash não me protege se eu não tiver o arquivo na mão.",
+  "would_change_my_mind": "Poder exportar tudo (letra, cifra, histórico e divisão de coautoria) em arquivo aberto, a qualquer momento e sem assinatura, mais um compromisso claro de como fica o acervo se o projeto parar, e idealmente o app na Play Store.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 19,
+  "price_too_expensive": 29
+}

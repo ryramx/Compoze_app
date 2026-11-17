@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "A versão grátis já faz quase tudo que eu preciso: escrevo junto com meus parceiros, uso offline e tenho canções e mural ilimitados. Pagar R$ 9,90 só por memos de voz ilimitados e histórico maior não me convence, principalmente porque eu testo um app por semana e largo a maioria.",
+  "objection": "Não sei se o código de integridade vale alguma coisa de verdade. Ele é a base para o registro, mas não substitui o registro na Biblioteca Nacional ou na associação, e eu não quero pagar por uma proteção que eu ainda teria que fazer por fora. Também é estranho instalar um APK do site, sem Play Store.",
+  "would_change_my_mind": "Se o limite grátis de 30 min de memos ou de 30 dias de histórico começasse a me fazer perder material de verdade, ou se um dos meus parceiros exigisse o certificado da divisão em PDF para registrar a música.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

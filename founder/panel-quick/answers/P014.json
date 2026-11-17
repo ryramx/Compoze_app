@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já componho no grupo do WhatsApp com a banda e isso funciona. Os memos de voz ilimitados seriam útil, mas não é o bastante para eu migrar meus parceiros para outro lugar e pagar por isso.",
+  "objection": "Por que pagar se a versão grátis já faz quase tudo? E um app que ainda não está na Play Store, de um desenvolvedor independente, pede que eu convença todo mundo a mudar de ferramenta.",
+  "would_change_my_mind": "Se meus parceiros já estivessem usando e os 30 minutos de memos grátis acabassem no meio do trabalho, eu pagaria o Plus.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

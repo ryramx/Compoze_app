@@ -1,0 +1,13 @@
+{
+  "id": "P074",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo de madrugada no bloco de notas e meu caderno de papel funciona; não tenho nenhuma canção saindo do caderno esta semana, então não há o que pagar agora. R$ 9,90 por canção é barato, mas pagar por um PDF antes de precisar dele não faz sentido na minha rotina.",
+  "objection": "Se a associação (UBC, ABRAMUS) ou a editora vão aceitar um PDF feito por um app de um desenvolvedor independente. Não quero descobrir na hora do registro que o documento não serve.",
+  "would_change_my_mind": "Um parceiro meu ou uma editora pedir a folha de divisão de uma música que já vai ser registrada, e eu ver que a associação aceita esse PDF.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 19,
+  "price_too_expensive": 35
+}

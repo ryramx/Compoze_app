@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu não vejo valor num hash: quem decide se a música é minha é a Biblioteca Nacional ou a associação, e o próprio texto diz que o Compoze não substitui isso. Sem uma prova que a associação ou a editora aceite, não pago R$ 9,90 por mês por um PDF que eu ainda teria que levar para outro lugar.",
+  "objection": "Um documento com hash e assinatura dos parceiros vale alguma coisa de verdade na hora de cobrar direitos ou de fechar com editora, ou é só um papel bonito que a associação vai pedir para eu refazer?",
+  "would_change_my_mind": "Se a UBC ou a ABRAMUS, ou uma editora que eu já conheço, confirmar por escrito que aceita essa folha de divisão como prova de coautoria, eu assino na hora.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 20
+}

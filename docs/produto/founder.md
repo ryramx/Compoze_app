@@ -26,3 +26,10 @@ rodada completa de 100.
 Limites ditos pelo próprio pacote: o painel são compradores simulados, não
 clientes reais (leia a taxa de compra como teto), e os números são projeções.
 Não é conselho financeiro, jurídico ou fiscal.
+
+## Primeira rodada (17 nov. 2026)
+
+O pacote completo rodou sobre o Compoze. Resultado em [`founder/business-plan.md`](../../founder/business-plan.md)
+e o resumo em [`founder/summary.md`](../../founder/summary.md). Veredito calculado: **Ainda não**
+(20% de compra simulada, barra de 25%). A assinatura mensal deu 0% em duas rodadas; pagar por canção
+(folha de divisão) deu 20%, com 80% entre compositores de mercado. Próximo passo: teste real com PIX.

@@ -1,0 +1,13 @@
+{
+  "id": "P094",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Não quero minhas letras inéditas guardadas na nuvem de alguém, e ainda não tenho canção pronta para sair do caderno. Se eu não vou registrar nada agora, não faz sentido pagar.",
+  "objection": "Medo de perder o controle sobre letras que ainda não foram publicadas, e de não saber direito quem tem acesso a elas na nuvem do Compoze.",
+  "would_change_my_mind": "Ver que as letras ficam só no meu aparelho ou que dá para usar offline sem subir nada para a nuvem, e ter uma parceria real com a canção já pronta para sair.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

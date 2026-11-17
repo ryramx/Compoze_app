@@ -1,0 +1,13 @@
+{
+  "id": "P023",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo com meus parceiros no bloco de notas e no áudio do WhatsApp e isso funciona para mim há anos, de graça. Só pensaria em pagar quando uma música fosse sair, e aí ainda não sei se R$ 9,90 de PDF faz diferença de verdade.",
+  "objection": "Não tenho certeza de que a folha de divisão vale alguma coisa para a associação ou a editora, já que o próprio texto diz que ela não substitui o registro oficial.",
+  "would_change_my_mind": "Se a UBC ou a ABRAMUS aceitasse a folha como documento de divisão no registro, eu pagaria na hora da música sair.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

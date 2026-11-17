@@ -1,0 +1,13 @@
+{
+  "id": "P025",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu e meus parceiros resolvemos tudo pelo WhatsApp e pelo grupo da banda, e a canção só vira problema quando alguém quer gravar ou levar para editora. Até lá, R$ 9,90 por uma folha de divisão não me faz falta, e o mês tá apertado.",
+  "objection": "Não tenho certeza se a folha de divisão de vocês é aceita de verdade pela UBC ou pela ABRAMUS. Se o documento não substitui o registro oficial, pode ser só mais um papel que eu pago e depois descubro que não resolve.",
+  "would_change_my_mind": "Se uma canção minha estiver para ser gravada ou lançada e a editora ou a associação confirmar que aceita essa folha, eu compro na hora.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P012",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu escrevo no bloco de notas e no áudio do WhatsApp e isso ainda funciona. A folha de divisão só me faria falta quando uma canção for registrada ou entrar numa editora, e até hoje isso não aconteceu com a minha parceria.",
+  "objection": "Não sei se a folha assinada pelo app vale o mesmo que um acordo combinado por escrito entre a gente; a associação pode nem olhar para ela, e eu pagaria sem saber se serve.",
+  "would_change_my_mind": "Uma editora ou a UBC/ABRAMUS pedindo a folha de divisão de uma música minha, ou um parceiro discordando da divisão e eu precisando de prova.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

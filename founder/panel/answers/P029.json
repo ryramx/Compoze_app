@@ -1,0 +1,13 @@
+{
+  "id": "P029",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Minha letra inédita não vai pra nuvem de ninguém se eu não conhecer quem está do outro lado. Eu resolvo a divisão no grupo da banda com áudio e foto do caderno, e funciona. Não vejo motivo pra pagar por um PDF que eu ainda não sei se a UBC ou a editora aceita.",
+  "objection": "Não quero minhas letras e melodias guardadas num app de uma pessoa só, ainda mais antes de a música sair. E não sei se o PDF da folha de divisão tem valor de verdade na associação ou se é só um papel bonito.",
+  "would_change_my_mind": "Se ficar claro que a canção fica só entre os coautores, que dá pra exportar tudo offline sem depender do app, e que a associação ou a editora aceita o PDF sem reclamar.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 20,
+  "price_too_expensive": 35
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já tentei Notion e Google Docs e larguei. O que me segura no WhatsApp é que todo mundo da banda já está lá, e não vou convencer meus parceiros a abrir mais um app só para escrever letra. Pagar R$ 9,90 só faria sentido se os memos de voz fossem o meu gargalo, e não são.",
+  "objection": "Meus parceiros nunca vão instalar mais um app, e eu não vou ser a única pessoa escrevendo ali.",
+  "would_change_my_mind": "Se os dois parceiros com quem eu mais escrevo já estivessem usando, e eu batesse no limite de 30 minutos de memo de voz no meio de uma ideia que gravei dirigindo.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P018",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "timing",
+  "reason": "A ideia é boa e a divisão de coautoria dói de verdade quando não está fechada, mas eu só preciso da folha quando uma música vai para a associação ou editora. No resto do mês, o caderno e o Cifra Club resolvem, e pagar R$ 9,90 todo mês por uma coisa que uso uma vez a cada tanto parece dinheiro jogado fora num mês apertado.",
+  "objection": "Não sei se um app novo vai guardar bem as minhas canções e se a folha em PDF vai ser aceita pela UBC ou pela editora sem problema. Também desconfio de 'primeiro mês grátis' que vira cobrança sem eu perceber.",
+  "would_change_my_mind": "Uma parceria real chegando na associação ou na editora, com a divisão ainda em aberto, e a certeza de que a folha em PDF é aceita por eles. Se eu puder pagar só no mês em que preciso e cancelar sem burocracia, eu compro.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 20
+}

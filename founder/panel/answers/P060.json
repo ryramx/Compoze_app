@@ -1,0 +1,13 @@
+{
+  "id": "P060",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Já tive briga com parceiro de canção porque ninguém tinha anotado quem fez o quê, e a história virou 'eu lembro diferente'. Uma folha com aceite de cada um e data é exatamente o que eu queria ter, então pagar R$ 9,90 por uma canção que vai para a associação faz sentido.",
+  "objection": "Se um dos parceiros não entrar no link ou não aceitar a divisão, a folha não fecha e eu fico igual. Também não sei se a UBC ou a ABRAMUS aceitam esse PDF de verdade ou se só vão olhar torto para um documento de app.",
+  "would_change_my_mind": "Ver um exemplo de folha que a UBC ou a ABRAMUS já tenha aceitado, ou a confirmação de que o PDF é reconhecido por elas.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

@@ -1,0 +1,67 @@
+{
+  "business": "Compoze (folha de divisão por canção; escrever é grátis)",
+  "unit": "folha de divisão (uma canção)",
+  "price": 14.9,
+  "variable": [
+    {
+      "label": "Mercado Pago (mix 70% PIX a 0,99% + 30% cartão a 4,98%)",
+      "cost": 0.22
+    },
+    {
+      "label": "Gerar e guardar o PDF (servidor e banco, por folha)",
+      "cost": 0.05
+    }
+  ],
+  "fixed_monthly": [
+    {
+      "label": "Render Starter para a API (US$ 7, estimativa a R$ 5,70/US$)",
+      "cost": 40
+    },
+    {
+      "label": "Neon pago quando passar de 0,5 GB (estimativa US$ 19)",
+      "cost": 108
+    },
+    {
+      "label": "MEI: DAS mensal (estimativa 2026, serviços)",
+      "cost": 86
+    },
+    {
+      "label": "Domínio .com.br (R$ 40/ano)",
+      "cost": 3.33
+    }
+  ],
+  "startup": [
+    {
+      "label": "Conta de desenvolvedor Google Play (US$ 25)",
+      "cost": 143
+    },
+    {
+      "label": "Domínio próprio (primeiro ano)",
+      "cost": 40
+    },
+    {
+      "label": "Abertura do MEI",
+      "cost": 0
+    },
+    {
+      "label": "Anúncios de teste no lançamento",
+      "cost": 300
+    }
+  ],
+  "days_per_month": 1,
+  "plan_per_day": 60,
+  "ramp_per_day": [
+    3,
+    5,
+    8,
+    11,
+    14,
+    18,
+    22,
+    26,
+    31,
+    36,
+    42,
+    48
+  ]
+}

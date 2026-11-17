@@ -1,0 +1,13 @@
+{
+  "id": "P070",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo com meus parceiros no grupo do WhatsApp e isso funciona, então não sinto falta de um app. Pagar R$ 9,90 faria sentido só quando uma canção fosse sair de verdade e alguém pedisse a divisão por escrito.",
+  "objection": "Meus parceiros nunca vão instalar mais um app, e não sei se a folha de divisão feita aqui é aceita pela UBC ou ABRAMUS como documento de verdade.",
+  "would_change_my_mind": "Se os meus parceiros já estivessem usando e uma canção minha fosse entrar na distribuidora ou na editora nos próximos dias, aí eu pagaria a folha na hora.",
+  "price_too_cheap": 1,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

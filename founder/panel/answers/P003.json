@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu ainda nao tenho nenhuma parceria fechada que precise de folha de divisao, e minhas letras inéditas sao o que mais tenho de valor. Nao quero colocar isso num servico que eu nao conheço, mesmo que o texto diga que so os coautores veem.",
+  "objection": "Quem garante que minhas letras inéditas ficam so comigo e com meus parceiros? A promessa de exportacao e de aviso com 90 dias se fechar me deixa mais tranquila, mas ainda assim é uma empresa independente guardando o que eu escrevo.",
+  "would_change_my_mind": "Se eu pudesse ver um exemplo real da folha de divisao em PDF e saber que a letra fica no meu aparelho ou que eu consigo tirar tudo antes de decidir, e se a associacao de fato aceitasse esse documento.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

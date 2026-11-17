@@ -1,0 +1,13 @@
+{
+  "id": "P024",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo no bloco de notas e de madrugada, e nunca paguei nada de app que não seja streaming. A divisão só importa quando a música sai do caderno, e as minhas ainda não saíram, então R$ 9,90 por uma coisa que não preciso agora não faz sentido pra mim.",
+  "objection": "Não preciso do papel agora. Se eu pagar, vai ser por uma música que nem sei se vai pra frente, e quem garante que a associação aceita esse PDF do jeito que eles querem?",
+  "would_change_my_mind": "Se uma música minha com parceiros fosse entrar numa gravação ou ser lançada e alguém pedisse a divisão assinada por escrito.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

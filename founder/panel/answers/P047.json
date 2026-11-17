@@ -1,0 +1,13 @@
+{
+  "id": "P047",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu sempre fiz tudo de graça e minha dupla e eu a gente escreve no bloco de notas e se entende de boa. Não vejo a dor agora, e pagar R$ 9,90 por algo que só preciso quando a música sai parece mais uma conta num mês de bar parado.",
+  "objection": "Não sei se a UBC ou a editora vão aceitar essa folha. Se eu pagar e no fim ela não serve pra nada, perdi dinheiro e ainda tenho que fazer a divisão de novo.",
+  "would_change_my_mind": "Se uma editora ou a distribuidora pedir a folha de divisão pra liberar uma música minha, e eu souber que a associação aceita esse PDF.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 14,
+  "price_too_expensive": 20
+}

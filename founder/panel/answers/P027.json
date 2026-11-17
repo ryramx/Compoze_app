@@ -1,0 +1,13 @@
+{
+  "id": "P027",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo com bloco de notas e áudio de WhatsApp e nunca paguei app além de streaming. Pagar R$ 9,90 só quando a música sai do caderno faz sentido, mas agora nenhuma das minhas músicas está saindo, então não tenho motivo para pagar no primeiro mês.",
+  "objection": "Por que pagar se a versão grátis já faz quase tudo? E um PDF de divisão com aceite de coautor tem valor de verdade na associação ou na editora, ou é só mais um papel?",
+  "would_change_my_mind": "Uma música minha e da minha dupla estar prestes a ser lançada e a editora ou distribuidora pedir a folha de divisão assinada.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 20
+}

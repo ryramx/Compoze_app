@@ -1,0 +1,222 @@
+[
+ {
+  "id": "P001",
+  "name": "Mason",
+  "age": 42,
+  "segment": "Estudante ou iniciante que compõe por hobby",
+  "income": 16000,
+  "behaviour": "Desconfiado com direitos",
+  "behaviour_how": "Já brigou ou viu briga por coautoria e percentual; quer prova de quem escreveu.",
+  "objection": "Por que pagar se a versão grátis já faz quase tudo?",
+  "habit": "você escreve letras de madrugada no bloco de notas do celular"
+ },
+ {
+  "id": "P002",
+  "name": "Elle",
+  "age": 42,
+  "segment": "Estudante ou iniciante que compõe por hobby",
+  "income": 19000,
+  "behaviour": "Fiel ao grátis",
+  "behaviour_how": "Usa só app gratuito; nunca pagou assinatura de app além de streaming.",
+  "objection": "O bloco de notas e o WhatsApp já resolvem",
+  "habit": "você grava ideias de melodia no celular enquanto dirige ou no ônibus"
+ },
+ {
+  "id": "P003",
+  "name": "Dana",
+  "age": 28,
+  "segment": "Estudante ou iniciante que compõe por hobby",
+  "income": 20000,
+  "behaviour": "Parceiro de WhatsApp",
+  "behaviour_how": "Compõe mandando áudio e foto de caderno no grupo da banda; resolve tudo ali.",
+  "objection": "App de fora da Play Store, de um desenvolvedor só, pode sumir e levar minhas músicas",
+  "habit": "você participa de um grupo de compositores no WhatsApp"
+ },
+ {
+  "id": "P004",
+  "name": "Noah",
+  "age": 45,
+  "segment": "Estudante ou iniciante que compõe por hobby",
+  "income": 15000,
+  "behaviour": "Testa tudo",
+  "behaviour_how": "Baixa apps novos de música, testa uma semana e larga a maioria.",
+  "objection": "R$ 9,90 por mês é mais uma assinatura num mês apertado",
+  "habit": "você tem uma banda que ensaia aos sábados num estúdio alugado por hora"
+ },
+ {
+  "id": "P005",
+  "name": "Ana",
+  "age": 35,
+  "segment": "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+  "income": 35000,
+  "behaviour": "Leal ao Cifra Club e ao caderno",
+  "behaviour_how": "Usa Cifra Club para cifra e caderno de papel para letra; não vê motivo para mudar.",
+  "objection": "App de fora da Play Store, de um desenvolvedor só, pode sumir e levar minhas músicas",
+  "habit": "você tem uma banda que ensaia aos sábados num estúdio alugado por hora"
+ },
+ {
+  "id": "P006",
+  "name": "Nadia",
+  "age": 37,
+  "segment": "Estudante ou iniciante que compõe por hobby",
+  "income": 26000,
+  "behaviour": "Parceiro de WhatsApp",
+  "behaviour_how": "Compõe mandando áudio e foto de caderno no grupo da banda; resolve tudo ali.",
+  "objection": "App de fora da Play Store, de um desenvolvedor só, pode sumir e levar minhas músicas",
+  "habit": "você compõe com um parceiro que mora em outra cidade"
+ },
+ {
+  "id": "P007",
+  "name": "Isla",
+  "age": 20,
+  "segment": "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+  "income": 44000,
+  "behaviour": "Fiel ao grátis",
+  "behaviour_how": "Usa só app gratuito; nunca pagou assinatura de app além de streaming.",
+  "objection": "O bloco de notas e o WhatsApp já resolvem",
+  "habit": "você tem uma banda que ensaia aos sábados num estúdio alugado por hora"
+ },
+ {
+  "id": "P008",
+  "name": "Tariq",
+  "age": 43,
+  "segment": "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+  "income": 62000,
+  "behaviour": "Fiel ao grátis",
+  "behaviour_how": "Usa só app gratuito; nunca pagou assinatura de app além de streaming.",
+  "objection": "App de fora da Play Store, de um desenvolvedor só, pode sumir e levar minhas músicas",
+  "habit": "você compõe com um parceiro que mora em outra cidade"
+ },
+ {
+  "id": "P009",
+  "name": "Caleb",
+  "age": 34,
+  "segment": "Compositor profissional do mercado (sertanejo, gospel, pagode) que vende ou cede músicas",
+  "income": 166000,
+  "behaviour": "Organizado",
+  "behaviour_how": "Já tentou Notion, Google Docs ou pastas para organizar letras e desistiu.",
+  "objection": "Não quero minhas letras inéditas na nuvem de alguém",
+  "habit": "você tem uma banda que ensaia aos sábados num estúdio alugado por hora"
+ },
+ {
+  "id": "P010",
+  "name": "Freya",
+  "age": 34,
+  "segment": "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+  "income": 63000,
+  "behaviour": "Compra ferramenta de trabalho",
+  "behaviour_how": "Paga por plugin, curso ou app quando vê que economiza tempo ou dá dinheiro.",
+  "objection": "Esse hash não vale nada, o registro de verdade é na Biblioteca Nacional ou na associação",
+  "habit": "você grava ideias de melodia no celular enquanto dirige ou no ônibus"
+ },
+ {
+  "id": "P011",
+  "name": "Sara",
+  "age": 21,
+  "segment": "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+  "income": 43000,
+  "behaviour": "Organizado",
+  "behaviour_how": "Já tentou Notion, Google Docs ou pastas para organizar letras e desistiu.",
+  "objection": "Meus parceiros nunca vão instalar mais um app",
+  "habit": "você grava ideias de melodia no celular enquanto dirige ou no ônibus"
+ },
+ {
+  "id": "P012",
+  "name": "Aria",
+  "age": 44,
+  "segment": "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+  "income": 41000,
+  "behaviour": "Compra ferramenta de trabalho",
+  "behaviour_how": "Paga por plugin, curso ou app quando vê que economiza tempo ou dá dinheiro.",
+  "objection": "Por que pagar se a versão grátis já faz quase tudo?",
+  "habit": "você participa de um grupo de compositores no WhatsApp"
+ },
+ {
+  "id": "P013",
+  "name": "Jordan",
+  "age": 18,
+  "segment": "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+  "income": 25000,
+  "behaviour": "Organizado",
+  "behaviour_how": "Já tentou Notion, Google Docs ou pastas para organizar letras e desistiu.",
+  "objection": "Esse hash não vale nada, o registro de verdade é na Biblioteca Nacional ou na associação",
+  "habit": "você compõe com um parceiro que mora em outra cidade"
+ },
+ {
+  "id": "P014",
+  "name": "Rafael",
+  "age": 39,
+  "segment": "Compositor ou banda com lançamentos e parcerias frequentes (associado a UBC/ABRAMUS)",
+  "income": 79000,
+  "behaviour": "Parceiro de WhatsApp",
+  "behaviour_how": "Compõe mandando áudio e foto de caderno no grupo da banda; resolve tudo ali.",
+  "objection": "Por que pagar se a versão grátis já faz quase tudo?",
+  "habit": "você grava ideias de melodia no celular enquanto dirige ou no ônibus"
+ },
+ {
+  "id": "P015",
+  "name": "Liam",
+  "age": 33,
+  "segment": "Compositor ou banda com lançamentos e parcerias frequentes (associado a UBC/ABRAMUS)",
+  "income": 145000,
+  "behaviour": "Desconfiado com direitos",
+  "behaviour_how": "Já brigou ou viu briga por coautoria e percentual; quer prova de quem escreveu.",
+  "objection": "App de fora da Play Store, de um desenvolvedor só, pode sumir e levar minhas músicas",
+  "habit": "você toca em bar na sexta e no sábado"
+ },
+ {
+  "id": "P016",
+  "name": "Sofia",
+  "age": 43,
+  "segment": "Compositor profissional do mercado (sertanejo, gospel, pagode) que vende ou cede músicas",
+  "income": 111000,
+  "behaviour": "Fiel ao grátis",
+  "behaviour_how": "Usa só app gratuito; nunca pagou assinatura de app além de streaming.",
+  "objection": "App de fora da Play Store, de um desenvolvedor só, pode sumir e levar minhas músicas",
+  "habit": "você toca em bar na sexta e no sábado"
+ },
+ {
+  "id": "P017",
+  "name": "Poppy",
+  "age": 24,
+  "segment": "Compositor ou banda com lançamentos e parcerias frequentes (associado a UBC/ABRAMUS)",
+  "income": 92000,
+  "behaviour": "Testa tudo",
+  "behaviour_how": "Baixa apps novos de música, testa uma semana e larga a maioria.",
+  "objection": "Por que pagar se a versão grátis já faz quase tudo?",
+  "habit": "você lança uma música por mês no Spotify pela distribuidora"
+ },
+ {
+  "id": "P018",
+  "name": "Yara",
+  "age": 37,
+  "segment": "Compositor ou banda com lançamentos e parcerias frequentes (associado a UBC/ABRAMUS)",
+  "income": 72000,
+  "behaviour": "Leal ao Cifra Club e ao caderno",
+  "behaviour_how": "Usa Cifra Club para cifra e caderno de papel para letra; não vê motivo para mudar.",
+  "objection": "R$ 9,90 por mês é mais uma assinatura num mês apertado",
+  "habit": "você grava ideias de melodia no celular enquanto dirige ou no ônibus"
+ },
+ {
+  "id": "P019",
+  "name": "Lena",
+  "age": 35,
+  "segment": "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+  "income": 43000,
+  "behaviour": "Parceiro de WhatsApp",
+  "behaviour_how": "Compõe mandando áudio e foto de caderno no grupo da banda; resolve tudo ali.",
+  "objection": "O bloco de notas e o WhatsApp já resolvem",
+  "habit": "você escreve letras de madrugada no bloco de notas do celular"
+ },
+ {
+  "id": "P020",
+  "name": "Pablo",
+  "age": 23,
+  "segment": "Estudante ou iniciante que compõe por hobby",
+  "income": 1000,
+  "behaviour": "Fiel ao grátis",
+  "behaviour_how": "Usa só app gratuito; nunca pagou assinatura de app além de streaming.",
+  "objection": "App de fora da Play Store, de um desenvolvedor só, pode sumir e levar minhas músicas",
+  "habit": "você participa de um grupo de compositores no WhatsApp"
+ }
+]

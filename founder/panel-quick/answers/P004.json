@@ -1,0 +1,13 @@
+{
+  "id": "P004",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Eu testo tudo e largo quase tudo em uma semana. Com uns R$ 1.250 por mês, R$ 9,90 é mais uma assinatura num mês apertado, e o grátis já cobre o básico de escrever junto e guardar as canções.",
+  "objection": "Não sei se vou usar o Plus com regularidade. Sem memos de voz ilimitados, PDF e histórico, eu não sinto falta de pagar, e não quero ficar cobrando de mim mesmo uma assinatura que eu não uso.",
+  "would_change_my_mind": "Um mês do Plus de graça, sem cartão, para eu ver se os memos de voz e a exportação em PDF fazem diferença de verdade no ensaio de sábado.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 18
+}

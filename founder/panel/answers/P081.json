@@ -1,0 +1,13 @@
+{
+  "id": "P081",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu nem tenho uma canção saindo do caderno ainda, então pagar R$ 9,90 por uma folha de divisão não resolve nada agora. Pra mim, o Compoze seria só mais um app que eu testo numa semana e largo.",
+  "objection": "Meus parceiros nunca vão instalar mais um app. E mesmo que o link no navegador funcione, eu ainda teria que convencer os dois a usar uma ferramenta nova só pra escrever.",
+  "would_change_my_mind": "Se uma canção minha estivesse de fato para ser gravada ou lançada, e a editora ou a distribuidora pedisse a folha de divisão, eu pagaria na hora. Ou se um dos meus parceiros já usasse o app e eu não precisasse convencer ninguém.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

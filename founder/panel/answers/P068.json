@@ -1,0 +1,13 @@
+{
+  "id": "P068",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu uso só app gratuito e nunca paguei assinatura de app além de streaming. Folha de divisão só faria sentido quando uma música fosse mesmo para a associação ou a distribuidora, e eu ainda não tenho essa necessidade todo mês.",
+  "objection": "App de um desenvolvedor só, fora dos apps grandes: e se ele sumir com as minhas letras? Mesmo com a promessa de exportar tudo, eu não confio em deixar a parceria registrada num lugar que pode fechar.",
+  "would_change_my_mind": "Uma música minha entrar em lançamento ou edital que peça a folha de divisão, e eu não ter outro jeito de fazer a divisão aceita pelos parceiros.",
+  "price_too_cheap": 2,
+  "price_cheap": 4.9,
+  "price_expensive": 12,
+  "price_too_expensive": 15
+}
