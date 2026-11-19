@@ -1,0 +1,13 @@
+{
+  "id": "P019",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já escrevo letra no bloco de notas do celular de madrugada e fecho tudo com a banda no WhatsApp, com áudio e foto de caderno. Não vejo o que o Compoze resolve que eu não resolva ali, e o registro com hash não substitui a Biblioteca Nacional.",
+  "objection": "Meus parceiros teriam que largar o grupo do WhatsApp e entrar num caderno novo, e não sei se alguém vai fazer isso. Também não gosto da ideia de confiar minhas letras a um app que ainda não está na Play Store, feito por um desenvolvedor independente.",
+  "would_change_my_mind": "Se os parceiros da banda já estivessem usando o app e a divisão de coautoria precisasse estar fechada antes de gravar ou lançar a música.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

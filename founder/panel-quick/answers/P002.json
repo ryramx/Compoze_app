@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já escrevo no bloco de notas e mando áudio no WhatsApp para o meu parceiro, e isso funciona. Não tenho o hábito de pagar por app, e o plano pago não resolve nada que eu não consiga fazer de graça.",
+  "objection": "Por que pagar R$ 9,90 por mês se o bloco de notas e o WhatsApp já fazem o trabalho? E o app ainda nem está na Play Store, então eu teria que baixar do site.",
+  "would_change_my_mind": "Se meu parceiro já estivesse usando e a gente precisasse do certificado de divisão em PDF para registrar uma música.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 15
+}

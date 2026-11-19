@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "A ideia de folha de divisão assinada e com histórico de versões me interessa, porque já vi briga por percentual de coautoria. Mas não pago antes de saber se a UBC ou a ABRAMUS aceitam esse PDF, e um app de um desenvolvedor só me deixa com um pé atrás.",
+  "objection": "Se o app sumir ou o dev parar, a folha assinada fica comigo mesmo? E a associação aceita isso como prova de quem escreveu?",
+  "would_change_my_mind": "A UBC ou a ABRAMUS (ou uma editora que eu conheço) confirmar por escrito que aceita a folha do Compoze, ou um parceiro meu já ter usado e dado certo.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 20
+}

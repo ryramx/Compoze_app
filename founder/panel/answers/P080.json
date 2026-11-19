@@ -1,0 +1,13 @@
+{
+  "id": "P080",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo com o bloco de notas e o WhatsApp, e isso já resolve para mim. Não vejo motivo para pagar só para ter um PDF de divisão de uma música que eu nem sei se vai sair.",
+  "objection": "Não sei se alguém que eu conheço vai exigir essa folha. Até agora a divisão da música a gente combina de boca ou por mensagem, e R$ 9,90 por música pesa mais do que parece quando eu lanço uma por mês e ganho pouco.",
+  "would_change_my_mind": "Se a distribuidora ou a associação passasse a exigir a folha assinada por todos os coautores antes de liberar a música, eu pagaria na hora.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

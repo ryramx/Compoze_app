@@ -1,0 +1,13 @@
+{
+  "id": "P006",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "A ideia de a parceria virar papel me interessa, mas não quero minhas letras inéditas guardadas na nuvem de outra pessoa. Eu ainda não tenho uma canção pronta para sair do caderno, então não tenho motivo para pagar agora; o bloco de notas e o áudio do WhatsApp fazem o trabalho por zero real.",
+  "objection": "Confiar que minhas letras e melodias ficam só comigo e com meus parceiros, e que nada disso vira treino, vitrine ou dado de terceiros.",
+  "would_change_my_mind": "Uma garantia clara e curta de que as letras ficam só com os coautores, que dá para apagar tudo, e uma canção minha já fechada para lançar que precise da folha de divisão.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 19,
+  "price_too_expensive": 35
+}

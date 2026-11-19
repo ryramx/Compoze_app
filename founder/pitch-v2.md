@@ -1,0 +1,7 @@
+Compoze: a parceria vira papel. Escreva a canção com seus parceiros e saia com a divisão de coautoria fechada e documentada.
+Vocês escrevem a mesma canção juntos, ao vivo ou cada um no seu tempo, sem internet também. Cada trecho guarda quem escreveu, e a divisão precisa fechar 100% com o aceite de cada coautor. Seu parceiro entra por um link e escreve no navegador, sem instalar nada. Só os coautores veem a canção.
+App Android na Play Store e no navegador. Em português, feito no Brasil por um desenvolvedor independente. Suas canções saem com você: exportar tudo (PDF, texto, .zip) é grátis para sempre, em qualquer plano; se o Compoze um dia fechar, aviso com 90 dias e exportação completa.
+Grátis para sempre: escrever, escrever junto, offline e exportar, sem limite de canções.
+Plus R$ 9,90/mês ou R$ 99/ano: a folha de divisão (split sheet) em PDF assinada pelos coautores, com o histórico de versões e o código de integridade de cada data, pronta para levar à associação (UBC, ABRAMUS), à editora ou à distribuidora; memos de voz e histórico ilimitados. Não substitui o registro oficial, é o documento que você leva para ele.
+Primeiro mês do Plus grátis, sem cartão. Preço de fundador: R$ 79/ano travado para sempre para as primeiras 300 contas. Se não servir, devolução integral em 30 dias.
+Comprar aqui = assinar o Plus (ou começar o mês grátis com a intenção de continuar). As perguntas de preço são sobre o Plus, em reais por mês.

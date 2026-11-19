@@ -1,0 +1,13 @@
+{
+  "id": "P045",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu ainda não tenho música saindo do caderno, então não preciso de folha de divisão. Com o bloco de notas e o WhatsApp eu escrevo e mando o áudio pro parceiro sem pagar nada.",
+  "objection": "Não vejo para que serve uma folha de divisão antes de a canção ter destino. E não sei se o documento tem valor de verdade, já que ele mesmo diz que não substitui o registro oficial.",
+  "would_change_my_mind": "Se eu tivesse uma canção gravada ou prestes a sair e precisasse levar a divisão para a editora ou a distribuidora.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

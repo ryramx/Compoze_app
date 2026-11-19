@@ -1,0 +1,268 @@
+{
+ "business": "Compoze (caderno compartilhado para compor canções a várias mãos, app em português)",
+ "seed": 2026,
+ "dealt": 100,
+ "answered": 100,
+ "skipped": [],
+ "buys": 20,
+ "passes": 80,
+ "buy_rate": 0.2,
+ "by_segment": [
+  [
+   "Compositor profissional do mercado (sertanejo, gospel, pagode) que vende ou cede músicas",
+   10,
+   0.8
+  ],
+  [
+   "Compositor ou banda com lançamentos e parcerias frequentes (associado a UBC/ABRAMUS)",
+   20,
+   0.2
+  ],
+  [
+   "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+   40,
+   0.175
+  ],
+  [
+   "Estudante ou iniciante que compõe por hobby",
+   30,
+   0.03333333333333333
+  ]
+ ],
+ "by_behaviour": [
+  [
+   "Desconfiado com direitos",
+   10,
+   0.6
+  ],
+  [
+   "Organizado",
+   15,
+   0.4666666666666667
+  ],
+  [
+   "Compra ferramenta de trabalho",
+   10,
+   0.2
+  ],
+  [
+   "Parceiro de WhatsApp",
+   20,
+   0.15
+  ],
+  [
+   "Leal ao Cifra Club e ao caderno",
+   10,
+   0.1
+  ],
+  [
+   "Fiel ao grátis",
+   25,
+   0.04
+  ],
+  [
+   "Testa tudo",
+   10,
+   0.0
+  ]
+ ],
+ "by_income": [
+  [
+   "$67,000 and up",
+   35,
+   0.37142857142857144
+  ],
+  [
+   "$29,000 to $67,000",
+   32,
+   0.1875
+  ],
+  [
+   "under $29,000",
+   33,
+   0.030303030303030304
+  ]
+ ],
+ "why_not": [
+  [
+   "trust",
+   32,
+   [
+    "Eu ainda nao tenho nenhuma parceria fechada que precise de folha de divisao, e minhas letras inéditas sao o que mais tenho de valor. Nao quero colocar isso num servico que eu nao conheço, mesmo que o texto diga que so os coautores veem.",
+    "A ideia de a parceria virar papel me interessa, mas não quero minhas letras inéditas guardadas na nuvem de outra pessoa. Eu ainda não tenho uma canção pronta para sair do caderno, então não tenho motivo para pagar agora; o bloco de notas e o áudio do WhatsApp fazem o trabalho por zero real."
+   ],
+   [
+    "P003",
+    "P006"
+   ]
+  ],
+  [
+   "habit",
+   25,
+   [
+    "Eu componho de graça no WhatsApp e no caderno, e isso funciona com meus parceiros. Só pagaria os R$ 9,90 quando uma música fosse sair, e nenhuma está pronta esta semana.",
+    "Eu escrevo de graça no caderno e no áudio do WhatsApp e nunca paguei assinatura de app além de streaming. Uma folha de R$ 9,90 por música ainda é pouco para quem lança uma por mês, mas eu teria que mudar meu jeito de fazer as coisas para pagar, e hoje não sinto que preciso."
+   ],
+   [
+    "P004",
+    "P008"
+   ]
+  ],
+  [
+   "need",
+   13,
+   [
+    "Eu não tenho canção saindo do caderno ainda. Escrevo no celular, no ônibus, e nada disso está sendo publicado, então não preciso de folha de divisão agora. Se a versão grátis já faz quase tudo, não vejo motivo para tirar R$ 9,90 do meu orçamento.",
+    "Eu nem tenho canção saindo do caderno ainda, então não preciso de folha de divisão agora. Escrever de graça é legal, mas pagar R$ 9,90 por um PDF que eu não vou levar pra UBC ou editora este mês não faz sentido pra quem ganha pouco e faz música por hobby."
+   ],
+   [
+    "P002",
+    "P005"
+   ]
+  ],
+  [
+   "timing",
+   6,
+   [
+    "Eu escrevo muito, mas a maioria das canções ainda não vai sair do caderno, então não tenho motivo para pagar R$ 9,90 agora. Também não largo meu bloco de notas e meu áudio do WhatsApp por um app novo só para isso.",
+    "Eu escrevo com parceiros no bloco de notas e no WhatsApp e não vejo problema nisso enquanto a canção não sai. Só penso em divisão de coautoria quando a música vai pro streaming ou pra associação, e isso não acontece todo mês. Não compro agora porque não tenho canção pronta para registrar."
+   ],
+   [
+    "P001",
+    "P017"
+   ]
+  ],
+  [
+   "price",
+   3,
+   [
+    "Escrever é de graça e eu já escrevo no bloco de notas sem pagar nada. A folha só me faria sentido no dia em que uma música fosse sair, e nesse mês eu teria que decidir se R$ 9,90 num mês apertado valem um PDF, sem saber se a associação ou a editora vão aceitar mesmo.",
+    "Eu escrevo com um parceiro em outra cidade e hoje me viro com WhatsApp, caderno e bloco de notas, que são grátis e já fazem o trabalho. Pagar R$ 9,90 por uma folha de divisão só faz sentido na hora de publicar, e eu ainda não sei se a canção vai sair do caderno."
+   ],
+   [
+    "P020",
+    "P054"
+   ]
+  ],
+  [
+   "values",
+   1,
+   [
+    "Não quero minhas letras inéditas guardadas na nuvem de ninguém, e o caderno e o WhatsApp já fazem o que eu preciso. A folha de divisão é útil, mas eu teria que mudar meu jeito de escrever para usar o app, e não vejo motivo para isso."
+   ],
+   [
+    "P030"
+   ]
+  ]
+ ],
+ "why_yes": [
+  [
+   "need",
+   15,
+   [
+    "Eu co-escrevo quase tudo com parceiro e, quando a música sai, a divisão vira briga se ninguém tiver anotado. Pagar R$ 9,90 uma vez por uma folha com aceite de cada um é barato comparado a perder uma parceria ou um repasse da UBC. Só compraria se fosse uma música que de fato vai sair.",
+    "A briga de quem fica com quanto da música acontece depois que ela já saiu, e uma folha assinada por todo mundo antes do lançamento me poupava essa dor de cabeça. Pago R$ 9,90 por uma canção que vai para a associação sem pensar duas vezes, mas só quando ela realmente vai sair do caderno."
+   ],
+   [
+    "P007",
+    "P010"
+   ]
+  ],
+  [
+   "trust",
+   5,
+   [
+    "Já vi briga de coautoria estourar por causa de uma música sem papel nenhum, então uma folha com o aceite de cada um e o histórico de versões vale muito mais que R$ 9,90. Pago na hora da canção que vai sair, não antes.",
+    "Briga de coautoria já me custou parceria, então um documento com o aceite de cada um e o histórico de versões me interessa de verdade. Pago os R$ 9,90 só na música que for sair este mês, mas só depois de ver que a folha aceita o nome de quem escreveu cada trecho e que consigo exportar tudo."
+   ],
+   [
+    "P015",
+    "P039"
+   ]
+  ]
+ ],
+ "flip": [
+  "Se uma distribuidora ou a UBC/ABRAMUS me pedir a folha assinada antes de liberar uma música, eu compro na hora.",
+  "Uma parceria real com registro próximo: se eu fosse gravar ou mandar uma música para editora ou distribuidora e precisasse da divisão assinada por todos, eu pagaria.",
+  "Se eu pudesse ver um exemplo real da folha de divisao em PDF e saber que a letra fica no meu aparelho ou que eu consigo tirar tudo antes de decidir, e se a associacao de fato aceitasse esse documento.",
+  "Uma música minha entrar na distribuidora e um parceiro discutir a divisão depois. Aí eu pago na hora.",
+  "Se uma canção minha fosse aceita por uma banda, editora ou produtor que exigisse a folha de divisão assinada pelos coautores antes de gravar.",
+  "Uma garantia clara e curta de que as letras ficam só com os coautores, que dá para apagar tudo, e uma canção minha já fechada para lançar que precise da folha de divisão.",
+  "Se a distribuidora ou a associação me pedisse essa divisão documentada para liberar uma música, e eu não tivesse outro jeito de fazer isso de graça.",
+  "Ver uma folha de divisão feita no Compoze aceita pela distribuidora ou pela UBC/ABRAMUS, por um compositor que eu conheço, e poder baixar tudo antes de pagar qualquer coisa.",
+  "Ver que dá para escrever e guardar tudo só no celular, sem subir nada, e que eu posso apagar tudo do servidor quando quiser, antes de gerar a folha.",
+  "Uma associação ou editora confirmando por escrito que aceita a folha do Compoze como comprovante de divisão, ou uma música minha que esteja de fato saindo para distribuição.",
+  "Uma canção minha entrar de verdade numa editora ou ser tocada e cobrar direitos, e aí a associação pedir o documento de divisão.",
+  "Ter uma canção minha já fechada, marcada para gravar ou lançar, e precisar da folha de divisão para a associação ou a distribuidora.",
+  "Se eu tiver uma canção pronta para lançar e a distribuidora ou a associação pedir a folha de divisão, pagar R$ 9,90 de uma vez vira óbvio. Também mudaria se um dos meus parceiros já estivesse usando e insistisse.",
+  "Um parceiro meu precisar da folha para fechar uma gravação ou um lançamento com prazo, e eu ver que a associação ou a distribuidora aceita o documento.",
+  "Uma canção minha e dos parceiros chegando perto de ir pra editora ou distribuidora, com a divisão precisando ser assinada por todos.",
+  "Uma confirmação clara de que UBC, ABRAMUS ou a minha distribuidora aceitam a folha de divisão como comprovante de coautoria.",
+  "Se a UBC ou a ABRAMUS aceitasse a folha como documento de divisão no registro, eu pagaria na hora da música sair.",
+  "Se uma música minha com parceiros fosse entrar numa gravação ou ser lançada e alguém pedisse a divisão assinada por escrito.",
+  "Se uma canção minha estiver para ser gravada ou lançada e a editora ou a associação confirmar que aceita essa folha, eu compro na hora.",
+  "Ver outros compositores da cena usando e falando bem, e poder testar tudo de graça com uma canção real antes de pagar qualquer coisa.",
+  "Uma música minha e da minha dupla estar prestes a ser lançada e a editora ou distribuidora pedir a folha de divisão assinada.",
+  "Se ficar claro que a canção fica só entre os coautores, que dá pra exportar tudo offline sem depender do app, e que a associação ou a editora aceita o PDF sem reclamar.",
+  "Uma prova clara de que a canção fica só comigo e com os coautores (criptografia, sem acesso do Compoze ao conteúdo) e que eu posso sair com tudo a qualquer momento.",
+  "Se a associação ou a editora passasse a exigir a folha com aceite de cada coautor e o histórico de versões para liberar a obra, eu pagaria na hora.",
+  "Uma música finalizada prestes a sair este mês que precise de folha de divisão, com confirmação de que a associação aceita o documento.",
+  "Se a minha dupla insistisse em documentar a divisão antes de gravar ou lançar, e a folha fosse a forma mais simples de fazer isso, eu pagaria os R$ 9,90 sem reclamar.",
+  "Ver uma folha de exemplo sendo aceita pela UBC ou pela ABRAMUS, ou ouvir de um compositor que já usou e funcionou quando teve briga.",
+  "Uma confirmação da UBC ou da ABRAMUS, ou de uma distribuidora, de que aceitam a folha com aceite de cada coautor como documento de divisão.",
+  "Se a banda gravar e uma música precisar ser registrada na UBC ou numa editora, e alguém pedir a divisão por escrito.",
+  "Uma distribuidora ou a associação exigir a divisão assinada antes de liberar uma música que escrevi com parceiros.",
+  "Uma canção minha já ter saído ou estar prestes a sair, e eu precisar da folha para a UBC ou a editora; aí eu pagaria os R$ 9,90 sem pensar muito. Também ajudaria ver a política de dados e a exportação funcionando antes de eu colocar uma letra inédita lá.",
+  "Se eu pudesse usar tudo offline no celular e só subir a canção quando eu precisasse da folha, e se um parceiro já tivesse me pedido a divisão por escrito num caso real.",
+  "Uma música minha ser gravada ou entrar numa plataforma e a editora ou a distribuidora pedir a divisão de coautoria assinada por todos.",
+  "Se eu tivesse uma canção gravada ou prestes a sair e precisasse levar a divisão para a editora ou a distribuidora.",
+  "Se uma canção minha fosse gravada ou entrasse numa editora ou distribuidora e eu precisasse da divisão assinada por todos, e se o parceiro conseguisse assinar pelo link sem instalar nada.",
+  "Se uma editora ou a distribuidora pedir a folha de divisão pra liberar uma música minha, e eu souber que a associação aceita esse PDF.",
+  "A UBC ou a ABRAMUS, ou a distribuidora que eu uso, dizer por escrito que aceita a folha de divisão como documento para cadastrar a música.",
+  "Uma parceria real com uma editora ou uma associação pedindo a folha de divisão de uma música específica, e um jeito de conferir que o app é confiável (avaliações de outros compositores, empresa ou CNPJ visível).",
+  "Uma canção minha e de um parceiro prestes a sair, com a divisão precisando de documento para a UBC ou a editora, e a prova de que o app é estável e continua no ar.",
+  "Se a UBC ou a ABRAMUS confirmar por escrito que aceita a folha do Compoze como documento de divisão de coautoria, e um parceiro meu já tiver usado com sucesso.",
+  "Uma canção minha sendo gravada ou entrando numa editora, com parceiro pedindo a divisão por escrito, e o link funcionando no celular dele sem cadastro chato.",
+  "Se a UBC/ABRAMUS ou minha editora confirmar que aceita essa folha como documento de divisão, e se eu já tiver uma canção pronta para registrar.",
+  "Se a associação ou a editora aceitasse a folha do Compoze como documento de divisão sem eu precisar refazer nada, e se eu já tivesse uma canção em vias de ser lançada com parceiro que mora longe.",
+  "Se uma música com parceiro estiver para ser lançada ou inscrita e a UBC ou a distribuidora pedir uma folha de divisão assinada por todos.",
+  "Uma música minha saindo no streaming com parceiro e uma prova de que a associação aceita a folha, ou o parceiro pedindo divisão por escrito antes de lançar.",
+  "Se a UBC, a ABRAMUS ou a editora exigir uma folha de divisão com aceite dos coautores antes de registrar uma canção que eu já tenho.",
+  "Uma canção de verdade sendo gravada ou lançada por editora ou distribuidora que pede a divisão assinada por todos os coautores.",
+  "Uma confirmação clara de que a associação ou a distribuidora aceita a folha, ou um exemplo real de folha aceita por elas, mostrado antes do pagamento.",
+  "Uma confirmação clara de que UBC ou ABRAMUS, ou a distribuidora que eu uso, aceitam a folha do Compoze sem pedir mais nada.",
+  "Se eu já tivesse uma canção pronta para registrar, ou se um parceiro exigisse a divisão por escrito antes de gravarmos.",
+  "Um lançamento marcado com parceiros que precisam de um documento de divisão assinado para a distribuidora ou a associação; aí pagaria R$ 9,90 sem pensar duas vezes.",
+  "Se uma música nossa for gravar numa distribuidora ou pela associação e pedirem a divisão assinada por todos, e eu não tiver outro jeito de fechar isso com meus parceiros.",
+  "Uma música minha entrar em lançamento ou edital que peça a folha de divisão, e eu não ter outro jeito de fazer a divisão aceita pelos parceiros.",
+  "Se os meus parceiros já estivessem usando e uma canção minha fosse entrar na distribuidora ou na editora nos próximos dias, aí eu pagaria a folha na hora.",
+  "Uma canção real já marcada para sair, com parceiro que exige a divisão documentada para registrar na UBC ou na editora.",
+  "Se a distribuidora ou a editora exigir uma folha de divisão assinada por todos os coautores antes de aceitar a música, ou se um parceiro brigar pela divisão depois que a música já estiver no streaming.",
+  "Uma canção minha e do meu parceiro que vá ser gravada ou registrada de verdade, e uma forma de ver a folha de exemplo antes de pagar.",
+  "Um parceiro meu ou uma editora pedir a folha de divisão de uma música que já vai ser registrada, e eu ver que a associação aceita esse PDF.",
+  "Uma música minha entrar de verdade numa editora ou distribuidora e precisar da divisão assinada por todos os coautores.",
+  "Se a folha de divisão fosse aceita pela UBC ou ABRAMUS sem eu precisar subir a letra, e eu pudesse guardar tudo offline no caderno, eu pagaria uma vez para fechar uma parceria que estivesse dando briga.",
+  "Uma canção minha entrando em gravação ou sendo tocada e precisando de divisão assinada para a associação, e ter certeza de que a letra fica só no meu celular ou que consigo apagar tudo.",
+  "Se a associação ou a editora que eu uso confirmasse por escrito que aceita essa folha como documento de divisão de coautoria.",
+  "Se a distribuidora ou a associação passasse a exigir a folha assinada por todos os coautores antes de liberar a música, eu pagaria na hora.",
+  "Se uma canção minha estivesse de fato para ser gravada ou lançada, e a editora ou a distribuidora pedisse a folha de divisão, eu pagaria na hora. Ou se um dos meus parceiros já usasse o app e eu não precisasse convencer ninguém.",
+  "Uma confirmação clara de que a associação ou a editora aceita a folha como documento de divisão de coautoria, por escrito.",
+  "Uma canção minha com parceiros entrando em gravação ou lançamento, e alguém começando a discutir percentual. Aí eu pagaria na hora pra ter o aceite de cada um documentado.",
+  "Ver a folha de divisão de uma canção minha aceita por uma associação ou editora, ou um app na Play Store com nome de empresa e histórico público.",
+  "Uma música minha com parceiro marcada para sair no mês seguinte e a associação ou a distribuidora pedindo a folha de divisão assinada.",
+  "Ver uma folha de exemplo aceita por uma editora ou pela associação, ou um parceiro meu dizendo que já usou e funcionou.",
+  "Uma confirmação clara da associação ou de uma editora de que aceitam a folha do Compoze como documento de divisão, junto com a canção saindo para gravação ou streaming.",
+  "Se a UBC ou a ABRAMUS confirmarem por escrito que aceitam a folha de divisão do Compoze como prova de divisão de coautoria, eu pago na primeira música que sair do caderno.",
+  "Ver que a associação (UBC ou ABRAMUS) aceita essa folha de divisão sem problema e que a canção continua só minha e dos coautores, com a exportação garantida antes de qualquer compromisso.",
+  "Uma canção minha prestes a ser registrada, com parceiros que não moram perto, e a associação ou a editora pedindo um documento com aceite de cada um. Aí eu pagaria a folha na hora.",
+  "Ver que as letras ficam só no meu aparelho ou que dá para usar offline sem subir nada para a nuvem, e ter uma parceria real com a canção já pronta para sair.",
+  "Se a associação ou uma editora confirmasse por escrito que aceita essa folha como documento de divisão, e se houvesse uma versão grátis para quem está começando.",
+  "Uma música minha entrando em lançamento com uma editora ou distribuidora pedindo a folha de divisão, e nessa hora eu comprar sem pensar duas vezes.",
+  "Se eu fechar uma música com meu parceiro para lançar no streaming e a associação ou a distribuidora pedir a divisão assinada, eu pago na hora.",
+  "Ver que dá para escrever sem subir a letra para eles, ou ter um parceiro já usando e uma música pronta para lançar que precise da folha de divisão.",
+  "Se eu já tiver uma música marcada para gravar ou lançar no mês e meu parceiro pedir a divisão por escrito, eu pago a folha na hora. Também mudaria se a associação ou a distribuidora dissesse por escrito que aceita o documento.",
+  "Uma canção minha ser gravada ou lançada com parceiro e a associação ou a editora pedir o documento de divisão."
+ ],
+ "purchases_first_month_per_buyer": 1.0,
+ "price_answers": 100
+}

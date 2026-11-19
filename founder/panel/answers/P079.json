@@ -1,0 +1,13 @@
+{
+  "id": "P079",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Não vejo motivo pra trocar o caderno e o Cifra Club, que já funcionam. E pagar por um hash que não registra nada de verdade me parece dinheiro jogado fora, porque o registro que conta é na Biblioteca Nacional ou na associação.",
+  "objection": "Um hash e um PDF do app não substituem o registro oficial. Se a UBC ou a ABRAMUS não reconhecer esse documento, eu paguei por um papel que não serve pra nada.",
+  "would_change_my_mind": "Se a associação ou a editora que eu uso confirmasse por escrito que aceita essa folha como documento de divisão de coautoria.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 14,
+  "price_too_expensive": 22
+}

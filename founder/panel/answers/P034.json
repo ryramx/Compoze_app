@@ -1,0 +1,13 @@
+{
+  "id": "P034",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo no bloco de notas do celular e mando áudio pelo WhatsApp, e isso já resolve pra mim. Nunca paguei app além de streaming, e pagar R$ 9,90 por uma folha que eu só precisaria quando a música fosse sair do caderno não faz sentido agora.",
+  "objection": "Não sei se a folha de divisão feita aqui é aceita de verdade pela UBC ou pela ABRAMUS. Não quero pagar e depois descobrir que ainda preciso de outra coisa.",
+  "would_change_my_mind": "Se a minha dupla insistisse em documentar a divisão antes de gravar ou lançar, e a folha fosse a forma mais simples de fazer isso, eu pagaria os R$ 9,90 sem reclamar.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 15
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P033",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu escrevo com meus parceiros há anos e a gente resolve a divisão no WhatsApp e no caderno. R$ 9,90 é pouco, mas eu só pagaria quando uma música estivesse pronta para sair, e isso não acontece em todo mês; até lá não tenho por que comprar.",
+  "objection": "Não sei se a UBC ou a ABRAMUS vão aceitar esse PDF de verdade. Ele não substitui o registro oficial, então eu ficaria com um documento que talvez não sirva para nada na hora que eu precisar.",
+  "would_change_my_mind": "Uma música finalizada prestes a sair este mês que precise de folha de divisão, com confirmação de que a associação aceita o documento.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

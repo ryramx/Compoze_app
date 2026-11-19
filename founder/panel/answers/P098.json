@@ -1,0 +1,13 @@
+{
+  "id": "P098",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Minhas letras inéditas são o que eu tenho de mais meu, e não quero que fiquem na nuvem de uma startup de um desenvolvedor só. A folha de divisão custa pouco, mas eu ainda teria que confiar o texto da música a eles antes de saber se eles existem daqui a dois anos.",
+  "objection": "Medo de a canção ficar guardada num serviço que pode fechar, ou de alguém ter acesso às letras antes do lançamento.",
+  "would_change_my_mind": "Ver que dá para escrever sem subir a letra para eles, ou ter um parceiro já usando e uma música pronta para lançar que precise da folha de divisão.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 19,
+  "price_too_expensive": 39
+}

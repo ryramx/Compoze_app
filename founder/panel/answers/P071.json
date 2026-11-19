@@ -1,0 +1,13 @@
+{
+  "id": "P071",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu não tenho o hábito de pagar por app e a ideia de subir letra inédita pra nuvem de um desconhecido me incomoda. Mesmo que a folha de divisão seja útil, não vejo a urgência de pagar agora, porque minhas parcerias ainda não estão em fase de registro.",
+  "objection": "Confiar que um desenvolvedor independente vai guardar minhas letras inéditas e não sumir com elas se o app fechar.",
+  "would_change_my_mind": "Uma canção real já marcada para sair, com parceiro que exige a divisão documentada para registrar na UBC ou na editora.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P073",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "timing",
+  "reason": "Acho a ideia boa e o app grátis para escrever me interessa, mas a folha de divisão só faz sentido quando a música vai sair do caderno para gravação ou publicação. Hoje nenhuma das minhas canções está nesse ponto, então não pagaria agora.",
+  "objection": "Um desenvolvedor só. Se o app sumir da Play Store ou ele largar o projeto, tenho medo de perder as músicas e a divisão que já fechei com meu parceiro. A promessa de 90 dias e exportação completa ajuda, mas ainda é confiar em uma pessoa.",
+  "would_change_my_mind": "Uma canção minha e do meu parceiro que vá ser gravada ou registrada de verdade, e uma forma de ver a folha de exemplo antes de pagar.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

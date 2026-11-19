@@ -1,0 +1,13 @@
+{
+  "id": "P051",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Esse negócio de hash com data não tem valor de verdade pra mim. O registro que conta é na Biblioteca Nacional ou na UBC/ABRAMUS, e eu já escrevo com meus parceiros pelo WhatsApp e pelo caderno sem problema. Eu não pago R$ 9,90 por um PDF que a associação talvez nem aceite.",
+  "objection": "Não sei se a associação ou a editora reconhece essa folha. Um app novo, de um desenvolvedor independente, prometendo 'integridade' com hash me soa como coisa de marketing, não de direito autoral.",
+  "would_change_my_mind": "Se a UBC ou a ABRAMUS confirmar por escrito que aceita a folha do Compoze como documento de divisão de coautoria, e um parceiro meu já tiver usado com sucesso.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 20,
+  "price_too_expensive": 35
+}

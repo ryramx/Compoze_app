@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu gravo melodia no celular e anoto no bloco de notas, e o WhatsApp já me manda o áudio pro parceiro. Não preciso pagar R$ 9,90 por mês pra isso, e pago só streaming.",
+  "objection": "Não vejo para que serve a folha de divisão agora: ainda não tenho editora nem distribuidora, e nem sei se minhas músicas vão chegar nisso. Pagar mensal por um documento que eu nem uso ainda não faz sentido pra quem está começando.",
+  "would_change_my_mind": "Se eu já tivesse música registrada na UBC ou ABRAMUS e precisasse de uma split sheet assinada para lançar uma música de verdade.",
+  "price_too_cheap": 1.99,
+  "price_cheap": 4,
+  "price_expensive": 6,
+  "price_too_expensive": 8
+}

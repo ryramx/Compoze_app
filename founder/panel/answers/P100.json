@@ -1,0 +1,13 @@
+{
+  "id": "P100",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu escrevo com um parceiro de vez em quando, mas nenhuma canção minha saiu do caderno com dinheiro ou gravação envolvidos. Bloco de notas e WhatsApp já resolvem o que eu preciso agora, e R$ 9,90 é quase meu lanche da semana.",
+  "objection": "Não vejo para que serve uma folha de divisão enquanto a música não é gravada nem tocada por alguém que pague. E se eu pagar e depois a parceria mudar, não sei se o papel vale nada.",
+  "would_change_my_mind": "Uma canção minha ser gravada ou lançada com parceiro e a associação ou a editora pedir o documento de divisão.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 20
+}

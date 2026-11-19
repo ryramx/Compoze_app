@@ -1,0 +1,13 @@
+{
+  "id": "P032",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já fecho divisão com meus parceiros no grupo do WhatsApp e numa planilha simples, e a versão grátis do Compoze já cobre a escrita. A folha de R$ 9,90 só faria sentido no dia em que uma música fosse para a editora, e isso não acontece todo mês.",
+  "objection": "Se o documento não substitui o registro na UBC ou na ABRAMUS, eu ainda preciso fazer o registro de qualquer jeito, então pagar pela folha parece pagar pelo que eu já consigo fazer de graça.",
+  "would_change_my_mind": "Se a associação ou a editora passasse a exigir a folha com aceite de cada coautor e o histórico de versões para liberar a obra, eu pagaria na hora.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

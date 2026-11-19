@@ -1,0 +1,13 @@
+{
+  "id": "P063",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "timing",
+  "reason": "Eu ainda não tenho música saindo do caderno no próximo mês, e pra escrever o Compoze é de graça. A folha de divisão só me interessa quando a canção vai pro streaming, e até lá eu posso fazer a divisão num modelo de Word de graça.",
+  "objection": "Por que pagar R$ 9,90 por um PDF que eu consigo montar num modelo gratuito? Não sei se UBC ou ABRAMUS aceitam esse documento de verdade, e o código de integridade só me convence se alguém da associação confirmar.",
+  "would_change_my_mind": "Uma confirmação clara de que UBC ou ABRAMUS, ou a distribuidora que eu uso, aceitam a folha do Compoze sem pedir mais nada.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

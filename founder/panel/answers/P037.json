@@ -1,0 +1,13 @@
+{
+  "id": "P037",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Eu tenho parceria com gente de outra cidade e a divisão de coautoria sempre vira briga ou uma mensagem de WhatsApp que ninguém guarda. Se uma folha assinada por todos sai por R$ 9,90 e eu levo pra UBC ou editora, pago na hora, mas só quando uma música estiver de fato saindo.",
+  "objection": "Eu consigo montar uma folha de divisão num modelo do Word de graça, e não sei se a associação aceita um PDF de um app independente sem o registro oficial. Também fico na dúvida se o código de integridade e o aceite digital valem alguma coisa juridicamente.",
+  "would_change_my_mind": "Uma confirmação clara de que a UBC ou a ABRAMUS aceitam essa folha como documento de divisão, ou um exemplo real de folha aceita por elas.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 30
+}

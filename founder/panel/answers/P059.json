@@ -1,0 +1,13 @@
+{
+  "id": "P059",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo com meu parceiro pelo bloco de notas e o WhatsApp, e funciona. Nunca paguei app além de streaming, e não tenho canção saindo do caderno agora para precisar de folha de divisão.",
+  "objection": "Não sei se uma folha de divisão feita por um app independente é aceita pela UBC ou ABRAMUS. A própria descrição diz que não substitui o registro oficial, então eu ainda teria que fazer o registro de qualquer jeito.",
+  "would_change_my_mind": "Uma canção de verdade sendo gravada ou lançada por editora ou distribuidora que pede a divisão assinada por todos os coautores.",
+  "price_too_cheap": 1,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

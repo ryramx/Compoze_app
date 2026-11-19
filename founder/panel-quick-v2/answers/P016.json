@@ -1,0 +1,13 @@
+{
+  "id": "P016",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu uso o grátis e tá funcionando pra mim. Pagar R$ 9,90 por mês num app de um desenvolvedor só, de fora da Play Store, pra guardar minhas músicas, não me convence agora, mesmo com a exportação grátis. A folha de divisão é útil, mas eu só preciso dela quando fecho uma cessão, e isso não acontece toda semana.",
+  "objection": "Medo de o app sumir ou o desenvolvedor largar o projeto. A promessa de aviso com 90 dias e exportação completa ajuda, mas eu ainda ficaria com a dúvida de quem está por trás disso.",
+  "would_change_my_mind": "Se um parceiro ou uma editora me pedisse a folha de divisão assinada e com o código de integridade para fechar uma música, eu assinaria na hora pelo primeiro mês grátis.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 20
+}

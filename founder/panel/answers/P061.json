@@ -1,0 +1,13 @@
+{
+  "id": "P061",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "Já vi briga de coautoria e percentual, então pagar R$ 9,90 uma vez para ter a divisão assinada por todo mundo me parece barato. Compraria na hora em que uma canção estivesse pronta para sair do caderno, não antes.",
+  "objection": "Não sei se a UBC ou a ABRAMUS aceitam essa folha de verdade. O próprio texto diz que não substitui o registro oficial, então fico com medo de pagar e depois ter que refazer tudo no papel.",
+  "would_change_my_mind": "Uma confirmação clara de que a associação ou uma editora aceita a folha como documento de divisão, com exemplo de caso real.",
+  "price_too_cheap": 3,
+  "price_cheap": 6,
+  "price_expensive": 20,
+  "price_too_expensive": 40
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P078",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Não quero minhas letras inéditas na nuvem de alguém. Eu componho de graça no WhatsApp com a banda e ainda não tenho canção saindo do caderno, então não vejo motivo para pagar agora.",
+  "objection": "Confiar a letra inédita a um app de um desenvolvedor independente, na nuvem, mesmo com a promessa de que só os coautores veem.",
+  "would_change_my_mind": "Uma canção minha entrando em gravação ou sendo tocada e precisando de divisão assinada para a associação, e ter certeza de que a letra fica só no meu celular ou que consigo apagar tudo.",
+  "price_too_cheap": 1,
+  "price_cheap": 5,
+  "price_expensive": 14,
+  "price_too_expensive": 20
+}

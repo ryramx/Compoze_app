@@ -1,0 +1,103 @@
+{
+ "n": 20,
+ "seed": 2026,
+ "customer": {
+  "business": "Compoze (caderno compartilhado para compor canções a várias mãos, app em português)",
+  "target": "Compositoras e compositores independentes no Brasil, 18 a 45 anos, que escrevem canções com parceiros (duplas, bandas, letristas) e hoje usam bloco de notas, caderno e áudio de WhatsApp. Valores de renda e preços em reais (R$); a renda acima é anual em reais",
+  "where": "Brasil, online (celular Android e navegador)",
+  "age": [
+   18,
+   45
+  ],
+  "segments": [
+   {
+    "name": "Estudante ou iniciante que compõe por hobby",
+    "share": 0.3,
+    "income": [
+     0,
+     30000
+    ]
+   },
+   {
+    "name": "Músico independente semiprofissional (toca na noite, dá aula, lança no streaming)",
+    "share": 0.4,
+    "income": [
+     24000,
+     72000
+    ]
+   },
+   {
+    "name": "Compositor ou banda com lançamentos e parcerias frequentes (associado a UBC/ABRAMUS)",
+    "share": 0.2,
+    "income": [
+     48000,
+     150000
+    ]
+   },
+   {
+    "name": "Compositor profissional do mercado (sertanejo, gospel, pagode) que vende ou cede músicas",
+    "share": 0.1,
+    "income": [
+     72000,
+     300000
+    ]
+   }
+  ],
+  "behaviours": [
+   {
+    "name": "Fiel ao grátis",
+    "share": 0.25,
+    "how": "Usa só app gratuito; nunca pagou assinatura de app além de streaming."
+   },
+   {
+    "name": "Organizado",
+    "share": 0.15,
+    "how": "Já tentou Notion, Google Docs ou pastas para organizar letras e desistiu."
+   },
+   {
+    "name": "Parceiro de WhatsApp",
+    "share": 0.2,
+    "how": "Compõe mandando áudio e foto de caderno no grupo da banda; resolve tudo ali."
+   },
+   {
+    "name": "Desconfiado com direitos",
+    "share": 0.1,
+    "how": "Já brigou ou viu briga por coautoria e percentual; quer prova de quem escreveu."
+   },
+   {
+    "name": "Testa tudo",
+    "share": 0.1,
+    "how": "Baixa apps novos de música, testa uma semana e larga a maioria."
+   },
+   {
+    "name": "Compra ferramenta de trabalho",
+    "share": 0.1,
+    "how": "Paga por plugin, curso ou app quando vê que economiza tempo ou dá dinheiro."
+   },
+   {
+    "name": "Leal ao Cifra Club e ao caderno",
+    "share": 0.1,
+    "how": "Usa Cifra Club para cifra e caderno de papel para letra; não vê motivo para mudar."
+   }
+  ],
+  "objections": [
+   "Meus parceiros nunca vão instalar mais um app",
+   "O bloco de notas e o WhatsApp já resolvem",
+   "Por que pagar se a versão grátis já faz quase tudo?",
+   "Esse hash não vale nada, o registro de verdade é na Biblioteca Nacional ou na associação",
+   "App de fora da Play Store, de um desenvolvedor só, pode sumir e levar minhas músicas",
+   "R$ 9,90 por mês é mais uma assinatura num mês apertado",
+   "Não quero minhas letras inéditas na nuvem de alguém"
+  ],
+  "habits": [
+   "você grava ideias de melodia no celular enquanto dirige ou no ônibus",
+   "você tem uma banda que ensaia aos sábados num estúdio alugado por hora",
+   "você compõe com um parceiro que mora em outra cidade",
+   "você lança uma música por mês no Spotify pela distribuidora",
+   "você toca em bar na sexta e no sábado",
+   "você escreve letras de madrugada no bloco de notas do celular",
+   "você participa de um grupo de compositores no WhatsApp"
+  ]
+ },
+ "pitch": "Compoze: o caderno compartilhado de quem compõe. Letra, cifra e coautoria no mesmo lugar.\nVocê e seus parceiros escrevem a mesma canção juntos, em tempo real ou cada um no seu tempo, inclusive sem internet. Cada trecho guarda quem escreveu, e a divisão de coautoria é acertada dentro da obra (precisa fechar 100%). Cada versão fica salva com data e um código de integridade (hash) que serve de base para o registro na Biblioteca Nacional ou na associação, mas não o substitui.\nFunciona no navegador (instala como app) e num app Android baixado do site; ainda não está na Play Store. Em português, feito no Brasil por um desenvolvedor independente.\nGrátis para sempre: canções, escrever junto, offline, mural e conversas ilimitados, com 30 min de memos de voz, histórico de 30 dias e 3 registros por mês.\nPlus R$ 9,90/mês ou R$ 99/ano: memos de voz, histórico e registros ilimitados, vários projetos, exportar PDF e cifra. Pro R$ 24,90/mês: certificado da divisão em PDF, apoio por PIX nos projetos, espaço de banda.\nComprar aqui = assinar o Plus ou o Pro. As perguntas de preço são sobre o Plus, em reais por mês."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P065",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu componho no grupo do WhatsApp com a banda e não vejo motivo para mudar isso agora. A folha de divisão só faria sentido na hora de lançar uma música, e isso não acontece todo mês, então não compro antes de ter uma música saindo.",
+  "objection": "Não quero minhas letras inéditas guardadas na nuvem de um app feito por um desenvolvedor independente. Se ele fechar ou der problema, quem garante que a música continua minha?",
+  "would_change_my_mind": "Um lançamento marcado com parceiros que precisam de um documento de divisão assinado para a distribuidora ou a associação; aí pagaria R$ 9,90 sem pensar duas vezes.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 20,
+  "price_too_expensive": 35
+}

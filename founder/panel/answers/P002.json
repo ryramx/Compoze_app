@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu não tenho canção saindo do caderno ainda. Escrevo no celular, no ônibus, e nada disso está sendo publicado, então não preciso de folha de divisão agora. Se a versão grátis já faz quase tudo, não vejo motivo para tirar R$ 9,90 do meu orçamento.",
+  "objection": "Não preciso de comprovação de coautoria enquanto a música não vai para a associação ou editora. E se eu pagar, quero saber se o documento vale mesmo para a UBC ou ABRAMUS, porque não é o registro oficial.",
+  "would_change_my_mind": "Uma parceria real com registro próximo: se eu fosse gravar ou mandar uma música para editora ou distribuidora e precisasse da divisão assinada por todos, eu pagaria.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P012",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu escrevo com meu parceiro em outra cidade e a gente já se vira com bloco de notas e áudio do WhatsApp. Não quero que letra inédita fique guardada na nuvem de um app que eu nem conheço, e a folha de divisão só faz sentido quando a música vai sair, o que não acontece toda semana.",
+  "objection": "Minhas letras inéditas ficando na nuvem de um desenvolvedor independente. Mesmo com a promessa de que só os coautores veem, eu não tenho como checar isso.",
+  "would_change_my_mind": "Ver que dá para escrever e guardar tudo só no celular, sem subir nada, e que eu posso apagar tudo do servidor quando quiser, antes de gerar a folha.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

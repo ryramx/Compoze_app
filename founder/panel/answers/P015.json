@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "Já vi briga de coautoria estourar por causa de uma música sem papel nenhum, então uma folha com o aceite de cada um e o histórico de versões vale muito mais que R$ 9,90. Pago na hora da canção que vai sair, não antes.",
+  "objection": "Se meu parceiro não aceitar ou sumir na hora de assinar o aceite, a folha não fecha e eu não sei se UBC ou editora aceitam um PDF de app independente como prova.",
+  "would_change_my_mind": "Uma confirmação de que UBC, ABRAMUS ou uma editora aceitam essa folha como documento de apoio para registro.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 30
+}

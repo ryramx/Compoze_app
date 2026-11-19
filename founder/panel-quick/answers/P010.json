@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu já escrevo junto com meus parceiros de graça no WhatsApp e no bloco de notas, e o grátis do Compoze já cobre canções, offline e mural. O que me faria pagar é a memo de voz ilimitada, mas o hash não é registro: pra eu pagar por registro, preciso que isso seja aceito de verdade pela Biblioteca Nacional ou pela associação.",
+  "objection": "Esse hash não vale nada, o registro de verdade é na Biblioteca Nacional ou na associação. Se o app vende 'registro' e o registro oficial é outro passo, eu me sinto enganada.",
+  "would_change_my_mind": "Se o próprio app fizesse o registro reconhecido pela Biblioteca Nacional ou pela minha associação, ou se as associações aceitassem o certificado dele como prova.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 18,
+  "price_too_expensive": 30
+}

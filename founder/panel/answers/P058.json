@@ -1,0 +1,13 @@
+{
+  "id": "P058",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Quando uma canção minha e dos meus parceiros for pra streaming, eu preciso de uma divisão assinada que a UBC ou a editora aceite, e hoje a gente resolve isso no WhatsApp e torce pra dar certo. R$ 9,90 pra ter isso documentado eu pagaria sem pensar, mas só quando a música estiver de fato saindo.",
+  "objection": "É um app de um desenvolvedor só. E se ele sumir no meio de uma canção, ou se a associação não aceitar o PDF? A promessa de exportar tudo e o aviso de 90 dias ajudam, mas eu ainda não conheço ninguém que usou.",
+  "would_change_my_mind": "Ver a divisão de uma canção já aceita pela UBC ou ABRAMUS, ou uma indicação de alguém da cena que já usou o app para lançar música.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 20,
+  "price_too_expensive": 35
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu escrevo com meus parceiros e a gente se entende no grupo e no áudio; o que a folha assinada resolve é um problema que eu tenho só quando uma música já vai sair. Não pago agora por algo que só vou precisar no lançamento.",
+  "objection": "Não sei se a associação ou a distribuidora aceita essa folha como prova, e a própria página diz que não substitui o registro oficial. Se eu ainda preciso fazer o registro de qualquer jeito, pagar por isso parece dinheiro a mais.",
+  "would_change_my_mind": "Ver uma folha de divisão de verdade, de uma música que já saiu, aceita pela UBC ou pela minha distribuidora, e saber que um dos parceiros não consegue sumir com a versão assinada.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 20
+}

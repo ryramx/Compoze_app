@@ -1,0 +1,13 @@
+{
+  "id": "P075",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "trust",
+  "reason": "Divido canção com parceiro quase todo mês, então a folha de divisão de R$ 9,90 faz sentido se a música for mesmo sair. Só pago no dia em que tiver uma canção pronta para levar à associação ou à editora, não antes.",
+  "objection": "Essa folha vai ser aceita pela UBC ou pela ABRAMUS quando eu levar? Um documento feito por um desenvolvedor independente pode não valer nada na hora do registro, e aí o dinheiro foi embora.",
+  "would_change_my_mind": "A UBC, a ABRAMUS ou a editora confirmar por escrito que aceita a folha como documento de divisão de coautoria.",
+  "price_too_cheap": 3,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

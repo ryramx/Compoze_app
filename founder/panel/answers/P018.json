@@ -1,0 +1,13 @@
+{
+  "id": "P018",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Quando uma canção sai do caderno e vai para editora ou distribuidora, a divisão tem que estar no papel com a assinatura de todo mundo, senão briga depois. R$ 9,90 uma vez por canção é pouco perto do que está em jogo, então eu pagaria na hora que uma música fosse de fato sair.",
+  "objection": "Não sei se a UBC ou a ABRAMUS aceitam esse PDF de verdade. A própria oferta diz que não substitui o registro oficial, então fico com medo de pagar e ter que refazer tudo no papel. E meus parceiros ainda precisam aceitar, mesmo sem instalar nada.",
+  "would_change_my_mind": "Se eu confirmasse com a associação ou com uma editora que aceitam a folha de divisão do Compoze como documento de apoio.",
+  "price_too_cheap": 2.00,
+  "price_cheap": 5.00,
+  "price_expensive": 19.90,
+  "price_too_expensive": 39.90
+}

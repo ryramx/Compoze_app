@@ -1,0 +1,13 @@
+{
+  "id": "P004",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Escrever já é de graça e a banda ensaia num estúdio que eu pago por hora, então qualquer gasto fixo pesa. R$ 9,90 por mês é mais uma assinatura num mês apertado, e a folha de divisão só me faria falta quando eu fosse registrar uma música de verdade, o que ainda não aconteceu.",
+  "objection": "Não sei se preciso de uma folha de divisão assinada agora. Eu já escrevo com meus parceiros no caderno e no áudio, e não tenho certeza de que a associação ou a editora aceitaria esse PDF como prova de nada além do que o próprio app diz.",
+  "would_change_my_mind": "Se eu já tivesse uma música gravada ou prestes a ser registrada com parceiros e precisasse da folha de divisão na mão naquela semana, eu assinaria um mês para resolver e cancelaria depois.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 8,
+  "price_too_expensive": 12
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Escrever é de graça e eu já escrevo no bloco de notas sem pagar nada. A folha só me faria sentido no dia em que uma música fosse sair, e nesse mês eu teria que decidir se R$ 9,90 num mês apertado valem um PDF, sem saber se a associação ou a editora vão aceitar mesmo.",
+  "objection": "Não substitui o registro oficial, então eu ainda teria que ir atrás da UBC ou da ABRAMUS, e não sei se um PDF feito fora delas pesa alguma coisa para elas.",
+  "would_change_my_mind": "Um parceiro meu precisar da folha para fechar uma gravação ou um lançamento com prazo, e eu ver que a associação ou a distribuidora aceita o documento.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P097",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu uso só app grátis e nunca paguei assinatura de app além de streaming. Escrever o Compoze é grátis e o caderno e o WhatsApp já dão conta do dia a dia; a folha de divisão só faz sentido quando uma música sair de verdade, e eu ainda não tenho nenhuma saindo agora.",
+  "objection": "Não sei se a UBC ou a editora aceitam um PDF feito por um app pequeno, e R$ 9,90 por um documento que eu não preciso esse mês me parece gasto à toa.",
+  "would_change_my_mind": "Se eu fechar uma música com meu parceiro para lançar no streaming e a associação ou a distribuidora pedir a divisão assinada, eu pago na hora.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

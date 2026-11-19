@@ -1,0 +1,13 @@
+{
+  "id": "P087",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Um hash com data não tem valor de registro para mim. Se eu for levar uma divisão a alguém, é à Biblioteca Nacional ou à associação, e isso o Compoze não substitui. Além disso, neste mês nenhuma canção minha está saindo do caderno, então não tenho o que pagar agora.",
+  "objection": "Que a folha de divisão do Compoze não seja aceita pela UBC ou ABRAMUS como prova de autoria, e eu acabe pagando R$ 9,90 por um papel que não serve para nada na hora que importa.",
+  "would_change_my_mind": "Uma confirmação clara da associação ou de uma editora de que aceitam a folha do Compoze como documento de divisão, junto com a canção saindo para gravação ou streaming.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 19,
+  "price_too_expensive": 30
+}

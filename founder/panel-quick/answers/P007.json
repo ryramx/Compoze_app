@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo no bloco de notas e mando áudio no WhatsApp com meus parceiros e funciona. Não tenho o hábito de pagar app nenhum além do streaming, e não vejo o que o Plus resolve que o grátis não resolve no meu dia a dia.",
+  "objection": "Eu não sei se a divisão de coautoria e o hash têm valor de verdade pra registro. A descrição diz que não substitui o registro na Biblioteca Nacional ou na associação, então eu ainda teria que fazer o registro de qualquer jeito.",
+  "would_change_my_mind": "Se eu batesse no limite do grátis de forma recorrente, tipo estourar os 30 min de memos ou os 3 registros por mês, e os meus parceiros já estivessem todos no app.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 12,
+  "price_too_expensive": 20
+}

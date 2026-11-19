@@ -1,0 +1,13 @@
+{
+  "id": "P062",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "A divisão de coautoria me interessa de verdade, já tive briga por percentual. Mas não tenho música saindo esse mês, e um PDF de app novo sem o aval da UBC ou da ABRAMUS é coisa que eu desconfio antes de pagar. Compro quando uma canção estiver pronta para lançar.",
+  "objection": "Não sei se a UBC ou a ABRAMUS aceita esse PDF. 'Não substitui o registro oficial' me deixa com a pulga atrás da orelha: se ele não serve para o registro, o que exatamente eu estou comprando?",
+  "would_change_my_mind": "Uma confirmação clara de que a associação ou a distribuidora aceita a folha, ou um exemplo real de folha aceita por elas, mostrado antes do pagamento.",
+  "price_too_cheap": 2,
+  "price_cheap": 6,
+  "price_expensive": 19,
+  "price_too_expensive": 30
+}

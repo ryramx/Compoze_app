@@ -1,0 +1,13 @@
+{
+  "id": "P019",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Quando uma música minha vai pra mão de outro compositor ou pra editora, papel assinado por todo mundo é o mínimo. R$ 9,90 uma vez, só na hora que a música vai sair do caderno, eu pago sem pensar.",
+  "objection": "Não sei se a UBC ou a ABRAMUS aceitam uma folha feita num app de um desenvolvedor independente. Se não substitui o registro oficial, eu ainda vou ter que fazer o registro de qualquer jeito e a folha vira mais um papel.",
+  "would_change_my_mind": "Ver a folha aceita por UBC ou ABRAMUS e por editora de verdade, com algum exemplo ou depoimento de quem já levou.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 20,
+  "price_too_expensive": 40
+}

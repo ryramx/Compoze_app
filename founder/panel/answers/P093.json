@@ -1,0 +1,13 @@
+{
+  "id": "P093",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Eu já escrevo no bloco de notas, no caderno e em áudio de WhatsApp, e o grátis dá conta do dia a dia. Pagar R$ 9,90 por uma folha de divisão só faria sentido quando uma canção fosse de fato para a UBC ou ABRAMUS, e numa semana normal isso não acontece.",
+  "objection": "Não sei se a folha paga é mesmo necessária. Se eu montar a divisão num modelo simples e levar para a associação, o que o Compoze adiciona que eu realmente não consigo fazer sozinha?",
+  "would_change_my_mind": "Uma canção minha prestes a ser registrada, com parceiros que não moram perto, e a associação ou a editora pedindo um documento com aceite de cada um. Aí eu pagaria a folha na hora.",
+  "price_too_cheap": 1,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 30
+}

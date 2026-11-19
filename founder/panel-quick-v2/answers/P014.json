@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Eu escrevo com parceiros pelo WhatsApp e no caderno e isso ainda funciona; a versão grátis já cobre escrever junto e exportar. A folha de divisão só me faria falta na hora de registrar uma música na UBC ou ABRAMUS, e isso não acontece toda semana.",
+  "objection": "Não vejo o que o Plus resolve que o grátis não resolve. Se a folha de divisão é só um PDF assinado, consigo fazer um papel com as assinaturas dos parceiros de outro jeito.",
+  "would_change_my_mind": "Se a associação ou a editora passar a exigir a folha assinada pela plataforma, com histórico de versões, para aceitar o registro de uma música.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 30
+}

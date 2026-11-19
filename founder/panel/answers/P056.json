@@ -1,0 +1,13 @@
+{
+  "id": "P056",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu escrevo de graça no bloco de notas e nunca paguei app além de streaming. Pagar R$ 9,90 por um PDF de divisão, quando ainda nem tenho uma música para lançar com parceiro, não faz sentido para o meu mês.",
+  "objection": "Não sei se a UBC ou a ABRAMUS aceitam essa folha de divisão de verdade, e o texto diz que não substitui o registro oficial. Pago e fico com um papel que talvez não resolva nada.",
+  "would_change_my_mind": "Uma música minha saindo no streaming com parceiro e uma prova de que a associação aceita a folha, ou o parceiro pedindo divisão por escrito antes de lançar.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 22
+}

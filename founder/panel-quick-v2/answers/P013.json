@@ -1,0 +1,13 @@
+{
+  "id": "P013",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu uso o gratuito pra escrever com meu parceiro e isso já resolve o dia a dia. O Plus promete um PDF com 'código de integridade', mas a minha primeira reação é que hash não vale nada: quem registra a música de verdade é a Biblioteca Nacional ou a associação, e não tenho certeza de que a associação aceita esse papel como base.",
+  "objection": "Não sei se a folha de divisão do Compoze é aceita pela UBC ou pela ABRAMUS. Se ela não tiver valor de registro, eu estaria pagando por um PDF bonito.",
+  "would_change_my_mind": "Uma associação ou editora dizer por escrito que aceita essa folha assinada como prova de divisão de coautoria, ou um colega que já levou uma música registrada com ela.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 9.9,
+  "price_too_expensive": 15
+}

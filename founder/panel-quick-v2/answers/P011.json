@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu até acho útil a folha de divisão pra quando a gente for lançar uma música, mas eu já tentei Notion, Google Docs e pasta e larguei todos. Não vou pagar por uma coisa que eu sei que vou abrir duas vezes e esquecer.",
+  "objection": "Que eu não vá manter o hábito de escrever ali. Minhas ideias saem no celular dirigindo ou no ônibus, e se eu não colocar tudo no mesmo lugar sem esforço, o app vira mais uma aba morta.",
+  "would_change_my_mind": "Se a minha dupla já estiver usando e a gente tiver que fechar a divisão de uma música que está para sair no streaming, aí eu pago na hora.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P042",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu entendo a ideia de provar a divisão com a associação, mas a primeira coisa que penso é: minhas letras inéditas ficando na nuvem de outra pessoa. Eu testo muito app e largo a maioria, e nesse eu não sei se confio o suficiente para colocar uma canção que ainda não saiu.",
+  "objection": "Não quero minhas letras inéditas na nuvem de alguém. Mesmo com a promessa de que só os coautores veem e que eu exporto tudo, eu preciso sentir segurança antes de pagar.",
+  "would_change_my_mind": "Uma canção minha já ter saído ou estar prestes a sair, e eu precisar da folha para a UBC ou a editora; aí eu pagaria os R$ 9,90 sem pensar muito. Também ajudaria ver a política de dados e a exportação funcionando antes de eu colocar uma letra inédita lá.",
+  "price_too_cheap": 2,
+  "price_cheap": 5,
+  "price_expensive": 15,
+  "price_too_expensive": 25
+}
